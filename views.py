@@ -1,6 +1,6 @@
 from collections import namedtuple
 from werkzeug.datastructures import MultiDict
-from flask import flash, render_template, request, redirect, jsonify, url_for
+from flask import abort, flash, render_template, request, redirect, jsonify, url_for, Markup
 from flask_mail import Message
 from flask_login import login_user
 from flask_login import logout_user
@@ -37,7 +37,7 @@ class LoginForm(Form):
 class RegistrationForm(ModelForm):
     class Meta:
         model = User
-        exclude = ['paid']
+        exclude = ['paid', 'admin']
 
     password = PasswordField('Password', validators=[Length(min=8), EqualTo('confirm', message='The passwords do not match.')])
     confirm = PasswordField('Confirm Password')
@@ -153,7 +153,7 @@ class ChampionForm(Form):
 def main():
 
     if not current_user.paid:
-        flash("You have not paid yet. If you don't pay until the beginning of the first match, you will be scratched.")
+        flash(Markup("You have not paid yet. Please contact <a href='mailto:euro2016@schosel.net'>euro2016@schosel.net</a> for payment options. If you don't pay until the beginning of the first match, you will be scratched."))
 
     if request.method == 'GET':
 
@@ -248,6 +248,7 @@ class UserForm(ModelForm):
         exclude = ['paid', 'password']
 
 @app.route('/profile', methods=['GET', 'POST'])
+@login_required
 def profile():
 
     form = UserForm(obj=current_user)
@@ -259,3 +260,26 @@ def profile():
         return redirect('main')
 
     return render_template('edit_profile.html', form=form)
+
+@app.route('/confirm_payment/<int:user_id>')
+@login_required
+def confirm_payment(user_id):
+
+    if not current_user.admin:
+        abort(403)
+
+    user = db_session.query(User).filter(User.id == user_id).one()
+
+    user.paid = True
+
+    body = """Dear {},
+
+    your payment has been confirmed.
+
+    Happy betting!""".format(user.name)
+
+    send_mail(Message('Payment confirmed',
+              body=body,
+              recipients=[user.email]))
+
+    return render_template('user.html', user=user)

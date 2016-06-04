@@ -26,7 +26,7 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 #Establish database connection
-engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'], convert_unicode=True)
+engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'], convert_unicode=True, pool_recycle=app.config['SQLALCHEMY_POOL_RECYCLE'])
 db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
 Base = declarative_base()
 Base.query = db_session.query_property()

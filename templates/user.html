@@ -4,6 +4,12 @@
 <div class="wrapper">
 <h1>{{ user.name }}</h1>
 
+{% if current_user.admin and not user.paid %}
+
+<a href='{{ url_for('confirm_payment', user_id=user.id) }}'>Confirm Payment</a>
+
+{% endif %}
+
 {% for bet in user.bets %}
 
 {% if not bet.match.editable and bet.valid %}

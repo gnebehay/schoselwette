@@ -12,7 +12,8 @@ class User(Base):
     first_name = Column(String(64), nullable=False, info={'label': 'First Name'})
     last_name = Column(String(64), nullable=False, info={'label': 'Last Name'})
     password = Column(String(64), nullable=False)
-    paid = Column(Boolean, nullable=False)
+    paid = Column(Boolean, nullable=False, default=False)
+    admin = Column(Boolean, nullable=False, default=False)
     champion_id = Column(Integer, ForeignKey('teams.id'), nullable=True)
 
     champion = relationship('Team')
