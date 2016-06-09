@@ -2,9 +2,11 @@
 
 {% block content %}
 <div class="wrapper">
-<h1>{{ match.team1.name }} - {{ match.team2.name }}</h1>
+<h1>{{ match.team1.name }} - {{ match.team2.name }} : {{ match.outcome }}</h1>
 
 {% if not match.editable %}
+
+<div class="chart"></div>
 
 {% for bet in match.bets %}
 
@@ -18,4 +20,51 @@
 
 {% endif %}
 </div>
+
+<script>
+
+var data = [];
+{% for bet in match.bets %}
+	{% if bet.valid %}
+	data.push({
+        points: {{ bet.points }}, //{{ '%0.2f' | format(bet.points)|tojson|safe }},
+        user: {{ bet.user.name|tojson|safe }},
+		id: {{ bet.user.id|tojson|safe }},
+		bet: {{ bet.outcome|tojson|safe }},
+		link: "/user/{{ bet.user.id|tojson|safe }}"
+    });
+	
+	{% endif %}
+{% endfor %}
+data.sort(function(a, b){return b.points-a.points});
+
+var x = d3.scale.linear()
+	.domain([0, d3.max(data, function(d) { return d.points; }) ])
+   	.range([50, 300]);
+
+	var chart = d3.select(".chart").selectAll("div").data(data).enter().append("div").attr("class","barwrapper");
+
+	chart.append("a")
+		.attr("href", function(d) { return d.link; } )
+		.html(function(d) { return d.user;  });	
+	
+	chart.append("span").attr("class","bet")
+		.text(function(d) { return d.bet; });
+		
+	chart.append("div").attr("class","pointwrapper")
+		.append("div").attr("class",
+			function(d) {
+				if ( d.id === {{ current_user.id }}) {
+					var itsme = " itsme" }
+	        	else { var itsme = "" }
+	    		if ( d.points > 0) { return "winner" + itsme }
+	        	else { return "loser"  + itsme }
+	     	;})			
+			.style("width", function(d) { return x(d.points) + "px"; })
+			.text(function(d) { return d.points;  });
+	
+
+</script>
+
+
 {% endblock %}

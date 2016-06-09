@@ -4,6 +4,8 @@
 <div class="wrapper">
   <h1>Scoreboard</h1>
 
+<div class="chart"></div>
+
   <table>
     <thead>
       <th>Rank</th>
@@ -25,4 +27,51 @@
     </tbody>
   <table>
 </div>
+
+<script>
+
+var data = [];
+var data = [];
+{% for user in scoreboard %}
+		var num = Math.round({{user.points|tojson|safe }} * 100) / 100;
+		data.push({
+	        points: num,
+	        user: {{ user.name|tojson|safe }},
+			id: {{ user.id|tojson|safe }},
+			link: "/user/{{ user.id|tojson|safe }}"
+	    });
+{% endfor %}
+data.sort(function(a, b){return b-a});
+
+var x = d3.scale.linear()
+	.domain([0, d3.max(data, function(d) { return d.points; }) ])
+   	.range([0, 300]);
+
+	var chart = d3.select(".chart").selectAll("div").data(data).enter().append("div").attr("class","barwrapper");
+	
+	chart.append("span").attr("class","rank")
+	.text((function(d,i) { return (i+1);  }));
+
+
+	chart.append("a")
+		.attr("href", function(d) { return d.link; } )
+		.html(function(d) { return d.user;  });	
+		
+	chart.append("div").attr("class","pointwrapper")
+		.append("div").attr("class",
+			function(d, i) { 
+				if ( d.id === {{ current_user.id }}) {
+					var itsme = " itsme" }
+	        	else { var itsme = "" }
+	        	if (i == 0) { return "first" + itsme }
+	        	if (i == 1) { return "second" + itsme }
+	        	if (i == 2) { return "third" + itsme }
+	        	else { return "last" + itsme }
+			})
+			.style("width", function(d) { return x(d.points) + "px"; })
+			.text(function(d) { return d.points;  });
+	
+
+</script>
+
 {% endblock %}

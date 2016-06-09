@@ -1,0 +1,68 @@
+.chart {
+	margin-bottom: 50px;
+	width: 100%;
+	display: inline-block;	
+}
+
+.chart span.rank, span.bet {
+	display: inline-block;	
+	min-width:50px;
+}
+
+.chart a {
+	display: inline-block;	
+	min-width:150px;
+}
+
+.chart div.pointwrapper {
+	display: inline-block;	
+	min-width:300px;
+}
+
+.chart a.game {
+	display: inline-block;	
+	min-width:200px;
+}
+
+.chart div.winner, div.loser,
+ div.first, div.second, div.third, div.last {
+  	/*font: 10px sans-serif;*/
+ 	font-size: 1.5rem;
+  	background-color: white;
+  	text-align: right;
+  	padding: 3px;
+	padding-right: 20px;
+  	margin: 1px;
+	display: inline-block;	
+}
+
+.chart div.itsme {
+	border-style: solid;
+	border-width: 2px;
+	border-color: black;
+}
+
+.chart div.winner {
+ 	 background-color: steelblue;
+}
+
+.chart div.loser {
+  background-color: tomato;
+}
+
+.chart div.first {
+  background-color: mediumseagreen;
+}
+
+.chart div.second {
+  background-color: royalblue;
+}
+
+.chart div.third {
+  background-color: cornflowerblue;
+}
+
+.chart div.last {
+  background-color: gainsboro;
+}
+

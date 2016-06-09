@@ -4,6 +4,8 @@
 <div class="wrapper">
 <h1>{{ user.name }}</h1>
 
+<div class="chart"></div>
+
 {% for bet in user.bets %}
 
 {% if not bet.match.editable and bet.valid %}
@@ -14,4 +16,53 @@
 
 {% endfor %}
 </div>
+
+<script>
+
+var data = [];
+var data = [];
+{% for bet in user.bets %}
+	{% if not bet.match.editable and bet.valid %}
+		var num = Math.round({{bet.points|tojson|safe }} * 100) / 100;
+		data.push({
+	        points: num,
+	        match: {{ bet.match.team1.name|tojson|safe }} + " - " + {{ bet.match.team2.name|tojson|safe }},
+			matchid: "/match/{{ bet.match.id|tojson|safe }}",
+			outcome: {{ bet.outcome|tojson|safe }},
+			bet: {{ bet.match.outcome|tojson|safe }},
+			odds1: {{ '%0.2f' | format(bet.match.odds['1'])|tojson|safe }},
+			oddsX: {{ '%0.2f' | format(bet.match.odds['X'])|tojson|safe }},
+			odds2: {{ '%0.2f' | format(bet.match.odds['2'])|tojson|safe }},
+	    });
+    {% endif %}
+{% endfor %}
+data.sort(function(a, b){return b-a});
+
+var x = d3.scale.linear()
+	.domain([0, d3.max(data, function(d) { return d.points; }) ])
+   	.range([50, 200]);
+
+	var chart = d3.select(".chart").selectAll("div").data(data).enter().append("div").attr("class","barwrapper");
+
+	chart.append("a").attr("class","game")
+		.attr("href", function(d) { return d.matchid; } )
+		.html(function(d) { return d.match;  });
+		
+	chart.append("span").attr("class","bet")
+		.text((function(d) { 
+        	var tip = d.outcome.concat(" - ",d.bet);
+			return tip;  }));	
+		
+	chart.append("div").attr("class","pointwrapper")
+			.append("div").attr("class",
+			function(d) {
+	    		if ( d.points > 0) { return "winner"}
+	        	else { return "loser" }
+	     	;})
+			.style("width", function(d) { return x(d.points) + "px"; })
+			.text(function(d) { return d.points;  });
+
+
+</script>
+
 {% endblock %}
