@@ -1,7 +1,7 @@
 #!/bin/bash
 
 pyvenv venv
-venv/bin/pip3 install flask
+venv/bin/pip3 install flask==0.10
 venv/bin/pip3 install flask-mail
 venv/bin/pip3 install flask-login
 venv/bin/pip3 install flask-wtf

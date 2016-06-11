@@ -95,6 +95,7 @@ class Match(Base):
     team2_id = Column(Integer, ForeignKey('teams.id'), nullable=False)
     date = Column(DateTime, nullable=False)
     stage = Column(Stage)
+    #TODO: non-negative constraint
     goals_team1 = Column(Integer)
     goals_team2 = Column(Integer)
 
@@ -130,6 +131,8 @@ class Match(Base):
         for o in counter.keys():
             counter[o] = n / counter[o] #n is always greater than counter
 
+        print(counter)
+
         return counter
 
     def __repr__(self):
@@ -152,7 +155,7 @@ class Bet(Base):
 
     @property
     def valid(self):
-        return self.outcome is not None
+        return self.outcome is not None and self.user.paid
 
     @property
     def points(self):

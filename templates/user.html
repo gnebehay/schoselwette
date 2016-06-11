@@ -10,14 +10,35 @@
 
 {% endif %}
 
+{{ '%0.2f' | format(user.points) }} points
+
+<table>
+  <thead>
+    <th>Match</th>
+    <th>Bet</th>
+    <th>Result</th>
+    <th>Points</th>
+  </thead>
+  <tbody>
+
 {% for bet in user.bets %}
 
 {% if not bet.match.editable and bet.valid %}
 
-<a href='/match/{{ bet.match.id }}'>{{ bet.match.team1.name }} - {{ bet.match.team2.name }}</a> {{ bet.outcome }} {{ bet.match.outcome if bet.match.outcome is not none }} {{ bet.points }}<br>
+<tr>
+
+<td><a href='/match/{{ bet.match.id }}'>{{ bet.match.team1.name }} - {{ bet.match.team2.name }}</a></td>
+<td>{{ bet.outcome }}</td>
+<td>{{ bet.match.goals_team1 if bet.match.outcome is not none }} - {{ bet.match.goals_team2 if bet.match.outcome is not none }}</td>
+<td>{{ '%0.2f' | format(bet.points) }}</td>
+
+</tr>
 
 {% endif %}
 
+
 {% endfor %}
+  <tbody>
+</table>
 </div>
 {% endblock %}

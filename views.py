@@ -216,7 +216,7 @@ def main():
 @login_required
 def scoreboard():
 
-    users = db_session.query(User)
+    users = db_session.query(User).filter(User.paid)
 
     users_sorted = sorted(users, key=lambda x: x.points, reverse=True)
 
@@ -230,13 +230,24 @@ def user(user_id):
 
     return render_template('user.html', user=user)
 
-@app.route('/match/<int:match_id>')
+class MatchForm(ModelForm):
+    class Meta:
+        model = Match
+        # TODO: How to include instead of exclude?
+        exclude = ['date', 'stage']
+
+@app.route('/match/<int:match_id>', methods=['GET', 'POST'])
 @login_required
 def match(match_id):
 
     match = db_session.query(Match).filter(Match.id == match_id).one()
 
-    return render_template('match.html', match=match)
+    form = MatchForm(obj=match)
+
+    if request.method == 'POST' and form.validate():
+        form.populate_obj(match)
+
+    return render_template('match.html', match=match, form=form)
 
 @app.route('/about')
 def about():
@@ -274,9 +285,9 @@ def confirm_payment(user_id):
 
     body = """Dear {},
 
-    your payment has been confirmed.
+your payment has been confirmed.
 
-    Happy betting!""".format(user.name)
+Happy betting!""".format(user.name)
 
     send_mail(Message('Payment confirmed',
               body=body,
