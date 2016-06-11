@@ -9,6 +9,8 @@
 {{ match.goals_team1 if match.outcome is not none }} -
 {{ match.goals_team2 if match.outcome is not none }}
 
+<br>
+
 {% if current_user.admin %}
 
 <form action="{{ url_for('match', match_id=match.id) }}" method="post" name="main">
@@ -19,6 +21,8 @@
 </form>
 
 {% endif %}
+
+Odds: {{ '%0.2f' | format(match.odds['1']) }} {{ '%0.2f' | format(match.odds['X']) }} {{'%0.2f'| format(match.odds['2']) }}
 
 <table>
   <thead>
@@ -34,7 +38,7 @@
 
 <tr>
 <td><a href='/user/{{ bet.user.id }}'>{{ bet.user.name }}</a></td>
-<td>{{ bet.outcome }}</td>
+<td>{{ bet.outcome }} {{ '*' if bet.supertip }}</td>
 <td>{{ '%0.2f' | format(bet.points) }}</td>
 </tr>
 
