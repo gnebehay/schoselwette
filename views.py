@@ -1,6 +1,6 @@
 from collections import namedtuple
 from werkzeug.datastructures import MultiDict
-from flask import abort, flash, render_template, request, redirect, jsonify, url_for, Markup
+from flask import abort, flash, render_template, request, redirect, jsonify, url_for, session, Markup
 from flask_mail import Message
 from flask_login import login_user
 from flask_login import logout_user
@@ -291,3 +291,8 @@ Happy betting!""".format(user.name)
               recipients=[user.email]))
 
     return render_template('user.html', user=user)
+
+@app.route('/chat')
+def chat():
+    session['name'] = current_user.name
+    return render_template('chat.html', name=current_user.name, room='room')

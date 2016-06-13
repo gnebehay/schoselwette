@@ -3,8 +3,8 @@ from flask_wtf import Form
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from flask.ext.socketio import SocketIO
 from wtforms_alchemy import model_form_factory
-
 
 from flask_wtf.csrf import CsrfProtect
 from flask_login import LoginManager
@@ -12,7 +12,9 @@ from flask_login import LoginManager
 from flask_mail import Mail
 
 app = Flask(__name__)
+app.debug = True
 mail = Mail(app)
+socketio = SocketIO()
 
 #Enable Csrf protection
 CsrfProtect(app)
@@ -78,3 +80,7 @@ def load_user(user_id):
 
     q = db_session.query(User).filter(User.id == user_id)
     return q.one_or_none()
+
+import views, events
+
+socketio.init_app(app)

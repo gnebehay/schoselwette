@@ -8,3 +8,7 @@ venv/bin/pip3 install flask-wtf
 venv/bin/pip3 install parse
 venv/bin/pip3 install sqlalchemy
 venv/bin/pip3 install wtforms-alchemy
+venv/bin/pip3 install eventlet==0.17.4
+venv/bin/pip3 install Flask-SocketIO==1.0
+venv/bin/pip3 install python-engineio==0.7.1
+venv/bin/pip3 install python-socketio==0.6.1

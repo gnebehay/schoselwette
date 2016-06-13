@@ -1,6 +1,6 @@
 #!venv/bin/python3
 
-from wette import app
+from wette import app, socketio
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(app)
