@@ -78,5 +78,3 @@ def load_user(user_id):
 
     q = db_session.query(User).filter(User.id == user_id)
     return q.one_or_none()
-
-import views, models

@@ -39,6 +39,10 @@ class User(Base):
             bet.match = match
 
     @property
+    def bets_sorted(self):
+        return sorted(self.bets, key=lambda x: x.match.date)
+
+    @property
     def supertips(self):
         return len([bet for bet in self.bets if bet.supertip])
 
@@ -131,9 +135,11 @@ class Match(Base):
         for o in counter.keys():
             counter[o] = n / counter[o] #n is always greater than counter
 
-        print(counter)
-
         return counter
+
+    @property
+    def bets_sorted(self):
+        return sorted(self.bets, key=lambda x: (x.points, x.outcome if x.outcome is not None else '1', x.supertip), reverse=True)
 
     def __repr__(self):
         return '<Match: id={}, team1={}, team2={}, date={}, stage={}, goals_team1={}, goals_team2={}>'.format(

@@ -155,22 +155,19 @@ def main():
     if not current_user.paid:
         flash(Markup("You have not paid yet. Please contact <a href='mailto:euro2016@schosel.net'>euro2016@schosel.net</a> for payment options. If you don't pay until the beginning of the first match, you will be scratched."))
 
-    if request.method == 'GET':
-
-        form = ChampionForm(obj=current_user)
-        #TODO: Where to put this?
-        form.champion_id.choices=[(None, '')] + [(t.id, t.name) for t in db_session.query(Team).order_by('name')]
+    form = ChampionForm(obj=current_user)
+    #TODO: Where to put this?
+    form.champion_id.choices=[(None, '')] + [(t.id, t.name) for t in db_session.query(Team).order_by('name')]
 
     if request.method == 'POST':
 
-        form = ChampionForm()
-        #TODO: Where to put this?
-        form.champion_id.choices=[(None, '')] + [(t.id, t.name) for t in db_session.query(Team).order_by('name')]
+        #This is important, otherwise the tip gets lost.
+        if current_user.champion_editable:
 
-        #This is just for the champion tip
-        if form.validate():
+            #This is just for the champion tip
+            if form.validate():
 
-            form.populate_obj(current_user)
+                form.populate_obj(current_user)
 
         #We only deal with editable bets here so that we do not by accident change old data
         editable_bets = [bet for bet in current_user.bets if bet.match.editable]

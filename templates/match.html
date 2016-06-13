@@ -32,7 +32,7 @@ Odds: {{ '%0.2f' | format(match.odds['1']) }} {{ '%0.2f' | format(match.odds['X'
   </thead>
     <tbody>
 
-{% for bet in match.bets %}
+{% for bet in match.bets_sorted %}
 
 {% if bet.valid %}
 

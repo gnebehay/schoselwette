@@ -22,7 +22,7 @@
   </thead>
   <tbody>
 
-{% for bet in user.bets %}
+{% for bet in user.bets_sorted %}
 
 {% if not bet.match.editable and bet.valid %}
 
