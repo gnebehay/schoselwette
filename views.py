@@ -10,6 +10,8 @@ from wette import app, db_session, ModelForm, mail
 
 from models import Bet, User, Match, Outcome, Team
 
+import models
+
 from wtforms.fields import BooleanField, TextField, DecimalField, PasswordField, SelectField, FormField, FieldList, RadioField, HiddenField
 from wtforms.fields.html5 import EmailField
 from wtforms.validators import Optional, Required, EqualTo, Length
@@ -292,7 +294,12 @@ Happy betting!""".format(user.name)
 
     return render_template('user.html', user=user)
 
+import datetime
+
 @app.route('/chat')
+@login_required
 def chat():
-    session['name'] = current_user.name
-    return render_template('chat.html', name=current_user.name, room='room')
+
+    messages = db_session.query(models.Message).filter(models.Message.date > datetime.date.today())
+
+    return render_template('chat.html', messages = messages)

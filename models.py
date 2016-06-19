@@ -185,3 +185,13 @@ class Bet(Base):
     def __repr__(self):
         return '<Bet: id={}, user={}, team1={}, team2={}, stage={}, supertip={}, outcome={}>'.format(
             self.id, self.user.name, self.match.team1.name, self.match.team2.name, self.match.stage, self.supertip, self.outcome)
+
+class Message(Base):
+    __tablename__ = 'chat'
+
+    id = Column(Integer, primary_key=True)
+    body = Column(String(2048), nullable=False)
+    date = Column(DateTime, nullable=False)
+    user_id = Column(Integer, ForeignKey('users.id'))
+
+    user = relationship('User')
