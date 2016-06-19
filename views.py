@@ -1,6 +1,6 @@
 from collections import namedtuple
 from werkzeug.datastructures import MultiDict
-from flask import flash, render_template, request, redirect, jsonify, url_for
+from flask import abort, flash, render_template, request, redirect, jsonify, url_for, session, Markup
 from flask_mail import Message
 from flask_login import login_user
 from flask_login import logout_user
@@ -9,6 +9,8 @@ from flask_login import login_required
 from wette import app, db_session, ModelForm, mail
 
 from models import Bet, User, Match, Outcome, Team
+
+import models
 
 from wtforms.fields import BooleanField, TextField, DecimalField, PasswordField, SelectField, FormField, FieldList, RadioField, HiddenField
 from wtforms.fields.html5 import EmailField
@@ -37,7 +39,7 @@ class LoginForm(Form):
 class RegistrationForm(ModelForm):
     class Meta:
         model = User
-        exclude = ['paid']
+        exclude = ['paid', 'admin']
 
     password = PasswordField('Password', validators=[Length(min=8), EqualTo('confirm', message='The passwords do not match.')])
     confirm = PasswordField('Confirm Password')
@@ -153,24 +155,21 @@ class ChampionForm(Form):
 def main():
 
     if not current_user.paid:
-        flash("You have not paid yet. If you don't pay until the beginning of the first match, you will be scratched.")
+        flash(Markup("You have not paid yet. Please contact <a href='mailto:euro2016@schosel.net'>euro2016@schosel.net</a> for payment options. If you don't pay until the beginning of the first match, you will be scratched."))
 
-    if request.method == 'GET':
-
-        form = ChampionForm(obj=current_user)
-        #TODO: Where to put this?
-        form.champion_id.choices=[(None, '')] + [(t.id, t.name) for t in db_session.query(Team).order_by('name')]
+    form = ChampionForm(obj=current_user)
+    #TODO: Where to put this?
+    form.champion_id.choices=[(None, '')] + [(t.id, t.name) for t in db_session.query(Team).order_by('name')]
 
     if request.method == 'POST':
 
-        form = ChampionForm()
-        #TODO: Where to put this?
-        form.champion_id.choices=[(None, '')] + [(t.id, t.name) for t in db_session.query(Team).order_by('name')]
+        #This is important, otherwise the tip gets lost.
+        if current_user.champion_editable:
 
-        #This is just for the champion tip
-        if form.validate():
+            #This is just for the champion tip
+            if form.validate():
 
-            form.populate_obj(current_user)
+                form.populate_obj(current_user)
 
         #We only deal with editable bets here so that we do not by accident change old data
         editable_bets = [bet for bet in current_user.bets if bet.match.editable]
@@ -216,7 +215,7 @@ def main():
 @login_required
 def scoreboard():
 
-    users = db_session.query(User)
+    users = db_session.query(User).filter(User.paid)
 
     users_sorted = sorted(users, key=lambda x: x.points, reverse=True)
 
@@ -230,13 +229,24 @@ def user(user_id):
 
     return render_template('user.html', user=user)
 
-@app.route('/match/<int:match_id>')
+class MatchForm(ModelForm):
+    class Meta:
+        model = Match
+        # TODO: How to include instead of exclude?
+        exclude = ['date', 'stage']
+
+@app.route('/match/<int:match_id>', methods=['GET', 'POST'])
 @login_required
 def match(match_id):
 
     match = db_session.query(Match).filter(Match.id == match_id).one()
 
-    return render_template('match.html', match=match)
+    form = MatchForm(obj=match)
+
+    if request.method == 'POST' and form.validate():
+        form.populate_obj(match)
+
+    return render_template('match.html', match=match, form=form)
 
 @app.route('/about')
 def about():
@@ -248,6 +258,7 @@ class UserForm(ModelForm):
         exclude = ['paid', 'password']
 
 @app.route('/profile', methods=['GET', 'POST'])
+@login_required
 def profile():
 
     form = UserForm(obj=current_user)
@@ -259,3 +270,36 @@ def profile():
         return redirect('main')
 
     return render_template('edit_profile.html', form=form)
+
+@app.route('/confirm_payment/<int:user_id>')
+@login_required
+def confirm_payment(user_id):
+
+    if not current_user.admin:
+        abort(403)
+
+    user = db_session.query(User).filter(User.id == user_id).one()
+
+    user.paid = True
+
+    body = """Dear {},
+
+your payment has been confirmed.
+
+Happy betting!""".format(user.name)
+
+    send_mail(Message('Payment confirmed',
+              body=body,
+              recipients=[user.email]))
+
+    return render_template('user.html', user=user)
+
+import datetime
+
+@app.route('/chat')
+@login_required
+def chat():
+
+    messages = db_session.query(models.Message).filter(models.Message.date > datetime.date.today())
+
+    return render_template('chat.html', messages = messages)

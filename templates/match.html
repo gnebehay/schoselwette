@@ -6,15 +6,47 @@
 
 {% if not match.editable %}
 
-{% for bet in match.bets %}
+{{ match.goals_team1 if match.outcome is not none }} -
+{{ match.goals_team2 if match.outcome is not none }}
+
+<br>
+
+{% if current_user.admin %}
+
+<form action="{{ url_for('match', match_id=match.id) }}" method="post" name="main">
+{{ form.hidden_tag() }}
+{{ render_field(form.goals_team1) }}
+{{ render_field(form.goals_team2) }}
+  <input type="submit" value="Save">
+</form>
+
+{% endif %}
+
+Odds: {{ '%0.2f' | format(match.odds['1']) }} {{ '%0.2f' | format(match.odds['X']) }} {{'%0.2f'| format(match.odds['2']) }}
+
+<table>
+  <thead>
+    <th>Name</th>
+    <th>Bet</th>
+    <th>Points</th>
+  </thead>
+    <tbody>
+
+{% for bet in match.bets_sorted %}
 
 {% if bet.valid %}
 
-<a href='/user/{{ bet.user.id }}'>{{ bet.user.name }}</a> - {{ bet.outcome }} {{ bet.match.outcome if bet.match.outcome is not none }} {{ bet.points }}<br>
+<tr>
+<td><a href='/user/{{ bet.user.id }}'>{{ bet.user.name }}</a></td>
+<td>{{ bet.outcome }} {{ '*' if bet.supertip }}</td>
+<td>{{ '%0.2f' | format(bet.points) }}</td>
+</tr>
 
 {% endif %}
 
 {% endfor %}
+  </tbody>
+<table>
 
 {% endif %}
 </div>

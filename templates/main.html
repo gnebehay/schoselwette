@@ -9,7 +9,7 @@
 {{ form.hidden_tag() }}
 <div class="wrapper">
   <p>
-    You have {{ current_user.points }} points.<br>
+    You have {{ '%0.2f' | format(current_user.points) }} points.<br>
     You marked {{ current_user.supertips }}/{{ current_user.MAX_SUPERTIPS }} super bets.
   </p>
 
@@ -30,7 +30,7 @@
       <th>Match</th>
       <th>Your bet</th>
       <th>Super bet</th>
-      <th>Outcome</th>
+      <th>Result</th>
       <th>Odds</th>
       <th>Points</th>
     </tr>
@@ -87,7 +87,7 @@
 </td>
 
 <td class="points" data-col="Points">
-{{ bet.points }}
+{{ '%0.2f' | format(bet.points) }}
 </td>
 
 {% endif %}

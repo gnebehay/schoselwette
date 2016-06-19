@@ -2,6 +2,7 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
+SQLALCHEMY_POOL_RECYCLE = 3600
 
 WTF_CSRF_ENABLED = True
 SECRET_KEY = 'my-uber-secret-key'

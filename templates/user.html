@@ -4,14 +4,43 @@
 <div class="wrapper">
 <h1>{{ user.name }}</h1>
 
-{% for bet in user.bets %}
+{% if current_user.admin and not user.paid %}
 
-{% if not bet.match.editable and bet.valid %}
-
-<a href='/match/{{ bet.match.id }}'>{{ bet.match.team1.name }} - {{ bet.match.team2.name }}</a> {{ bet.outcome }} {{ bet.match.outcome if bet.match.outcome is not none }} {{ bet.points }}<br>
+<a href='{{ url_for('confirm_payment', user_id=user.id) }}'>Confirm Payment</a>
 
 {% endif %}
 
+{{ '%0.2f' | format(user.points) }} points
+
+<table>
+  <thead>
+    <th>Match</th>
+    <th>Bet</th>
+    <th>Result</th>
+    <th>Odds</th>
+    <th>Points</th>
+  </thead>
+  <tbody>
+
+{% for bet in user.bets_sorted %}
+
+{% if not bet.match.editable and bet.valid %}
+
+<tr>
+
+<td><a href='/match/{{ bet.match.id }}'>{{ bet.match.team1.name }} - {{ bet.match.team2.name }}</a></td>
+<td>{{ bet.outcome }} {{ '*' if bet.supertip }}</td>
+<td>{{ bet.match.goals_team1 if bet.match.outcome is not none }} - {{ bet.match.goals_team2 if bet.match.outcome is not none }}</td>
+<td>{{ '%0.2f' | format(bet.match.odds['1']) }} {{ '%0.2f' | format(bet.match.odds['X']) }} {{'%0.2f'| format(bet.match.odds['2']) }}</td>
+<td>{{ '%0.2f' | format(bet.points) }}</td>
+
+</tr>
+
+{% endif %}
+
+
 {% endfor %}
+  <tbody>
+</table>
 </div>
 {% endblock %}

@@ -12,7 +12,8 @@ class User(Base):
     first_name = Column(String(64), nullable=False, info={'label': 'First Name'})
     last_name = Column(String(64), nullable=False, info={'label': 'Last Name'})
     password = Column(String(64), nullable=False)
-    paid = Column(Boolean, nullable=False)
+    paid = Column(Boolean, nullable=False, default=False)
+    admin = Column(Boolean, nullable=False, default=False)
     champion_id = Column(Integer, ForeignKey('teams.id'), nullable=True)
 
     champion = relationship('Team')
@@ -36,6 +37,10 @@ class User(Base):
             bet = Bet()
             bet.user = self
             bet.match = match
+
+    @property
+    def bets_sorted(self):
+        return sorted(self.bets, key=lambda x: x.match.date)
 
     @property
     def supertips(self):
@@ -94,6 +99,7 @@ class Match(Base):
     team2_id = Column(Integer, ForeignKey('teams.id'), nullable=False)
     date = Column(DateTime, nullable=False)
     stage = Column(Stage)
+    #TODO: non-negative constraint
     goals_team1 = Column(Integer)
     goals_team2 = Column(Integer)
 
@@ -131,6 +137,10 @@ class Match(Base):
 
         return counter
 
+    @property
+    def bets_sorted(self):
+        return sorted(self.bets, key=lambda x: (x.points, x.outcome if x.outcome is not None else '1', x.supertip), reverse=True)
+
     def __repr__(self):
         return '<Match: id={}, team1={}, team2={}, date={}, stage={}, goals_team1={}, goals_team2={}>'.format(
             self.id, self.team1.name, self.team2.name, self.date, self.stage, self.goals_team1, self.goals_team2)
@@ -151,7 +161,7 @@ class Bet(Base):
 
     @property
     def valid(self):
-        return self.outcome is not None
+        return self.outcome is not None and self.user.paid
 
     @property
     def points(self):
@@ -175,3 +185,13 @@ class Bet(Base):
     def __repr__(self):
         return '<Bet: id={}, user={}, team1={}, team2={}, stage={}, supertip={}, outcome={}>'.format(
             self.id, self.user.name, self.match.team1.name, self.match.team2.name, self.match.stage, self.supertip, self.outcome)
+
+class Message(Base):
+    __tablename__ = 'chat'
+
+    id = Column(Integer, primary_key=True)
+    body = Column(String(2048), nullable=False)
+    date = Column(DateTime, nullable=False)
+    user_id = Column(Integer, ForeignKey('users.id'))
+
+    user = relationship('User')

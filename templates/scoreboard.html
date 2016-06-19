@@ -16,7 +16,7 @@
       <tr>
 
       <td>{{ loop.index }}</td>
-      <td>{{ user.points }}</td>
+      <td>{{ '%0.2f' | format(user.points) }}</td>
       <td><a href='user/{{ user.id }}'>{{ user.name }}</a></td>
 
       </tr>
