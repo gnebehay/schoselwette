@@ -39,7 +39,9 @@
 {% endblock %}
 
 {% block content %}
-<textarea id="chat" cols="80" rows="20">{% for msg in messages %}{{ msg.date.strftime('%H:%M:%S') }} {{ msg.user.name }}: {{msg.body }}
+<div class="wrapper">
+  <textarea class="chat__textarea" id="chat" cols="80" rows="20">{% for msg in messages %}{{ msg.date.strftime('%H:%M:%S') }} {{ msg.user.name }}: {{msg.body }}
 {% endfor %}</textarea>
-        <input id="text" size="80" placeholder="Enter your message here"><br><br>
+        <input class="chat__input" id="text" size="80" placeholder="Enter your message here">
+      </div>
 {% endblock %}

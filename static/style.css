@@ -175,6 +175,20 @@ th {
   font-size: 1.6rem;
 }
 
+.table--striped  tr {
+  border-bottom: 1px solid #dedede;
+}
+
+.chat__textarea,
+.chat__input {
+  display: block;
+  width: 100%;
+  margin-bottom: 1.2rem;
+  padding: .8rem 1.2rem;
+  border: 1px solid #D1D1D1;
+  font-size: 1.6rem;
+}
+
 @media (max-width: 1000px) {
   .wrapper {
     padding: 0 1.2rem;
