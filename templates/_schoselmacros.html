@@ -1,6 +1,8 @@
 {% macro render_bets(bets, stage) %}
 
+<div class="wrapper">
 <h1>{{ stage }}</h1>
+</div>
 
 <table class='cf table--bets'>
 
@@ -9,11 +11,15 @@
       <th>Date</th>
 {% if stage == 'Group stage' %}
       <th>Group</th>
+{% else %}
+      <th class="hollow">Group</th>
 {% endif %}
       <th>Match</th>
       <th>Your bet</th>
 {% if stage == 'Group stage' %}
       <th>Super bet</th>
+{% else %}
+      <th class="hollow">Super bet</th>
 {% endif %}
       <th>Result</th>
       <th>Odds</th>
@@ -30,6 +36,10 @@
 
 {% if bet.match.stage == 'Group stage' %}
 <td class="label group" data-col="Group">
+  {{ bet.match.team1.group }}
+</td>
+{% else %}
+<td class="label group hollow" data-col="Group">
   {{ bet.match.team1.group }}
 </td>
 {% endif %}
@@ -54,6 +64,8 @@
 <td class="super-bet" data-col="Super bet">
 <input id='{{ bet.match.id }}-superbet' type='checkbox' name='supertip-{{ bet.match.id }}' {% if bet.supertip %}checked{% endif %}><label for='{{ bet.match.id }}-superbet'></label>
 </td>
+{% else %}
+<td class="super-bet hollow" data-col="Super bet"></td>
 {% endif %}
 
 <td class="outcome" data-col="Outcome">&mdash;</td>
@@ -67,10 +79,13 @@
 <input type='radio' id='outcome-{{ bet.match.id }}-X' disabled='true' {% if bet.outcome == 'X' %}checked{% endif %}><label class="btn btn--in-group" for="outcome-{{ bet.match.id }}-X">X</label>
 <input type='radio' id='outcome-{{ bet.match.id }}-2' disabled='true' {% if bet.outcome == '2' %}checked{% endif %}><label class="btn btn--in-group" for="outcome-{{ bet.match.id }}-2">2</label>
 </td>
-
+{% if bet.match.stage == 'Group stage' %}
 <td class="super-bet" data-col="Super bet">
 <input id='{{ bet.match.id }}-superbet' type='checkbox' disabled='true' {% if bet.supertip %}checked{% endif %}><label for='{{ bet.match.id }}-superbet'></label>
 </td>
+{% else %}
+<td class="super-bet hollow" data-col="Super bet"></td>
+{% endif %}
 
 <td class="outcome" data-col="Outcome">{% if bet.match.outcome is not none %}{{ bet.match.goals_team1 }}:{{ bet.match.goals_team2 }}{% endif %}</td>
 

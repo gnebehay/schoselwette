@@ -113,6 +113,9 @@ p {
   background: #fff;
   border-top: 1px solid #d1d1d1;
 }
+.hollow {
+  opacity: 0;
+}
 .logo {
   font-size: 1.8rem;
   text-align: center;
