@@ -1,6 +1,8 @@
 #!venv/bin/python3
 
 import datetime
+import os
+
 from parse import *
 
 import wette
@@ -33,69 +35,39 @@ with open('./misc/teams.csv') as f:
 
 db_session.commit()
 
-# Group Phase
-with open('./misc/group-phase.txt') as f:
+MONTHS = {'Jun':6, 'Jul': 7}
 
-    matches = []
+for stage in os.listdir('matches'):
 
-    FMT = '({}) {}/{} {}:{} {} vs {} @ {}'
+    print('Parsing stage', stage)
 
-    MONTHS = {'Jun':6}
-    STAGE = 'Group stage'
+    with open(os.path.join('matches',stage)) as f:
 
-    for line in f.readlines():
-        _,month, day, hour, minute, team1, team2,_ = parse(FMT,line)
+        matches = []
 
-        team1 = db_session.query(Team).filter(Team.name == team1).one()
-        team2 = db_session.query(Team).filter(Team.name == team2).one()
+        FMT = '{}/{} {}:{} {} - {}'
 
-        dt = datetime.datetime(2016, month=MONTHS[month], day=int(day), hour=int(hour), minute=int(minute))
+        for line in f.readlines():
+            month, day, hour, minute, team1, team2 = parse(FMT,line)
 
-        match = db_session.query(Match).filter(
-            Match.team1 == team1,
-            Match.team2 == team2,
-            Match.stage == STAGE).one_or_none()
+            team1 = db_session.query(Team).filter(Team.name == team1).one()
+            team2 = db_session.query(Team).filter(Team.name == team2).one()
 
-        if match is None:
-            match = Match(team1=team1, team2=team2, stage=STAGE, date=dt)
-            db_session.add(match)
-            print('Insert: ' + str(match))
-        else:
-            print('Match ' + str(match) + ' already in database.')
+            dt = datetime.datetime(2016, month=MONTHS[month], day=int(day), hour=int(hour), minute=int(minute))
 
-db_session.commit()
+            match = db_session.query(Match).filter(
+                Match.team1 == team1,
+                Match.team2 == team2,
+                Match.stage == stage).one_or_none()
 
-# Group Phase
-with open('./misc/round16.txt') as f:
+            if match is None:
+                match = Match(team1=team1, team2=team2, stage=stage, date=dt)
+                db_session.add(match)
+                print('Insert: ' + str(match))
+            else:
+                print('Match ' + str(match) + ' already in database.')
 
-    matches = []
-
-    FMT = '({}) {}/{} {}:{} {} vs {} @ {}'
-
-    MONTHS = {'Jun':6}
-    STAGE = 'Round of 16'
-
-    for line in f.readlines():
-        _,month, day, hour, minute, team1, team2,_ = parse(FMT,line)
-
-        team1 = db_session.query(Team).filter(Team.name == team1).one()
-        team2 = db_session.query(Team).filter(Team.name == team2).one()
-
-        dt = datetime.datetime(2016, month=MONTHS[month], day=int(day), hour=int(hour), minute=int(minute))
-
-        match = db_session.query(Match).filter(
-            Match.team1 == team1,
-            Match.team2 == team2,
-            Match.stage == STAGE).one_or_none()
-
-        if match is None:
-            match = Match(team1=team1, team2=team2, stage=STAGE, date=dt)
-            db_session.add(match)
-            print('Insert: ' + str(match))
-        else:
-            print('Match ' + str(match) + ' already in database.')
-
-db_session.commit()
+    db_session.commit()
 
 #Create missing bets
 users = db_session.query(User)

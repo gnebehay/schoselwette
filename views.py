@@ -300,6 +300,6 @@ import datetime
 @login_required
 def chat():
 
-    messages = db_session.query(models.Message).filter(models.Message.date > datetime.date.today())
+    messages = db_session.query(models.Message)#.filter(models.Message.date > datetime.date.today())
 
     return render_template('chat.html', messages = messages)

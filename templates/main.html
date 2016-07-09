@@ -22,6 +22,11 @@
 {{ current_user.champion.name }}
 {% endif %}
 </div>
+{{ render_bets(bets, 'Final') }}
+
+{{ render_bets(bets, 'Semi-finals') }}
+
+{{ render_bets(bets, 'Quarter-finals') }}
 
 {{ render_bets(bets, 'Round of 16') }}
 
