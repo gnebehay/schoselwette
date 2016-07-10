@@ -23,6 +23,7 @@
 {% if match.stage == 'Final' %}
 <a href='{{ url_for('make_champion', team_id=match.team1.id) }}'>Make {{ match.team1.name}} champion</a><br>
 <a href='{{ url_for('make_champion', team_id=match.team2.id) }}'>Make {{ match.team2.name}} champion</a><br>
+<a href='{{ url_for('make_champion', team_id=0) }}'>Clear champion</a><br>
 {% endif %}
 
 {% endif %}
