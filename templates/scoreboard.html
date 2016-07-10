@@ -9,6 +9,10 @@
       <th>Rank</th>
       <th>Points</th>
       <th>Name</th>
+      {% if current_user.final_started %}
+      <th>Champion</th>
+      {% endif %}
+      </tr>
     </thead>
     <tbody>
       {% for user in scoreboard %}
@@ -18,7 +22,9 @@
       <td>{{ loop.index }}</td>
       <td>{{ '%0.2f' | format(user.points) }}</td>
       <td><a href='user/{{ user.id }}'>{{ user.name }}</a></td>
-
+      {% if current_user.final_started %}
+      <td>{{ user.champion.name }}</td>
+      {% endif %}
       </tr>
 
       {% endfor %}

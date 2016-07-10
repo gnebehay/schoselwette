@@ -20,6 +20,9 @@
 {{ render_field(form.champion_id)}}
 {% else %}
 {{ current_user.champion.name }}
+{% if current_user.champion_correct %}
+(+{{ '%0.2f' | format(current_user.champion.odds) }})
+{% endif %}
 {% endif %}
 </div>
 {{ render_bets(bets, 'Final') }}

@@ -16,14 +16,31 @@ class User(Base):
     admin = Column(Boolean, nullable=False, default=False)
     champion_id = Column(Integer, ForeignKey('teams.id'), nullable=True)
 
-    champion = relationship('Team')
+    champion = relationship('Team', backref='users')
 
     MAX_SUPERTIPS = 4
 
     @property
     def points(self):
 
-        return sum([bet.points for bet in self.bets])
+        points = sum([bet.points for bet in self.bets])
+
+        print(self.champion)
+        print(self.champion_correct)
+
+        if self.champion_correct:
+            points += self.champion.odds
+
+        return points
+
+    @property
+    def champion_correct(self):
+        if self.champion is not None:
+            if self.champion.champion:
+                return True
+
+        return False
+
 
     def create_missing_bets(self):
 
@@ -76,6 +93,14 @@ class User(Base):
         first_match = db_session.query(Match).order_by('date').first()
         return first_match.date > datetime.datetime.now()
 
+    @property
+    def final_started(self):
+        final_match = db_session.query(Match).filter(Match.stage == 'Final').one_or_none()
+
+        if final_match is None:
+            return False
+        return final_match.date < datetime.datetime.now()
+
 
 class Team(Base):
     __tablename__ = 'teams'
@@ -84,6 +109,22 @@ class Team(Base):
     short_name = Column(String(3), nullable=False, unique=True)
     group = Column(String(1), nullable=False)
     champion = Column(Boolean, default=False, nullable=False)
+
+    @property
+    def odds(self):
+
+        #Get number of users that placed a bet
+        num_total_bets = db_session.query(User).filter(User.champion_id != None).count()
+
+        #Number of users that betted on this particular team
+        num_bets_team = len(self.users)
+
+        #Prevent division by 0
+        if num_bets_team == 0:
+            return 0
+
+        return num_total_bets / num_bets_team
+
 
     def __repr__(self):
         return '<Team: id={}, name={}, short_name={}, group={}, champion={}>'.format(

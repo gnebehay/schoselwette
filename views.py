@@ -294,12 +294,37 @@ Happy betting!""".format(user.name)
 
     return render_template('user.html', user=user)
 
-import datetime
-
 @app.route('/chat')
 @login_required
 def chat():
 
     messages = db_session.query(models.Message)#.filter(models.Message.date > datetime.date.today())
 
-    return render_template('chat.html', messages = messages)
+    return render_template('chat.html', messages=messages)
+
+@app.route('/stats')
+@login_required
+def stats():
+
+    teams = db_session.query(models.Team)
+
+    teams = sorted(teams, key=lambda t: t.odds, reverse=True)
+
+    return render_template('stats.html', teams=teams)
+
+@app.route('/make_champion/<int:team_id>')
+@login_required
+def make_champion(team_id):
+
+    if not current_user.admin:
+        abort(403)
+
+    teams = db_session.query(Team)
+
+    for team in teams:
+        if team.id == team_id:
+            team.champion = True
+        else:
+            team.champion = False
+
+    return redirect('scoreboard')

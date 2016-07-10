@@ -10,7 +10,14 @@
 
 {% endif %}
 
-{{ '%0.2f' | format(user.points) }} points
+{{ '%0.2f' | format(user.points) }} points<br>
+
+{% if current_user.final_started %}
+Champion: {{ user.champion.name }}
+{% if user.champion_correct %}
+(+{{ '%0.2f' | format(user.champion.odds) }})
+{% endif %}
+{% endif %}
 
 <table class="table--striped">
   <thead>
@@ -40,7 +47,7 @@
 
 
 {% endfor %}
-  <tbody>
+  </tbody>
 </table>
 </div>
 {% endblock %}
