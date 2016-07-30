@@ -44,7 +44,7 @@
 </td>
 {% endif %}
 
-<td class="match" data-col="Match">{% if not bet.match.editable %}<a href='/match/{{ bet.match.id}}'>{% endif %}
+<td class="match" data-col="Match">{% if not bet.match.editable %}<a href='{{ url_for('match', match_id=bet.match.id) }}'>{% endif %}
 
 {{ bet.match.team1.name }} - {{ bet.match.team2.name }}
 

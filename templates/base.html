@@ -5,7 +5,7 @@
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <meta name="csrf-token" content="{{ csrf_token() }}">
       <title>Schoselwette Euro 2016</title>
-      <link rel="stylesheet" type="text/css" href="/static/style.css">
+      <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
       <script src="https://use.typekit.net/qvf0aql.js"></script>
       <script>try{Typekit.load({ async: false });}catch(e){}</script>
       {% block head %}{% endblock %}
@@ -17,13 +17,13 @@
     {% if current_user.is_authenticated %}
         <ul class="nav__items">
           <li class="nav__item">
-            <a class="nav__link" href='/main'>Bets</a>
+            <a class="nav__link" href='{{ url_for('main') }}'>Bets</a>
           </li>
           <li class="nav__item">
-            <a class="nav__link" href='/scoreboard'>Scoreboard</a>
+            <a class="nav__link" href='{{ url_for('scoreboard') }}'>Scoreboard</a>
           </li>
           <li class="nav__item">
-            <a class="nav__link" href='/stats'>Stats</a>
+            <a class="nav__link" href='{{ url_for('stats') }}'>Stats</a>
           </li>
           <li class="nav__item">
             <a href={{ url_for('chat') }}>Chat</a>
@@ -32,10 +32,10 @@
             <a href={{ url_for('about') }}>About</a>
           </li>
           <li class="nav__item">
-            <a class="nav__link" href='/profile'>Profile</a>
+            <a class="nav__link" href='{{ url_for('profile') }}'>Profile</a>
           </li>
           <li class="nav__item">
-            <a class="nav__link" href='/logout'>Logout</a>
+            <a class="nav__link" href='{{ url_for('logout') }}'>Logout</a>
           </li>
         </ul>
     {% else %}

@@ -3,7 +3,7 @@
 {% block content %}
 <div class="wrapper">
 <h1>Sign In</h1>
-<form class="form" action="/login" method="post" name="login">
+<form class="form" action="{{url_for('login')}}" method="post" name="login">
     {{ form.hidden_tag() }}
 
     {{ form.email.label }}

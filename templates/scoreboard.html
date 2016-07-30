@@ -21,7 +21,7 @@
 
       <td>{{ loop.index }}</td>
       <td>{{ '%0.2f' | format(user.points) }}</td>
-      <td><a href='user/{{ user.id }}'>{{ user.name }}</a></td>
+      <td><a href='{{ url_for('user', user_id=user.id) }}'>{{ user.name }}</a></td>
       {% if current_user.final_started %}
       <td>{{ user.champion.name }}</td>
       {% endif %}

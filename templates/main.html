@@ -7,7 +7,7 @@
 <div class="wrapper">
   <h1>Bets</h1>
 </div>
-<form action="/main" method="post" name="main">
+<form action="{{ url_for('main') }}" method="post" name="main">
 {{ form.hidden_tag() }}
 <div class="wrapper">
   <p>

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="wrapper">
+<h1>Statistics</h1>
+
+{% if current_user.final_started %}
+
+<table class="table--striped">
+  <thead>
+    <th>Team</th>
+    <th>Odds</th>
+  </thead>
+  <tbody>
+
+{% for team in teams %}
+
+<tr>
+<td>{{ team.name }}</td>
+<td>{{ team.odds }}</td>
+</tr>
+
+{% endfor %}
+{% endif %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

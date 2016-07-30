@@ -43,7 +43,7 @@ Odds: {{ '%0.2f' | format(match.odds['1']) }} {{ '%0.2f' | format(match.odds['X'
 {% if bet.valid %}
 
 <tr>
-<td><a href='/user/{{ bet.user.id }}'>{{ bet.user.name }}</a></td>
+<td><a href='{{ url_for('user', user_id=bet.user.id) }}'>{{ bet.user.name }}</a></td>
 <td>{{ bet.outcome }} {{ '*' if bet.supertip }}</td>
 <td>{{ '%0.2f' | format(bet.points) }}</td>
 </tr>
