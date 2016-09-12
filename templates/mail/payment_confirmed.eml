@@ -1,0 +1,6 @@
+Payment confirmed
+Dear {{ user.name }},
+
+your payment has been confirmed.
+
+Happy betting!

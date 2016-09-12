@@ -4,7 +4,7 @@
   <head>
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <meta name="csrf-token" content="{{ csrf_token() }}">
-      <title>Schoselwette Euro 2016</title>
+      <title>{{ config.EVENT_NAME }}</title>
       <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
       <script src="https://use.typekit.net/qvf0aql.js"></script>
       <script>try{Typekit.load({ async: false });}catch(e){}</script>

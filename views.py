@@ -79,11 +79,21 @@ def login():
 
 def send_mail(msg):
     try:
-        msg.sender = 'euro2016@schosel.net'
+        msg.sender = app.config['MAIN_MAIL']
         mail.send(msg)
     except:
         print('Tried to send mail, did not work.')
         print(msg)
+
+def send_mail_template(tpl, recipients, **kwargs):
+    import ipdb; ipdb.set_trace()
+    rendered_mail = render_template('mail/' + tpl, **kwargs)
+    subject = rendered_mail.splitlines()[0]
+    body = '\n'.join(rendered_mail.splitlines()[1:])
+
+    msg = Message(subject=subject, body=body, recipients=recipients)
+
+    send_mail(msg)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -102,12 +112,9 @@ def register():
 
         user.create_missing_bets()
 
-        send_mail(Message('Hello',
-                  recipients=[user.email]))
+        send_mail_template('welcome.eml', recipients=[user.email], user=user)
 
-        send_mail(Message('Neuer Schoselwetter',
-                  body=str(user),
-                  recipients=['gnebehay@gmail.com']))
+        send_mail(Message('Neuer Schoselwetter', body=str(user), recipients=[app.config['ADMIN_MAIL']]))
 
         return render_template('register_success.html')
 
@@ -155,11 +162,11 @@ class ChampionForm(Form):
 def main():
 
     if not current_user.paid:
-        flash(Markup("You have not paid yet. Please contact <a href='mailto:euro2016@schosel.net'>euro2016@schosel.net</a> for payment options. If you don't pay until the beginning of the first match, you will be scratched."))
+        flash(Markup(app.config['MSG_NOT_PAID']))
 
     form = ChampionForm(obj=current_user)
     #TODO: Where to put this?
-    form.champion_id.choices=[(None, '')] + [(t.id, t.name) for t in db_session.query(Team).order_by('name')]
+    form.champion_id.choices = [(None, '')] + [(t.id, t.name) for t in db_session.query(Team).order_by('name')]
 
     if request.method == 'POST':
 
@@ -215,7 +222,7 @@ def main():
 @login_required
 def scoreboard():
 
-    users = db_session.query(User).filter(User.paid)
+    users = db_session.query(User)#.filter(User.paid)
 
     users_sorted = sorted(users, key=lambda x: x.points, reverse=True)
 
@@ -282,15 +289,9 @@ def confirm_payment(user_id):
 
     user.paid = True
 
-    body = """Dear {},
+    # TODO: Here, there should actually be a db commit, no?
 
-your payment has been confirmed.
-
-Happy betting!""".format(user.name)
-
-    send_mail(Message('Payment confirmed',
-              body=body,
-              recipients=[user.email]))
+    send_mail_template('payment_confirmed.eml', recipients=[user.email], user=user)
 
     return render_template('user.html', user=user)
 
