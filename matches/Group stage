@@ -1,36 +1,96 @@
-Jun/10 21:00 France - Romania
-Jun/11 15:00 Albania - Switzerland
-Jun/15 18:00 Romania - Switzerland
-Jun/15 21:00 France - Albania
-Jun/19 21:00 Romania - Albania
-Jun/19 21:00 Switzerland - France
-Jun/11 18:00 Wales - Slovakia
-Jun/11 21:00 England - Russia
-Jun/15 15:00 Russia - Slovakia
-Jun/16 15:00 England - Wales
-Jun/20 21:00 Russia - Wales
-Jun/20 21:00 Slovakia - England
-Jun/12 18:00 Poland - Northern Ireland
-Jun/12 21:00 Germany - Ukraine
-Jun/16 18:00 Ukraine - Northern Ireland
-Jun/16 21:00 Germany - Poland
-Jun/21 18:00 Northern Ireland - Germany
-Jun/21 18:00 Ukraine - Poland
-Jun/12 15:00 Turkey - Croatia
-Jun/13 15:00 Spain - Czech Republic
-Jun/17 18:00 Czech Republic - Croatia
-Jun/17 21:00 Spain - Turkey
-Jun/21 21:00 Croatia - Spain
-Jun/21 21:00 Czech Republic - Turkey
-Jun/13 21:00 Belgium - Italy
-Jun/13 18:00 Ireland - Sweden
-Jun/17 15:00 Italy - Sweden
-Jun/18 15:00 Belgium - Ireland
-Jun/21 21:00 Italy - Ireland
-Jun/21 21:00 Sweden - Belgium
-Jun/14 18:00 Austria - Hungary
-Jun/14 21:00 Portugal - Iceland
-Jun/18 18:00 Iceland - Hungary
-Jun/18 21:00 Portugal - Austria
-Jun/22 18:00 Hungary - Portugal
-Jun/21 18:00 Iceland - Austria
+Sep/13 20:45 Paris Saint-Germain - FC Arsenal
+Sep/13 20:45 FC Basel - Ludogorez Rasgrad
+Sep/28 20:45 Ludogorez Rasgrad - Paris Saint-Germain
+Sep/28 20:45 FC Arsenal - FC Basel
+Okt/19 20:45 Paris Saint-Germain - FC Basel
+Okt/19 20:45 FC Arsenal - Ludogorez Rasgrad
+Nov/01 20:45 FC Basel - Paris Saint-Germain
+Nov/01 20:45 Ludogorez Rasgrad - FC Arsenal
+Nov/23 20:45 FC Arsenal - Paris Saint-Germain
+Nov/23 20:45 Ludogorez Rasgrad - FC Basel
+Dez/06 20:45 FC Basel - FC Arsenal
+Dez/06 20:45 Paris Saint-Germain - Ludogorez Rasgrad
+Sep/13 20:45 Dynamo Kiew - SSC Neapel
+Sep/13 20:45 Benfica Lissabon - Besiktas Istanbul
+Sep/28 20:45 SSC Neapel - Benfica Lissabon
+Sep/28 20:45 Besiktas Istanbul - Dynamo Kiew
+Okt/19 20:45 Dynamo Kiew - Benfica Lissabon
+Okt/19 20:45 SSC Neapel - Besiktas Istanbul
+Nov/01 20:45 Besiktas Istanbul - SSC Neapel
+Nov/01 20:45 Benfica Lissabon - Dynamo Kiew
+Nov/23 20:45 Besiktas Istanbul - Benfica Lissabon
+Nov/23 20:45 SSC Neapel - Dynamo Kiew
+Dez/06 20:45 Benfica Lissabon - SSC Neapel
+Dez/06 20:45 Dynamo Kiew - Besiktas Istanbul
+Sep/13 20:45 Manchester City - Borussia Moenchengladbach
+Sep/13 20:45 FC Barcelona - Celtic Glasgow
+Sep/28 20:45 Borussia Moenchengladbach - FC Barcelona
+Sep/28 20:45 Celtic Glasgow - Manchester City
+Okt/19 20:45 FC Barcelona - Manchester City
+Okt/19 20:45 Celtic Glasgow - Borussia Moenchengladbach
+Nov/01 20:45 Manchester City - FC Barcelona
+Nov/01 20:45 Borussia Moenchengladbach - Celtic Glasgow
+Nov/23 20:45 Celtic Glasgow - FC Barcelona
+Nov/23 20:45 Borussia Moenchengladbach - Manchester City
+Dez/06 20:45 FC Barcelona - Borussia Moenchengladbach
+Dez/06 20:45 Manchester City - Celtic Glasgow
+Sep/13 20:45 PSV Eindhoven - Atlético Madrid
+Sep/13 20:45 FC Bayern München - FK Rostow
+Sep/28 20:45 Atlético Madrid - FC Bayern München
+Sep/28 20:45 FK Rostow - PSV Eindhoven
+Okt/19 20:45 FK Rostow - Atlético Madrid
+Okt/19 20:45 FC Bayern München - PSV Eindhoven
+Nov/01 20:45 PSV Eindhoven - FC Bayern München
+Nov/01 20:45 Atlético Madrid - FK Rostow
+Nov/23 18:00 FK Rostow - FC Bayern München
+Nov/23 20:45 Atlético Madrid - PSV Eindhoven
+Dez/06 20:45 FC Bayern München - Atlético Madrid
+Dez/06 20:45 PSV Eindhoven - FK Rostow
+Sep/14 20:45 Bayer 04 Leverkusen - ZSKA Moskau
+Sep/14 20:45 Tottenham Hotspur - AS Monaco
+Sep/27 20:45 AS Monaco - Bayer 04 Leverkusen
+Sep/27 20:45 ZSKA Moskau - Tottenham Hotspur
+Okt/18 20:45 Bayer 04 Leverkusen - Tottenham Hotspur
+Okt/18 20:45 ZSKA Moskau - AS Monaco
+Nov/02 20:45 AS Monaco - ZSKA Moskau
+Nov/02 20:45 Tottenham Hotspur - Bayer 04 Leverkusen
+Nov/22 18:00 ZSKA Moskau - Bayer 04 Leverkusen
+Nov/22 20:45 AS Monaco - Tottenham Hotspur
+Dez/07 20:45 Tottenham Hotspur - ZSKA Moskau
+Dez/07 20:45 Bayer 04 Leverkusen - AS Monaco
+Sep/14 20:45 KP Legia Warschau - Borussia Dortmund
+Sep/14 20:45 Real Madrid - Sporting Lissabon
+Sep/27 20:45 Borussia Dortmund - Real Madrid
+Sep/27 20:45 Sporting Lissabon - KP Legia Warschau
+Okt/18 20:45 Sporting Lissabon - Borussia Dortmund
+Okt/18 20:45 Real Madrid - KP Legia Warschau
+Nov/02 20:45 KP Legia Warschau - Real Madrid
+Nov/02 20:45 Borussia Dortmund - Sporting Lissabon
+Nov/22 20:45 Sporting Lissabon - Real Madrid
+Nov/22 20:45 Borussia Dortmund - KP Legia Warschau
+Dez/07 20:45 Real Madrid - Borussia Dortmund
+Dez/07 20:45 KP Legia Warschau - Sporting Lissabon
+Sep/14 20:45 FC Brügge - Leicester City
+Sep/14 20:45 FC Porto - FC Kopenhagen
+Sep/27 20:45 Leicester City - FC Porto
+Sep/27 20:45 FC Kopenhagen - FC Brügge
+Okt/18 20:45 FC Brügge - FC Porto
+Okt/18 20:45 Leicester City - FC Kopenhagen
+Nov/02 20:45 FC Kopenhagen - Leicester City
+Nov/02 20:45 FC Porto - FC Brügge
+Nov/22 20:45 FC Kopenhagen - FC Porto
+Nov/22 20:45 Leicester City - FC Brügge
+Dez/07 20:45 FC Porto - Leicester City
+Dez/07 20:45 FC Brügge - FC Kopenhagen
+Sep/14 20:45 Juventus Turin - FC Sevilla
+Sep/14 20:45 Olympique Lyon - Dinamo Zagreb
+Sep/27 20:45 Dinamo Zagreb - Juventus Turin
+Sep/27 20:45 FC Sevilla - Olympique Lyon
+Okt/18 20:45 Olympique Lyon - Juventus Turin
+Okt/18 20:45 Dinamo Zagreb - FC Sevilla
+Nov/02 20:45 Juventus Turin - Olympique Lyon
+Nov/02 20:45 FC Sevilla - Dinamo Zagreb
+Nov/22 20:45 FC Sevilla - Juventus Turin
+Nov/22 20:45 Dinamo Zagreb - Olympique Lyon
+Dez/07 20:45 Olympique Lyon - FC Sevilla
+Dez/07 20:45 Juventus Turin - Dinamo Zagreb

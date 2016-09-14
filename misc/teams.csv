@@ -1,24 +1,32 @@
-A,France,FRA
-A,Romania,ROU
-A,Albania,ALB
-A,Switzerland,SUI
-B,England,ENG
-B,Russia,RUS
-B,Wales,WAL
-B,Slovakia,SVK
-C,Germany,GER
-C,Ukraine,UKR
-C,Poland,POL
-C,Northern Ireland,NIR
-D,Spain,ESP
-D,Czech Republic,CZE
-D,Turkey,TUR
-D,Croatia,CRO
-E,Belgium,BEL
-E,Italy,ITA
-E,Ireland,IRL
-E,Sweden,SWE
-F,Portugal,POR
-F,Iceland,ISL
-F,Austria,AUT
-F,Hungary,HUN
+A;Paris Saint-Germain,PSG
+A;FC Basel,BAS
+A;Ludogorez Rasgrad,LUD
+A;FC Arsenal,FCA
+B;Dynamo Kiew,DYN
+B;Benfica Lissabon,BEN
+B;SSC Neapel,NEA
+B;Besiktas Istanbul,BES
+C;Manchester City,MAN
+C;FC Barcelona,BAR
+C;Borussia Moenchengladbach,GLA
+C;Celtic Glasgow,CEL
+D;PSV Eindhoven,EIN
+D;FC Bayern München,BAY
+D;Atlético Madrid,ATL
+D;FK Rostow,ROS
+E;Bayer 04 Leverkusen,LEV
+E;Tottenham Hotspur,TOT
+E;AS Monaco,MON
+E;ZSKA Moskau,ZSK
+F;KP Legia Warschau,WAR
+F;Real Madrid,REA
+F;Borussia Dortmund,BOR
+F;Sporting Lissabon,LIS
+G;FC Brügge,BRU
+G;FC Porto,POR
+G;Leicester City,LEI
+G;FC Kopenhagen,KOP
+H;Juventus Turin,JUV
+H;Olympique Lyon,OLY
+H;Dinamo Zagreb,DIN
+H;FC Sevilla,SEV

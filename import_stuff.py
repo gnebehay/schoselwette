@@ -14,7 +14,7 @@ from models import Team, Match, User
 #Load teams
 with open('./misc/teams.csv') as f:
 
-    FMT = '{},{},{}'
+    FMT = '{};{},{}'
 
     for line in f.readlines():
         group, name, short_name = parse(FMT, line)
@@ -37,7 +37,7 @@ with open('./misc/teams.csv') as f:
 
 db_session.commit()
 
-MONTHS = {'Jun':6, 'Jul': 7}
+MONTHS = {'Jun':6, 'Jul': 7, 'Aug': 8, 'Sep': 9, 'Okt': 10, 'Nov': 11, 'Dez': 12}
 
 for stage in os.listdir('matches'):
 
