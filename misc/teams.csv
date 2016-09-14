@@ -1,32 +1,32 @@
-A;Paris Saint-Germain,PSG
-A;FC Basel,BAS
-A;Ludogorez Rasgrad,LUD
-A;FC Arsenal,FCA
-B;Dynamo Kiew,DYN
-B;Benfica Lissabon,BEN
-B;SSC Neapel,NEA
-B;Besiktas Istanbul,BES
-C;Manchester City,MAN
-C;FC Barcelona,BAR
-C;Borussia Moenchengladbach,GLA
-C;Celtic Glasgow,CEL
-D;PSV Eindhoven,EIN
-D;FC Bayern München,BAY
-D;Atlético Madrid,ATL
-D;FK Rostow,ROS
-E;Bayer 04 Leverkusen,LEV
-E;Tottenham Hotspur,TOT
-E;AS Monaco,MON
-E;ZSKA Moskau,ZSK
-F;KP Legia Warschau,WAR
-F;Real Madrid,REA
-F;Borussia Dortmund,BOR
-F;Sporting Lissabon,LIS
-G;FC Brügge,BRU
-G;FC Porto,POR
-G;Leicester City,LEI
-G;FC Kopenhagen,KOP
-H;Juventus Turin,JUV
-H;Olympique Lyon,OLY
-H;Dinamo Zagreb,DIN
-H;FC Sevilla,SEV
+A,Paris Saint-Germain,paris
+A,FC Basel,basel
+A,Ludogorez Rasgrad,ludogorets
+A,FC Arsenal,arsenal
+B,Dynamo Kiew,kiev
+B,Benfica Lissabon,benfica
+B,SSC Neapel,napoli
+B,Besiktas Istanbul,besiktas
+C,Manchester City,manchester
+C,FC Barcelona,barcelona
+C,Borussia Moenchengladbach,moenchengladbach
+C,Celtic Glasgow,celtic
+D,PSV Eindhoven,psv
+D,FC Bayern München,bayern
+D,Atlético Madrid,atletico
+D,FK Rostow,rostov
+E,Bayer 04 Leverkusen,leverkusen
+E,Tottenham Hotspur,tottenham
+E,AS Monaco,monaco
+E,ZSKA Moskau,moskau
+F,KP Legia Warschau,legia
+F,Real Madrid,real
+F,Borussia Dortmund,dortmund
+F,Sporting Lissabon,sporting
+G,FC Brügge,brugge
+G,FC Porto,porto
+G,Leicester City,leicester
+G,FC Kopenhagen,kobenhavn
+H,Juventus Turin,juve
+H,Olympique Lyon,lyon
+H,Dinamo Zagreb,dinamo
+H,FC Sevilla,sevilla

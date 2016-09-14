@@ -1,0 +1,732 @@
+/*
+The main SCSS file for everything, yep
+*/
+* {
+  box-sizing: border-box; }
+
+/**
+ * Reset some basic elements
+ */
+body, h1, h2, h3, h4, h5, h6,
+p, blockquote, pre, hr,
+dl, dd, ol, ul, figure {
+  margin: 0;
+  padding: 0; }
+
+/**
+ * Basic styling
+ */
+body {
+  font: 400 16px/1.5 "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #4a4a4a;
+  background-color: #fff;
+  -webkit-text-size-adjust: 100%;
+  -o-font-feature-settings: "kern" 1;
+  font-feature-settings: "kern" 1;
+  font-kerning: normal; }
+
+/**
+ * Set `margin-bottom` to maintain vertical rhythm
+ */
+h1, h2, h3, h4, h5, h6,
+p, blockquote, pre,
+ul, ol, dl, figure {
+  margin-bottom: 12px; }
+
+/**
+ * Images
+ */
+img {
+  max-width: 100%;
+  vertical-align: middle; }
+
+/**
+ * Figures
+ */
+figure > img {
+  display: block; }
+
+figcaption {
+  font-size: 14px; }
+
+/**
+ * Lists
+ */
+ul, ol {
+  margin-left: 24px; }
+
+li > ul,
+li > ol {
+  margin-bottom: 0; }
+
+/**
+ * Headings
+ */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 400; }
+
+/**
+ * Links
+ */
+a {
+  color: #2a7ae2;
+  text-decoration: none; }
+  a:visited {
+    color: #1756a9; }
+  a:hover {
+    color: #4a4a4a;
+    text-decoration: underline; }
+
+/**
+ * Blockquotes
+ */
+blockquote {
+  color: #828282;
+  border-left: 4px solid #e8e8e8;
+  padding-left: 12px;
+  font-size: 18px;
+  letter-spacing: -1px;
+  font-style: italic; }
+  blockquote > :last-child {
+    margin-bottom: 0; }
+
+/**
+ * Code formatting
+ */
+pre,
+code {
+  font-size: 15px;
+  border: 1px solid #e8e8e8;
+  border-radius: 3px;
+  background-color: #eef; }
+
+code {
+  padding: 1px 5px; }
+
+pre {
+  padding: 8px 12px;
+  overflow-x: auto; }
+  pre > code {
+    border: 0;
+    padding-right: 0;
+    padding-left: 0; }
+
+/**
+ * Wrapper
+ */
+.wrapper {
+  max-width: calc(800px - (24px * 2));
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: 24px;
+  padding-left: 24px; }
+  @media screen and (max-width: 800px) {
+    .wrapper {
+      max-width: calc(800px - (24px));
+      padding-right: 12px;
+      padding-left: 12px; } }
+
+/**
+ * Clearfix
+ */
+.wrapper:after, .footer-col-wrapper:after {
+  content: "";
+  display: table;
+  clear: both; }
+
+/**
+ * Icons
+ */
+.icon > svg {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle; }
+  .icon > svg path {
+    fill: #828282; }
+
+/**
+ * Site header
+ */
+.site-header {
+  border-top: 5px solid #424242;
+  border-bottom: 1px solid #e8e8e8;
+  min-height: 56px;
+  position: relative; }
+
+.site-title {
+  font-size: 26px;
+  font-weight: 300;
+  line-height: 56px;
+  letter-spacing: -1px;
+  margin-bottom: 0;
+  float: left; }
+  .site-title, .site-title:visited {
+    color: #424242; }
+
+.site-nav {
+  float: right;
+  line-height: 56px; }
+  .site-nav .menu-icon {
+    display: none; }
+  .site-nav .page-link {
+    color: #4a4a4a;
+    line-height: 1.5; }
+    .site-nav .page-link:not(:last-child) {
+      margin-right: 20px; }
+  @media screen and (max-width: 600px) {
+    .site-nav {
+      position: absolute;
+      top: 9px;
+      right: 12px;
+      background-color: #fff;
+      border: 1px solid #e8e8e8;
+      border-radius: 5px;
+      text-align: right; }
+      .site-nav .menu-icon {
+        display: block;
+        float: right;
+        width: 36px;
+        height: 26px;
+        line-height: 0;
+        padding-top: 10px;
+        text-align: center; }
+        .site-nav .menu-icon > svg {
+          width: 18px;
+          height: 15px; }
+          .site-nav .menu-icon > svg path {
+            fill: #424242; }
+      .site-nav .trigger {
+        clear: both;
+        display: none; }
+      .site-nav:hover .trigger {
+        display: block;
+        padding-bottom: 5px; }
+      .site-nav .page-link {
+        display: block;
+        padding: 5px 10px;
+        margin-left: 20px; }
+        .site-nav .page-link:not(:last-child) {
+          margin-right: 0; } }
+
+/**
+ * Site footer
+ */
+.site-footer {
+  border-top: 1px solid #e8e8e8;
+  padding: 24px 0; }
+
+.footer-heading {
+  font-size: 18px;
+  margin-bottom: 12px; }
+
+.contact-list,
+.social-media-list {
+  list-style: none;
+  margin-left: 0; }
+
+.footer-col-wrapper {
+  font-size: 15px;
+  color: #828282;
+  margin-left: -12px; }
+
+.footer-col {
+  float: left;
+  margin-bottom: 12px;
+  padding-left: 12px; }
+
+.footer-col-1 {
+  width: calc(35% - (24px / 2)); }
+
+.footer-col-2 {
+  width: calc(20% - (24px / 2)); }
+
+.footer-col-3 {
+  width: calc(45% - (24px / 2)); }
+
+@media screen and (max-width: 800px) {
+  .footer-col-1,
+  .footer-col-2 {
+    width: calc(50% - (24px / 2)); }
+  .footer-col-3 {
+    width: calc(100% - (24px / 2)); } }
+
+@media screen and (max-width: 600px) {
+  .footer-col {
+    float: none;
+    width: calc(100% - (24px / 2)); } }
+
+/**
+ * Page content
+ */
+.page-content {
+  padding: 24px 0; }
+
+.page-heading {
+  font-size: 20px; }
+
+.post-list {
+  margin-left: 0;
+  list-style: none; }
+  .post-list > li {
+    margin-bottom: 24px; }
+
+.post-meta {
+  font-size: 14px;
+  color: #828282; }
+
+.post-link {
+  display: block;
+  font-size: 24px; }
+
+/**
+ * Posts
+ */
+.post-header {
+  margin-bottom: 24px; }
+
+.post-title {
+  font-size: 42px;
+  letter-spacing: -1px;
+  line-height: 1; }
+  @media screen and (max-width: 800px) {
+    .post-title {
+      font-size: 36px; } }
+
+.post-content {
+  margin-bottom: 24px; }
+  .post-content h2 {
+    font-size: 32px; }
+    @media screen and (max-width: 800px) {
+      .post-content h2 {
+        font-size: 28px; } }
+  .post-content h3 {
+    font-size: 26px; }
+    @media screen and (max-width: 800px) {
+      .post-content h3 {
+        font-size: 22px; } }
+  .post-content h4 {
+    font-size: 20px; }
+    @media screen and (max-width: 800px) {
+      .post-content h4 {
+        font-size: 18px; } }
+
+.btn--save {
+  display: block;
+  width: 100%;
+  height: 44px;
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: #25AAFF;
+  border: none;
+  font-family: "Proxima Nova", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+  color: #fff;
+  cursor: pointer;
+  transition: bottom .2s ease-in-out; }
+  .bets-changed .btn--save {
+    bottom: 53px;
+    transition: bottom .2s ease-out; }
+
+.table {
+  border-collapse: collapse;
+  width: 100%; }
+
+.table__th {
+  text-align: left; }
+
+.table__tr {
+  border-bottom: 1px solid #ededed; }
+  .table__tr:first-child {
+    border-top: 1px solid #ededed; }
+  .table__tr:nth-child(odd) {
+    background: whitesmoke; }
+  .table__tr:hover {
+    background: #f1faff; }
+
+.table__th,
+.table__td {
+  padding: 4px 12px; }
+
+.logo:hover, .logo:active {
+  color: #4a4a4a;
+  text-decoration: none; }
+
+.logo__img {
+  float: left;
+  margin-right: 12px; }
+
+.logo__title,
+.logo__subtitle {
+  margin-bottom: 0;
+  line-height: 1.2; }
+
+.logo__title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #4a4a4a; }
+
+.logo__subtitle {
+  font-size: 12.8px;
+  white-space: nowrap;
+  color: #9b9b9b; }
+
+/*
+  = NAVIGATION
+=========================================== */
+.nav ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0; }
+
+/*
+  = PRIMARY NAVIGATION
+=========================================== */
+.nav--primary {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 800;
+  padding: 4px 12px;
+  background: #fff;
+  border-top: 1px solid #d1d1d1;
+  box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.15);
+  line-height: 44px; }
+
+.nav--primary__items {
+  display: flex;
+  justify-content: space-between; }
+
+/*
+  = SECONDARY NAVIGATION
+=========================================== */
+.nav--secondary {
+  position: relative; }
+
+.nav--secondary__toggle {
+  display: none; }
+
+.nav--secondary__label {
+  display: block;
+  line-height: 44px;
+  text-align: right;
+  cursor: pointer; }
+
+.nav--secondary__items {
+  position: absolute;
+  top: 44px;
+  right: 0;
+  background: #fff;
+  border: 1px solid #d1d1d1;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s ease-out; }
+
+.nav--secondary__link {
+  display: block;
+  padding: 0 24px;
+  border-top: 1px solid #ededed;
+  line-height: 44px;
+  white-space: nowrap;
+  cursor: pointer; }
+  .nav--secondary__item:first-child .nav--secondary__link {
+    border-top: none; }
+
+.nav--secondary__toggle:checked ~ .nav--secondary__items {
+  opacity: 1;
+  pointer-events: auto; }
+
+.page {
+  margin: 0 auto;
+  padding: 114px 12px 77px;
+  max-width: 600px; }
+  @media (min-width: 600px) {
+    .page {
+      border-left: 1px solid #ededed;
+      border-right: 1px solid #ededed;
+      background: #fff;
+      box-shadow: 0 0 2px rgba(0, 0, 0, 0.2); } }
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 800;
+  padding: 12px 12px 0;
+  background: #fff;
+  border-bottom: 1px solid #d1d1d1;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); }
+
+.user-stats {
+  display: flex;
+  justify-content: space-around;
+  margin: 8px -12px 0;
+  padding: 0 12px 0;
+  width: 100%;
+  border-top: 1px solid #ededed;
+  font-size: 12.8px;
+  line-height: 24px;
+  text-align: center; }
+  .user-stats > * {
+    width: 50%; }
+  .user-stats > :first-child {
+    border-right: 1px solid #ededed; }
+
+.match {
+  padding: 24px 0 0;
+  border-top: 1px solid #d1d1d1; }
+  .match:first-of-type {
+    border-top: none; }
+
+.match__time {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12.8px;
+  color: #9b9b9b;
+  text-align: center; }
+
+.match__title--only-mobile {
+  margin-bottom: 24px;
+  font-family: "Proxima Nova Condensed", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 25.008px;
+  text-align: center; }
+
+.match__title {
+  display: flex;
+  margin-bottom: 24px;
+  text-align: center; }
+  .match__title > * {
+    flex: 1 0 0;
+    width: 33%; }
+
+.match__logo {
+  position: relative;
+  margin: 0 auto;
+  width: 72px;
+  height: 72px;
+  border: 2px solid #4a4a4a;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); }
+  .match__logo:before {
+    content: " ";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: url(../images/logo--all-teams.svg) top left no-repeat;
+    background-size: 400% 800%; }
+
+.logo--atletico:before {
+  background-position: 33.33% 0; }
+
+.logo--barcelona:before {
+  background-position: 66.67% 0; }
+
+.logo--basel:before {
+  background-position: 100% 0; }
+
+.logo--bayern:before {
+  background-position: 0% 14.29%; }
+
+.logo--benfica:before {
+  background-position: 33.33% 14.29%; }
+
+.logo--besiktas:before {
+  background-position: 66.67% 14.29%; }
+
+.logo--brugge:before {
+  background-position: 100% 14.29%; }
+
+.logo--celtic:before {
+  background-position: 0% 28.57%; }
+
+.logo--dinamo:before {
+  background-position: 33.33% 28.57%; }
+
+.logo--dortmund:before {
+  background-position: 66.67% 28.57%; }
+
+.logo--juve:before {
+  background-position: 100% 28.57%; }
+
+.logo--kiev:before {
+  background-position: 0% 42.86%; }
+
+.logo--kobenhavn:before {
+  background-position: 33.33% 42.86%; }
+
+.logo--legia:before {
+  background-position: 66.67% 42.86%; }
+
+.logo--leicester:before {
+  background-position: 100% 42.86%; }
+
+.logo--leverkusen:before {
+  background-position: 0% 57.12%; }
+
+.logo--ludogorets:before {
+  background-position: 33.33% 57.12%; }
+
+.logo--lyon:before {
+  background-position: 66.67% 57.12%; }
+
+.logo--manchester:before {
+  background-position: 100% 57.12%; }
+
+.logo--moenchengladbach:before {
+  background-position: 0% 71.43%; }
+
+.logo--monaco:before {
+  background-position: 33.33% 71.43%; }
+
+.logo--moskau:before {
+  background-position: 66.67% 71.43%; }
+
+.logo--napoli:before {
+  background-position: 100% 71.43%; }
+
+.logo--paris:before {
+  background-position: 0% 85.71%; }
+
+.logo--porto:before {
+  background-position: 33.33% 85.71%; }
+
+.logo--psv:before {
+  background-position: 66.67% 85.71%; }
+
+.logo--real:before {
+  background-position: 100% 85.71%; }
+
+.logo--rostov:before {
+  background-position: 0% 100%; }
+
+.logo--sevilla:before {
+  background-position: 33.33% 100%; }
+
+.logo--sporting:before {
+  background-position: 66.67% 100%; }
+
+.logo--tottenham:before {
+  background-position: 100% 100%; }
+
+.match__team {
+  text-align: center; }
+
+.match__img {
+  display: block;
+  margin: 0 auto;
+  max-height: 100%; }
+
+.match__team-name {
+  display: none; }
+
+.match__goals,
+.match__result {
+  font-family: "Proxima Nova Condensed", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 31.248px; }
+
+.match__result {
+  font-size: 16px; }
+
+.match__bet {
+  display: flex;
+  margin-bottom: 12px;
+  border: 1px solid #ededed;
+  line-height: 1.2;
+  text-align: center; }
+  .match__bet .match__label {
+    display: block;
+    padding: 12px 0;
+    flex: 1;
+    border-bottom: 2px solid #ededed;
+    border-left: 1px solid #ededed; }
+    .match__bet .match__label:first-of-type {
+      border-left: none; }
+  .match__bet .match__label--10 {
+    border-bottom-color: #81d934; }
+  .match__bet .match__label--20 {
+    border-bottom-color: #d1df3a; }
+  .match__bet .match__label--30 {
+    border-bottom-color: #ffec58; }
+  .match__bet .match__label--40 {
+    border-bottom-color: #ffca58; }
+  .match__bet .match__label--50 {
+    border-bottom-color: #ff7458; }
+  .match__bet .match__radio:checked + .match__label {
+    background: #ededed;
+    font-weight: 700; }
+  .match__bet .match__radio:disabled + .match__label {
+    border-bottom: none;
+    color: #9b9b9b;
+    cursor: default; }
+
+.match__radio,
+.match__checkbox {
+  display: none; }
+
+.match__label {
+  display: inline-block;
+  cursor: pointer; }
+
+.match__superbet {
+  margin-bottom: 12px;
+  text-align: center; }
+  .match__superbet .match__label {
+    position: relative;
+    padding-left: 32px;
+    line-height: 44px; }
+    .match__superbet .match__label:before {
+      content: " ";
+      display: block;
+      position: absolute;
+      top: 50%;
+      left: 0;
+      margin-top: -12px;
+      width: 20px;
+      height: 20px;
+      border: 1px solid #d1d1d1; }
+  .match__superbet .match__checkbox:checked + .match__label:after {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 4px;
+    margin-top: -8px;
+    width: 14px;
+    height: 14px;
+    background: #25AAFF; }
+  .match__superbet .match__checkbox:disabled + .match__label {
+    color: #9b9b9b;
+    cursor: default; }
+    .match__superbet .match__checkbox:disabled + .match__label:before {
+      border-color: #ededed; }
+    .match__superbet .match__checkbox:disabled + .match__label:after {
+      background: #d1d1d1; }
+
+.match__superbets-left {
+  font-size: 12.8px;
+  color: #9b9b9b; }
+
+.table--ranking .table__th:first-child,
+.table--ranking .table__td:first-child {
+  text-align: center; }
+
+.table--ranking .table__th:nth-child(3),
+.table--ranking .table__td:nth-child(3),
+.table--ranking .table__th:nth-child(4),
+.table--ranking .table__td:nth-child(4) {
+  text-align: right; }
+
+/*# sourceMappingURL=style.css.map */

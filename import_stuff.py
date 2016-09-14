@@ -14,7 +14,7 @@ from models import Team, Match, User
 #Load teams
 with open('./misc/teams.csv') as f:
 
-    FMT = '{};{},{}'
+    FMT = '{},{},{}'
 
     for line in f.readlines():
         group, name, short_name = parse(FMT, line)
