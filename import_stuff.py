@@ -32,6 +32,8 @@ with open('./misc/teams.csv') as f:
 
         else:
             print('Team ' + str(team) + ' already in database.')
+            team.group = group
+            team.short_name = short_name
 
 db_session.commit()
 

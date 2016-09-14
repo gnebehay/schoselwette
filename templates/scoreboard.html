@@ -1,34 +1,36 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="wrapper">
-  <h1>Scoreboard</h1>
 
-  <table>
-    <thead>
-      <th>Rank</th>
-      <th>Points</th>
-      <th>Name</th>
+<main class="page page--ranking">
+
+  <h1 class="page__title">Ranking</h1>
+
+  <table class="table table--ranking">
+    <thead class="table__thead">
+      <th class="table__th">Rank</th>
+      <th class="table__th">Name</th>
+      <th class="table__th">Bets</th>
       {% if current_user.final_started %}
       <th>Champion</th>
       {% endif %}
-      </tr>
+      <th class="table__th">Points</th>
     </thead>
-    <tbody>
+    <tbody class="table__tbody">
       {% for user in scoreboard %}
-
-      <tr>
-
-      <td>{{ loop.index }}</td>
-      <td>{{ '%0.2f' | format(user.points) }}</td>
-      <td><a href='{{ url_for('user', user_id=user.id) }}'>{{ user.name }}</a></td>
+      <td class="table__td">{{ loop.index }}</td>
+      <td class="table__td"><a href='{{ url_for('user', user_id=user.id) }}'>{{ user.name }}</a></td>
+      <td class="table__td">{{ '%0.2f' | format(user.points) }}</td>
       {% if current_user.final_started %}
-      <td>{{ user.champion.name }}</td>
+      <td class="table__td">{{ user.champion.name }}</td>
       {% endif %}
       </tr>
-
       {% endfor %}
     </tbody>
-  <table>
-</div>
+  </table>
+</main>
+
+
+  <script src="/assets/javascript/index.js"></script>
+
 {% endblock %}

@@ -86,7 +86,6 @@ def send_mail(msg):
         print(msg)
 
 def send_mail_template(tpl, recipients, **kwargs):
-    import ipdb; ipdb.set_trace()
     rendered_mail = render_template('mail/' + tpl, **kwargs)
     subject = rendered_mail.splitlines()[0]
     body = '\n'.join(rendered_mail.splitlines()[1:])

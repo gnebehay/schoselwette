@@ -106,7 +106,7 @@ class Team(Base):
     __tablename__ = 'teams'
     id = Column(Integer, primary_key=True)
     name = Column(String(128), nullable=False, unique=True)
-    short_name = Column(String(3), nullable=False, unique=True)
+    short_name = Column(String(16), nullable=False, unique=True)
     group = Column(String(1), nullable=False)
     champion = Column(Boolean, default=False, nullable=False)
 
