@@ -206,7 +206,7 @@ def main():
         if flashTooManySupertips:
             flash('You selected too many super bets.')
 
-    if current_user.champion == None:
+    if current_user.champion is None:
         flash('The champion bet can be changed until the first match begins.')
 
     if current_user.supertips < User.MAX_SUPERTIPS:
@@ -217,15 +217,28 @@ def main():
 
     return render_template('main.html', bets=sorted_bets, form=form)
 
+@app.context_processor
+def rankings():
+
+    if not current_user.is_authenticated:
+        return {}
+
+    users = db_session.query(User).filter(User.paid)
+
+    users_sorted = sorted(users, key=lambda x: x.points, reverse=True)
+
+    if not current_user.paid:
+        myrank = 0
+    else:
+        myrank = users_sorted.index(current_user)+1
+
+    return dict(rankings=users_sorted, myrank=myrank)
+
 @app.route('/scoreboard')
 @login_required
 def scoreboard():
 
-    users = db_session.query(User)#.filter(User.paid)
-
-    users_sorted = sorted(users, key=lambda x: x.points, reverse=True)
-
-    return render_template('scoreboard.html', scoreboard = users_sorted)
+    return render_template('scoreboard.html')
 
 @app.route('/user/<int:user_id>')
 @login_required

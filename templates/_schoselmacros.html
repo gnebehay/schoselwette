@@ -1,12 +1,20 @@
-{% macro render_bets(bets, stage) %}
+{% macro render_bets(bets, stage, current_user) %}
+
+<h2>{{ stage }}</h2>
 
 {% for bet in bets if bet.match.stage == stage: %}
 
-    <h2>{{ stage }}</h2>
-
     <section class="match">
       <time class="match__time">{{ bet.match.date.strftime('%b %d, %H:%M') }}</time>
-      <div class="match__title--only-mobile">{{ bet.match.team1.name }} - {{ bet.match.team2.name }}</div>
+      <div class="match__title--only-mobile">
+
+        {% if not bet.match.editable %}<a href='{{ url_for('match', match_id=bet.match.id) }}'>{% endif %}
+
+        {{ bet.match.team1.name }} - {{ bet.match.team2.name }}
+
+        {% if not bet.match.editable %}</a>{% endif %}
+
+      </div>
       <div class="match__title">
         <div class="match__team">
 
@@ -32,21 +40,21 @@
 
       <div class="match__bet">
 
-        <input id='outcome-{{ bet.match.id }}-1' class="js-input match__radio" type="radio" name="m1" {% if bet.outcome == '1' %}checked{% endif %} value="1">
-        <label class="match__label match__label--50" for="outcome-{{ bet.match.id }}-1">Home<br></label>
+        <input id='outcome-{{ bet.match.id }}-1' class="js-input match__radio" type="radio" name="outcome-{{ bet.match.id }}" {% if bet.outcome == '1' %}checked{% endif %} value="1">
+        <label class="match__label match__label--{{ bet.match.color['1']}}" for="outcome-{{ bet.match.id }}-1">Home<br></label>
 
-        <input id='outcome-{{ bet.match.id }}-X' class="js-input match__radio" type="radio" name="m1" {% if bet.outcome == 'X' %}checked{% endif %} value="X">
-        <label class="match__label match__label--10" for="outcome-{{ bet.match.id }}-X">Draw<br></label>
+        <input id='outcome-{{ bet.match.id }}-X' class="js-input match__radio" type="radio" name="outcome-{{ bet.match.id }}" {% if bet.outcome == 'X' %}checked{% endif %} value="X">
+        <label class="match__label match__label--{{ bet.match.color['X']}}" for="outcome-{{ bet.match.id }}-X">Draw<br></label>
 
-        <input id='outcome-{{ bet.match.id }}-2' class="js-input match__radio" type="radio" name="m1" {% if bet.outcome == '2' %}checked{% endif %} value="2">
-        <label class="match__label match__label--10" for="outcome-{{ bet.match.id }}-2">Away<br></label>
+        <input id='outcome-{{ bet.match.id }}-2' class="js-input match__radio" type="radio" name="outcome-{{ bet.match.id }}" {% if bet.outcome == '2' %}checked{% endif %} value="2">
+        <label class="match__label match__label--{{ bet.match.color['2']}}" for="outcome-{{ bet.match.id }}-2">Away<br></label>
 
       </div>
 
       <div class="match__superbet">
 
-        <input id="{{ bet.match.id }}-superbet" class="js-input match__checkbox" type="checkbox" {% if bet.supertip %}checked{% endif %}>
-        <label class="match__label" for="{{ bet.match.id }}-superbet">Super bet <span class="match__superbets-left">&nbsp;(4 left)</span></label>
+        <input id="{{ bet.match.id }}-superbet" class="js-input match__checkbox" type="checkbox" name='supertip-{{ bet.match.id }}' {% if bet.supertip %}checked{% endif %}>
+        <label class="match__label" for="{{ bet.match.id }}-superbet">Super bet <span class="match__superbets-left">&nbsp;({{ 4 - current_user.supertips}} left)</span></label>
 
       </div>
 
@@ -54,21 +62,21 @@
 
       <div class="match__bet">
 
-        <input disabled='true' id='outcome-{{ bet.match.id }}-1' class="js-input match__radio" type="radio" name="m1" {% if bet.outcome == '1' %}checked{% endif %} value="1">
-        <label class="match__label match__label--50" for="outcome-{{ bet.match.id }}-1">Home<br>{{ '%0.2f' | format(bet.match.odds['1']) }}</label>
+        <input disabled='true' id='outcome-{{ bet.match.id }}-1' class="js-input match__radio" type="radio" name="outcome-{{ bet.match.id }}" {% if bet.outcome == '1' %}checked{% endif %} value="1">
+        <label class="match__label match__label--{{ bet.match.color['1']}}" for="outcome-{{ bet.match.id }}-1">Home<br>{{ '%0.2f' | format(bet.match.odds['1']) }}</label>
 
-        <input disabled='true' id='outcome-{{ bet.match.id }}-X' class="js-input match__radio" type="radio" name="m1" {% if bet.outcome == 'X' %}checked{% endif %} value="X">
-        <label class="match__label match__label--10" for="outcome-{{ bet.match.id }}-X">Draw<br>{{ '%0.2f' | format(bet.match.odds['X']) }}</label>
+        <input disabled='true' id='outcome-{{ bet.match.id }}-X' class="js-input match__radio" type="radio" name="outcome-{{ bet.match.id }}" {% if bet.outcome == 'X' %}checked{% endif %} value="X">
+        <label class="match__label match__label--{{ bet.match.color['X']}}" for="outcome-{{ bet.match.id }}-X">Draw<br>{{ '%0.2f' | format(bet.match.odds['X']) }}</label>
 
-        <input disabled='true' id='outcome-{{ bet.match.id }}-2' class="js-input match__radio" type="radio" name="m1" {% if bet.outcome == '2' %}checked{% endif %} value="2">
-        <label class="match__label match__label--10" for="outcome-{{ bet.match.id }}-2">Away<br>{{ '%0.2f' | format(bet.match.odds['2']) }}</label>
+        <input disabled='true' id='outcome-{{ bet.match.id }}-2' class="js-input match__radio" type="radio" name="outcome-{{ bet.match.id }}" {% if bet.outcome == '2' %}checked{% endif %} value="2">
+        <label class="match__label match__label--{{ bet.match.color['2']}}" for="outcome-{{ bet.match.id }}-2">Away<br>{{ '%0.2f' | format(bet.match.odds['2']) }}</label>
 
       </div>
 
       <div class="match__superbet">
 
         <input disabled='true'  id="{{ bet.match.id }}-superbet" class="js-input match__checkbox" type="checkbox">
-        <label class="match__label" for="c1">Super bet <span class="match__superbets-left">&nbsp;(4 left)</span></label>
+        <label class="match__label" for="c1">Super bet <span class="match__superbets-left">&nbsp;({{ 4 - current_user.supertips}} left)</span></label>
 
       </div>
 

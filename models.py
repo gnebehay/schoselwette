@@ -25,9 +25,6 @@ class User(Base):
 
         points = sum([bet.points for bet in self.bets])
 
-        print(self.champion)
-        print(self.champion_correct)
-
         if self.champion_correct:
             points += self.champion.odds
 
@@ -54,6 +51,11 @@ class User(Base):
             bet = Bet()
             bet.user = self
             bet.match = match
+
+    @property
+    def valid_bets(self):
+        valid_bets = [bet for bet in self.bets_sorted if bet.valid]
+        return valid_bets
 
     @property
     def bets_sorted(self):
@@ -162,21 +164,44 @@ class Match(Base):
             return '2'
         return 'X'
 
+
     # Returns a dictionary from outcome -> odd
     @property
     def odds(self):
 
-        valid_bets = [bet for bet in self.bets if bet.valid]
-        valid_outcomes = [bet.outcome for bet in valid_bets]
+        num_players = db_session.query(User).filter(User.paid).count()
 
-        n = len(valid_bets)
+        # Retrieve all valid outcomes for this match
+        valid_outcomes = [bet.outcome for bet in self.bets if bet.valid]
 
+        # Count individual outcomes
         counter = Counter(valid_outcomes)
 
+        # Here we reuse the counter dict for storing the odds
         for o in counter.keys():
-            counter[o] = n / counter[o] #n is always greater than counter
+            counter[o] = num_players / counter[o] #num_players is always greater than counter
 
         return counter
+
+    @property
+    def color(self):
+
+        # Maximal odds, e.g. 14
+        num_players = db_session.query(User).filter(User.paid).count()
+
+        if num_players == 0:
+            return {outcome: 50 for outcome in ['1', 'X', '2']}
+
+        # Retrieve all valid outcomes for this match
+        valid_outcomes = [bet.outcome for bet in self.bets if bet.valid]
+
+        color = {}
+        for outcome in ['1', 'X', '2']:
+
+            # Range 10-50
+            color[outcome] = 10 + int(round(40 * valid_outcomes.count(outcome) / num_players, -1))
+
+        return color
 
     @property
     def bets_sorted(self):

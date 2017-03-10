@@ -8,7 +8,8 @@
 
   <h1 class="page__title">Matches</h1>
 
-  <form>
+  <form action="{{ url_for('main') }}" method="post" >
+    {{ form.hidden_tag() }}
 
     <h2 class="page__subtitle">Champion</h2>
 
@@ -22,7 +23,8 @@
 
 {% endif %}
 
-{{ render_bets(bets, 'Group stage') }}
+{{ render_bets(bets, 'Round of 16', current_user) }}
+{{ render_bets(bets, 'Group stage', current_user) }}
 
     <input class="btn--save" type="submit" value="save">
   </form>

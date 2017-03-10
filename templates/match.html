@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="wrapper">
+
+<main class="page page--ranking">
+
 <h1>{{ match.team1.name }} - {{ match.team2.name }}</h1>
 
 {% if not match.editable %}
@@ -30,11 +32,11 @@
 
 Odds: {{ '%0.2f' | format(match.odds['1']) }} {{ '%0.2f' | format(match.odds['X']) }} {{'%0.2f'| format(match.odds['2']) }}
 
-<table>
-  <thead>
-    <th>Name</th>
-    <th>Bet</th>
-    <th>Points</th>
+<table class="table table--match">
+  <thead class='table__thead'>
+    <th class='table__th'>Name</th>
+    <th class='table__th'>Bet</th>
+    <th class='table__th'>Points</th>
   </thead>
     <tbody>
 
@@ -43,9 +45,9 @@ Odds: {{ '%0.2f' | format(match.odds['1']) }} {{ '%0.2f' | format(match.odds['X'
 {% if bet.valid %}
 
 <tr>
-<td><a href='{{ url_for('user', user_id=bet.user.id) }}'>{{ bet.user.name }}</a></td>
-<td>{{ bet.outcome }} {{ '*' if bet.supertip }}</td>
-<td>{{ '%0.2f' | format(bet.points) }}</td>
+<td class="table__td"><a href='{{ url_for('user', user_id=bet.user.id) }}'>{{ bet.user.name }}</a></td>
+<td class="table__td">{{ bet.outcome }} {{ '*' if bet.supertip }}</td>
+<td class="table__td">{{ '%0.2f' | format(bet.points) }}</td>
 </tr>
 
 {% endif %}
@@ -55,5 +57,7 @@ Odds: {{ '%0.2f' | format(match.odds['1']) }} {{ '%0.2f' | format(match.odds['X'
 <table>
 
 {% endif %}
-</div>
+
+</main>
+
 {% endblock %}
