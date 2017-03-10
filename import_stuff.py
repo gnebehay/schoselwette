@@ -37,7 +37,7 @@ with open('./misc/teams.csv') as f:
 
 db_session.commit()
 
-MONTHS = {'Jun':6, 'Jul': 7, 'Aug': 8, 'Sep': 9, 'Okt': 10, 'Nov': 11, 'Dez': 12}
+MONTHS = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'Mai': 5, 'Jun':6, 'Jul': 7, 'Aug': 8, 'Sep': 9, 'Okt': 10, 'Nov': 11, 'Dez': 12}
 
 for stage in os.listdir('matches'):
 
@@ -55,7 +55,8 @@ for stage in os.listdir('matches'):
             team1 = db_session.query(Team).filter(Team.name == team1).one()
             team2 = db_session.query(Team).filter(Team.name == team2).one()
 
-            dt = datetime.datetime(2016, month=MONTHS[month], day=int(day), hour=int(hour), minute=int(minute))
+            # TODO TODO TODO: Move year into data
+            dt = datetime.datetime(2017, month=MONTHS[month], day=int(day), hour=int(hour), minute=int(minute))
 
             match = db_session.query(Match).filter(
                 Match.team1 == team1,
