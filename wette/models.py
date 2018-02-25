@@ -1,22 +1,36 @@
 import collections
 import datetime
+import enum
+
 import sqlalchemy as sa
 import sqlalchemy_utils as sa_utils
 
-import wette
+import flask_app
 
-Outcome = sa.Enum('1', 'X', '2')
+class Stage(enum.Enum):
+    GROUP_STAGE = 'Group stage'
+    ROUND_OF_16 = 'Round of 16'
+    QUARTER_FINAL = 'Quarter-finals'
+    SEMI_FINALS = 'Semi-finals'
+    FINAL = 'Final'
 
-Stage = sa.Enum('Group stage', 'Round of 16', 'Quarter-finals', 'Semi-finals', 'Final')
+class Outcome(enum.Enum):
+    TEAM1_WIN = '1'
+    DRAW = 'X'
+    TEAM2_WIN = '2'
 
-class Bet(wette.Base):
+def _get_values(enum_type):
+    return [e.value for e in enum_type]
+
+class Bet(flask_app.Base):
 
     __tablename__ = 'bets'
 
     id = sa.Column(sa.Integer, primary_key=True)
     user_id = sa.Column(sa.Integer, sa.ForeignKey('users.id'))
     match_id = sa.Column(sa.Integer, sa.ForeignKey('matches.id'))
-    outcome = sa.Column(Outcome)
+    import ipdb; ipdb.set_trace(context=49)
+    outcome = sa.Column(sa.Enum(Outcome, values_callable=_get_values))
     supertip = sa.Column(sa.Boolean, default=False, nullable=False)
 
     match = sa.orm.relationship('Match', backref='bets')
@@ -55,7 +69,7 @@ class Bet(wette.Base):
             self.match.stage, self.supertip, self.outcome)
 
 
-class Match(wette.Base):
+class Match(flask_app.Base):
 
     __tablename__ = 'matches'
 
@@ -63,7 +77,7 @@ class Match(wette.Base):
     team1_id = sa.Column(sa.Integer, sa.ForeignKey('teams.id'), nullable=False)
     team2_id = sa.Column(sa.Integer, sa.ForeignKey('teams.id'), nullable=False)
     date = sa.Column(sa.DateTime, nullable=False)
-    stage = sa.Column(Stage)
+    stage = sa.Column(sa.Enum(Stage, values_callable=_get_values))
     # TODO: non-negative constraint
     goals_team1 = sa.Column(sa.Integer)
     goals_team2 = sa.Column(sa.Integer)
@@ -82,17 +96,17 @@ class Match(wette.Base):
         if self.goals_team1 is None or self.goals_team2 is None:
             return None
         if self.goals_team1 > self.goals_team2:
-            return '1'
+            return Outcome.TEAM1_WIN
         if self.goals_team1 < self.goals_team2:
-            return '2'
-        return 'X'
+            return Outcome.DRAW
+        return Outcome.TEAM2_WIN
 
 
     # Returns a dictionary from outcome -> odd
     @property
     def odds(self):
 
-        num_players = wette.db_session.query(User).filter(User.paid).count()
+        num_players = flask_app.db_session.query(User).filter(User.paid).count()
 
         # Retrieve all valid outcomes for this match
         valid_outcomes = [bet.outcome for bet in self.bets if bet.valid]
@@ -106,11 +120,12 @@ class Match(wette.Base):
 
         return counter
 
+    # TODO: Candidate for removal
     @property
     def color(self):
 
         # Maximal odds, e.g. 14
-        num_players = wette.db_session.query(User).filter(User.paid).count()
+        num_players = flask_app.db_session.query(User).filter(User.paid).count()
 
         if num_players == 0:
             return {outcome: 50 for outcome in ['1', 'X', '2']}
@@ -140,7 +155,7 @@ class Match(wette.Base):
             self.id, self.team1.name, self.team2.name, self.date, self.stage, self.goals_team1, self.goals_team2)
 
 # TODO: Delete
-class Message(wette.Base):
+class Message(flask_app.Base):
 
     __tablename__ = 'chat'
 
@@ -151,7 +166,7 @@ class Message(wette.Base):
 
     user = sa.orm.relationship('User')
 
-class Team(wette.Base):
+class Team(flask_app.Base):
 
     __tablename__ = 'teams'
 
@@ -165,7 +180,7 @@ class Team(wette.Base):
     def odds(self):
 
         # Get number of users that placed a bet
-        num_total_bets = wette.db_session.query(User).filter(User.champion_id is not None).count()
+        num_total_bets = flask_app.db_session.query(User).filter(User.champion_id is not None).count()
 
         # Number of users that betted on this particular team
         num_bets_team = len(self.users)
@@ -181,7 +196,7 @@ class Team(wette.Base):
         return '<Team: id={}, name={}, short_name={}, group={}, champion={}>'.format(
             self.id, self.name, self.short_name, self.group, self.champion)
 
-class User(wette.Base):
+class User(flask_app.Base):
 
     __tablename__ = 'users'
 
@@ -223,7 +238,7 @@ class User(wette.Base):
 
     def create_missing_bets(self):
 
-        all_matches = wette.db_session.query(Match)
+        all_matches = flask_app.db_session.query(Match)
 
         matches_of_existing_bets = [bet.match for bet in self.bets]
 
@@ -275,12 +290,12 @@ class User(wette.Base):
 
     @property
     def champion_editable(self):
-        first_match = wette.db_session.query(Match).order_by('date').first()
+        first_match = flask_app.db_session.query(Match).order_by('date').first()
         return first_match.date > datetime.datetime.now()
 
     @property
     def final_started(self):
-        final_match = wette.db_session.query(Match).filter(Match.stage == 'Final').one_or_none()
+        final_match = flask_app.db_session.query(Match).filter(Match.stage == Stage.FINAL).one_or_none()
 
         if final_match is None:
             return False

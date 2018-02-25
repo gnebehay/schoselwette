@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="wrapper">
+<h1>Sign In</h1>
+<form class="form" action="{{url_for('forgotten')}}" method="post" name="forgotten">
+    {{ form.hidden_tag() }}
+
+    {{ form.email.label }}
+    {{ render_field(form.email) }}
+
+    <p><input class="btn btn--primary" type="submit" value="Send Reset Token"><a style="margin-left:24px;" href='index'>Cancel</a></p>
+
+    <p><a href=''></a></p>
+
+</form>
+</div>
+{% endblock %}

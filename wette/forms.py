@@ -1,11 +1,10 @@
+import flask_wtf
 import wtforms.fields as fld
 import wtforms.validators as val
 
-import flask_wtf
-
+import flask_app
 import models
 
-import wette
 
 def str_or_none(s):
     if s is None:
@@ -22,13 +21,13 @@ def int_or_none(v):
 
     return ret
 
-class LoginForm(flask_wtf.Form):
+class LoginForm(flask_wtf.FlaskForm):
 
     email = fld.html5.EmailField('Email')
     password = fld.PasswordField('Password')
     rememberme = fld.BooleanField('Remember me')
 
-class RegistrationForm(wette.ModelForm):
+class RegistrationForm(flask_app.ModelForm):
 
     class Meta:
         model = models.User
@@ -41,37 +40,37 @@ class RegistrationForm(wette.ModelForm):
     confirm = fld.PasswordField('Confirm Password')
     recaptcha = flask_wtf.RecaptchaField()
 
-class BetForm(wette.ModelForm):
+class BetForm(flask_app.ModelForm):
     class Meta:
         model = models.Bet
 
     # TODO: How can enum be rendered automatically as a select form?
     # TODO: this seems to be a required field. why?
     outcome = fld.RadioField('Label',
-                             choices=[(o, o) for o in models.Outcome.enums],
+                             choices=[(o.value, o.value) for o in models.Outcome],
                              validators=[val.Optional()],
                              coerce=str_or_none)
 
     # This stuff is important.
     dummy = fld.HiddenField('arsch', default='foo')
 
-class BetsForm(flask_wtf.Form):
+class BetsForm(flask_wtf.FlaskForm):
     bets = fld.FieldList(fld.FormField(BetForm))
 
-class ChampionForm(flask_wtf.Form):
+class ChampionForm(flask_wtf.FlaskForm):
     champion_id = fld.SelectField('Champion', coerce=int_or_none)
 
-class MatchForm(wette.ModelForm):
+class MatchForm(flask_app.ModelForm):
     class Meta:
         model = models.Match
         # TODO: How to include instead of exclude?
         exclude = ['date', 'stage']
 
-class ForgottenForm(flask_wtf.Form):
+class ForgottenForm(flask_wtf.FlaskForm):
 
     email = fld.html5.EmailField('Email')
 
-class UserForm(wette.ModelForm):
+class UserForm(flask_app.ModelForm):
     class Meta:
         model = models.User
         exclude = ['paid', 'password']

@@ -1,5 +1,4 @@
 import flask
-import flask.ext.socketio
 import flask_login
 import flask_mail
 import flask_wtf
@@ -14,10 +13,9 @@ app = flask.Flask(__name__)
 app.debug = True
 
 mail = flask_mail.Mail(app)
-socketio = flask.ext.socketio.SocketIO()
 
 # Enable Csrf protection
-flask_wtf.csrf.CsrfProtect(app)
+flask_wtf.csrf.CSRFProtect(app)
 
 # Load the config file
 app.config.from_object('config')
@@ -53,7 +51,7 @@ def shutdown_session(exception=None):
 
 
 # This code is needed to make form generation work
-BaseModelForm = wtforms_alchemy.model_form_factory(flask_wtf.Form)
+BaseModelForm = wtforms_alchemy.model_form_factory(flask_wtf.FlaskForm)
 
 # TODO: What is this good for?
 class ModelForm(BaseModelForm):
@@ -71,6 +69,6 @@ def load_user(user_id):
     return q.one_or_none()
 
 # This import is at the end to avoid circular imports (e.g. app would not be found)
-import views, events # noqa
-
-socketio.init_app(app)
+import models # noqa
+import views # noqa
+import api # noqa

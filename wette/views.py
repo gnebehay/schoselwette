@@ -5,11 +5,12 @@ import hashlib
 
 from flask_login import login_required
 
+import flask_app
 import forms
 import models
-import wette
 
-from wette import app
+from flask_app import app
+
 
 @app.route('/')
 @app.route('/index')
@@ -21,12 +22,14 @@ def index():
 
     return flask.render_template('index.html')
 
+
 @app.route("/logout")
 @login_required
 def logout():
     flask_login.logout_user()
     return flask.redirect('index')
 
+    
 @app.route('/login', methods=['GET', 'POST'])
 def login():
 
@@ -36,7 +39,7 @@ def login():
         salted_password = bytes(app.config['PASSWORD_SALT'] + form.password.data, 'utf-8')
         password_hash = hashlib.md5(salted_password).hexdigest()
 
-        q = wette.db_session.query(models.User).filter(
+        q = flask_app.db_session.query(models.User).filter(
             models.User.email == form.email.data,
             models.User.password == password_hash)
 
@@ -58,10 +61,11 @@ def login():
 
     return flask.render_template('login.html', form=form)
 
+# TODO: Move this somewhere else
 def send_mail(msg):
     try:
         msg.sender = app.config['MAIN_MAIL']
-        wette.mail.send(msg)
+        flask_app.mail.send(msg)
     except:
         print('Tried to send mail, did not work.')
         print(msg)
@@ -91,7 +95,7 @@ def register():
 
         # Create password hash
         user.password = password_hash
-        wette.db_session.add(user)
+        flask_app.db_session.add(user)
 
         user.create_missing_bets()
 
@@ -118,7 +122,7 @@ def main():
     form = forms.ChampionForm(obj=current_user)
 
     # TODO: Where to put this?
-    all_teams = wette.db_session.query(models.Team).order_by('name')
+    all_teams = flask_app.db_session.query(models.Team).order_by('name')
     form.champion_id.choices = [(None, '')] + [(team.id, team.name) for team in all_teams]
 
     if flask.request.method == 'POST':
@@ -179,7 +183,7 @@ def rankings():
     if not current_user.is_authenticated:
         return {}
 
-    users = wette.db_session.query(models.User).filter(models.User.paid)
+    users = flask_app.db_session.query(models.User).filter(models.User.paid)
 
     users_sorted = sorted(users, key=lambda x: x.points, reverse=True)
 
@@ -200,7 +204,7 @@ def scoreboard():
 @login_required
 def user(user_id):
 
-    user = wette.db_session.query(models.User).filter(models.User.id == user_id).one()
+    user = flask_app.db_session.query(models.User).filter(models.User.id == user_id).one()
 
     return flask.render_template('user.html', user=user)
 
@@ -209,7 +213,7 @@ def user(user_id):
 @login_required
 def match(match_id):
 
-    match = wette.db_session.query(models.Match).filter(models.Match.id == match_id).one()
+    match = flask_app.db_session.query(models.Match).filter(models.Match.id == match_id).one()
 
     form = forms.MatchForm(obj=match)
 
@@ -252,7 +256,7 @@ def confirm_payment(user_id):
     if not flask_login.current_user.admin:
         flask.abort(403)
 
-    user = wette.db_session.query(models.User).filter(models.User.id == user_id).one()
+    user = flask_app.db_session.query(models.User).filter(models.User.id == user_id).one()
 
     user.paid = True
 
@@ -267,7 +271,7 @@ def confirm_payment(user_id):
 @login_required
 def chat():
 
-    messages = wette.db_session.query(models.Message)
+    messages = flask_app.db_session.query(models.Message)
     # .filter(models.Message.date > datetime.date.today())
 
     return flask.render_template('chat.html', messages=messages)
@@ -276,7 +280,7 @@ def chat():
 @login_required
 def stats():
 
-    teams = wette.db_session.query(models.Team)
+    teams = flask_app.db_session.query(models.Team)
 
     teams = sorted(teams, key=lambda t: t.odds, reverse=True)
 
@@ -289,7 +293,7 @@ def make_champion(team_id):
     if not flask_login.current_user.admin:
         flask.abort(403)
 
-    teams = wette.db_session.query(models.Team)
+    teams = flask_app.db_session.query(models.Team)
 
     for team in teams:
         if team.id == team_id:

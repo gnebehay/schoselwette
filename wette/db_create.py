@@ -1,5 +1,5 @@
 #!venv/bin/python3
 
-from wette import Base, engine
+from flask_app import Base, engine
 
 Base.metadata.create_all(engine)

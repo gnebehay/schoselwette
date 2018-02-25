@@ -16,6 +16,7 @@
     {{ render_field(form.rememberme) }}<label for="rememberme"></label>
 
     <p><input class="btn btn--primary" type="submit" value="Sign In"><a style="margin-left:24px;" href='index'>Cancel</a></p>
+    <p><a style="margin-left:24px;" href='{{ url_for('forgotten') }}'>Forgot your password?</a></p>
 </form>
 </div>
 {% endblock %}
