@@ -5,6 +5,7 @@ import flask_wtf
 import sqlalchemy
 import wtforms_alchemy
 
+
 # TODO: Add some more explanation here what all of this is good for
 
 app = flask.Flask(__name__)
@@ -24,6 +25,12 @@ app.config.from_object('config')
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+
+@login_manager.user_loader
+def load_user(user_id):
+
+    q = db_session.query(models.User).filter(models.User.id == user_id)
+    return q.one_or_none()
 
 # Establish database connection
 engine = sqlalchemy.create_engine(
@@ -59,16 +66,8 @@ class ModelForm(BaseModelForm):
     def get_session(self):
         return db_session
 
-
-from models import User # noqa
-
-@login_manager.user_loader
-def load_user(user_id):
-
-    q = db_session.query(User).filter(User.id == user_id)
-    return q.one_or_none()
-
 # This import is at the end to avoid circular imports (e.g. app would not be found)
 import models # noqa
 import views # noqa
 import api # noqa
+

@@ -29,7 +29,6 @@ class Bet(flask_app.Base):
     id = sa.Column(sa.Integer, primary_key=True)
     user_id = sa.Column(sa.Integer, sa.ForeignKey('users.id'))
     match_id = sa.Column(sa.Integer, sa.ForeignKey('matches.id'))
-    import ipdb; ipdb.set_trace(context=49)
     outcome = sa.Column(sa.Enum(Outcome, values_callable=_get_values))
     supertip = sa.Column(sa.Boolean, default=False, nullable=False)
 
@@ -41,7 +40,7 @@ class Bet(flask_app.Base):
 
     @property
     def valid(self):
-        return self.outcome is not None and self.user.paid
+        return self.outcome is not None
 
     @property
     def points(self):
@@ -67,6 +66,22 @@ class Bet(flask_app.Base):
                 'outcome={}>').format(
             self.id, self.user.name, self.match.team1.name, self.match.team2.name,
             self.match.stage, self.supertip, self.outcome)
+
+    def apify(self, match=False, user=False):
+
+        d = {}
+
+        d['outcome'] = self.outcome.value if self.outcome is not None else None
+        d['supertip'] = self.supertip
+        d['points'] = self.points
+
+        if match:
+            d['match'] = self.match.apify()
+
+        if user:
+            d['user'] = self.user.apify()
+
+        return d
 
 
 class Match(flask_app.Base):
@@ -141,7 +156,8 @@ class Match(flask_app.Base):
 
         return color
 
-    # TODO: Explain what happens here
+    # Sorts bets
+    # 
     @property
     def bets_sorted(self):
         return sorted(self.bets,
@@ -153,6 +169,36 @@ class Match(flask_app.Base):
     def __repr__(self):
         return '<Match: id={}, team1={}, team2={}, date={}, stage={}, goals_team1={}, goals_team2={}>'.format(
             self.id, self.team1.name, self.team2.name, self.date, self.stage, self.goals_team1, self.goals_team2)
+
+    def apify(self, bets=False):
+
+        d = {}
+        d['match_id'] = self.id
+        d['date'] = self.date.isoformat() + 'Z'
+
+        # TODO: Implement this
+        d['status'] = 'over'
+
+        d['outcome'] = self.outcome.value if self.outcome is not None else None
+        d['team1_name'] = self.team1.name
+        d['team1_iso'] = self.team1.short_name
+        d['team1_goals'] = self.goals_team1
+        d['team2_name'] = self.team2.name
+        d['team2_iso'] = self.team2.short_name
+        d['team2_goals'] = self.goals_team2
+        d['stage'] = self.stage.value
+
+        odds = {}
+        odds[Outcome.TEAM1_WIN.value] = self.odds[Outcome.TEAM1_WIN]
+        odds[Outcome.TEAM2_WIN.value] = self.odds[Outcome.TEAM2_WIN]
+        odds[Outcome.DRAW.value] = self.odds[Outcome.DRAW]
+
+        d['odds'] = odds
+
+        if bets:
+            d['bets'] = [bet.apify(user=True) for bet in self.bets]
+
+        return d
 
 # TODO: Delete
 class Message(flask_app.Base):
@@ -229,6 +275,7 @@ class User(flask_app.Base):
 
     @property
     def champion_correct(self):
+
         if self.champion is not None:
             if self.champion.champion:
                 return True
@@ -251,15 +298,6 @@ class User(flask_app.Base):
             bet.match = match
 
     @property
-    def valid_bets(self):
-        valid_bets = [bet for bet in self.bets_sorted if bet.valid]
-        return valid_bets
-
-    @property
-    def bets_sorted(self):
-        return sorted(self.bets, key=lambda x: x.match.date)
-
-    @property
     def supertips(self):
         return len([bet for bet in self.bets if bet.supertip])
 
@@ -280,6 +318,12 @@ class User(flask_app.Base):
     def is_anonymous(self):
         return False
 
+    # All valid bets that are no longer editable, sorted by match date
+    @property
+    def visible_bets(self):
+        visible_bets = [bet for bet in self.bets if bet.valid and not bet.match.editable]
+        return sorted(visible_bets, key=lambda bet: bet.match.date)
+
     def get_id(self):
         return str(self.id)
     # END
@@ -288,11 +332,13 @@ class User(flask_app.Base):
         return '<User: id={}, email={}, first_name={}, last_name={}, paid={}, champion_id={}>'.format(
             self.id, self.email, self.first_name, self.last_name, self.paid, self.champion_id)
 
+    # TODO: Why is this a property of user?
     @property
     def champion_editable(self):
         first_match = flask_app.db_session.query(Match).order_by('date').first()
         return first_match.date > datetime.datetime.now()
 
+    # TODO: Why is this a property of user?
     @property
     def final_started(self):
         final_match = flask_app.db_session.query(Match).filter(Match.stage == Stage.FINAL).one_or_none()
@@ -300,3 +346,22 @@ class User(flask_app.Base):
         if final_match is None:
             return False
         return final_match.date < datetime.datetime.now()
+
+    def apify(self, bets=False):
+
+        d = {}
+        d['user_id'] = self.id
+        d['name'] = self.name
+        d['logged_in'] = False # TODO: Not implemented yet
+        d['points'] = self.points
+
+        if self.final_started:
+            d['champion_id'] = self.champion_id
+            d['champion_correct'] = self.champion_correct
+
+        d['visible_supertips'] = self.supertips
+
+        if bets:
+            d['bets'] = [bet.apify(match=True) for bet in self.visible_bets]
+
+        return d

@@ -6,34 +6,6 @@ import views
 
 from flask_app import app
 
-def apify_match(match):
-
-    m = {}
-    m['match_id'] = match.id
-    m['date'] = match.date
-    m['status'] = 'over'
-    m['result'] = match.outcome
-    m['team1_name'] = match.team1.name
-    m['team1_iso'] = match.team1.short_name
-    m['team1_goals'] = match.goals_team1
-    m['team2_name'] = match.team2.name
-    m['team2_iso'] = match.team2.short_name
-    m['team2_goals'] = match.goals_team2
-
-    return m
-
-def apify_user(user):
-
-    u = {}
-    u['user_id'] = user.id
-    u['name'] = user.name
-    u['logged_in'] = False # TODO: Not implemented yet
-    u['points'] = user.points
-    u['champion_id'] = user.champion_id
-    u['champion_correct'] = user.champion_correct
-    u['visible_supertips'] = user.supertips
-
-    return u
 
 # TODO: No login for the moment
 @app.route('/api/v1/matches')
@@ -41,8 +13,24 @@ def matches_api():
 
     matches = flask_app.db_session.query(models.Match)
 
-    matches_json = flask.jsonify([apify_match(m) for m in matches])
+    matches_json = flask.jsonify([match.apify() for match in matches])
 
+    # TODO: get rid of this
+    matches_json.headers['Access-Control-Allow-Origin'] = '*'
+
+    return matches_json
+
+@app.route('/api/v1/matches/<int:match_id>')
+def match_api(match_id):
+
+    try:
+        match = flask_app.db_session.query(models.Match).filter(models.Match.id == match_id).one()
+    except sqlalchemy.orm.exc.NoResultFound:
+        return flask.abort(404)
+
+    matches_json = flask.jsonify(match.apify(bets=True))
+
+    # TODO: get rid of this
     matches_json.headers['Access-Control-Allow-Origin'] = '*'
 
     return matches_json
@@ -55,11 +43,27 @@ def users_api():
 
     users_sorted = sorted(users, key=lambda x: x.points, reverse=True)
 
-    users_json = flask.jsonify([apify_user(u) for u in users_sorted])
+    users_json = flask.jsonify([user.apify() for user in users_sorted])
 
+    # TODO: get rid of this
     users_json.headers['Access-Control-Allow-Origin'] = '*'
 
     return users_json
+
+@app.route('/api/v1/users/<int:user_id>')
+def user_api(user_id):
+
+    try:
+        user = flask_app.db_session.query(models.User).filter(models.User.id == user_id).one()
+    except sqlalchemy.orm.exc.NoResultFound:
+        return flask.abort(405)
+
+    user_json = flask.jsonify(user.apify(bets=True))
+
+    # TODO: get rid of this
+    user_json.headers['Access-Control-Allow-Origin'] = '*'
+
+    return user_json
 
 def status_api():
     """

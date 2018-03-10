@@ -20,7 +20,7 @@
       {% for user in rankings %}
       <td class="table__td">{{ loop.index }}</td>
       <td class="table__td"><a href='{{ url_for('user', user_id=user.id) }}'>{{ user.name }}</a></td>
-      <td class="table__td">{{ user.valid_bets | length }}</td>
+      <td class="table__td">{{ user.bets | select('valid') | length }}</td>
       <td class="table__td">{{ '%0.2f' | format(user.points) }}</td>
       {% if current_user.final_started %}
       <td class="table__td">{{ user.champion.name }}</td>
