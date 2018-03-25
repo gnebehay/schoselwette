@@ -7,20 +7,27 @@ import sqlalchemy_utils as sa_utils
 
 import flask_app
 
+
 class Stage(enum.Enum):
+
     GROUP_STAGE = 'Group stage'
     ROUND_OF_16 = 'Round of 16'
     QUARTER_FINAL = 'Quarter-finals'
     SEMI_FINALS = 'Semi-finals'
     FINAL = 'Final'
 
+
 class Outcome(enum.Enum):
+
     TEAM1_WIN = '1'
     DRAW = 'X'
     TEAM2_WIN = '2'
 
+
+# TODO: Explain why sqlalchemy needs that
 def _get_values(enum_type):
     return [e.value for e in enum_type]
+
 
 class Bet(flask_app.Base):
 
@@ -131,7 +138,7 @@ class Match(flask_app.Base):
 
         # Here we reuse the counter dict for storing the odds
         for o in counter.keys():
-            counter[o] = num_players / counter[o] # num_players is always greater than counter
+            counter[o] = num_players / counter[o]  # num_players is always greater than counter
 
         return counter
 
@@ -157,7 +164,7 @@ class Match(flask_app.Base):
         return color
 
     # Sorts bets
-    # 
+    #
     @property
     def bets_sorted(self):
         return sorted(self.bets,
@@ -200,17 +207,6 @@ class Match(flask_app.Base):
 
         return d
 
-# TODO: Delete
-class Message(flask_app.Base):
-
-    __tablename__ = 'chat'
-
-    id = sa.Column(sa.Integer, primary_key=True)
-    body = sa.Column(sa.String(2048), nullable=False)
-    date = sa.Column(sa.DateTime, nullable=False)
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('users.id'))
-
-    user = sa.orm.relationship('User')
 
 class Team(flask_app.Base):
 
@@ -242,6 +238,7 @@ class Team(flask_app.Base):
         return '<Team: id={}, name={}, short_name={}, group={}, champion={}>'.format(
             self.id, self.name, self.short_name, self.group, self.champion)
 
+
 class User(flask_app.Base):
 
     __tablename__ = 'users'
@@ -259,6 +256,9 @@ class User(flask_app.Base):
     #passwort_reset_token_validity = sa.Column(sa.String(64), nullable=True)
 
     champion = sa.orm.relationship('Team', backref='users')
+
+    # Backreffed relationships:
+    # -bets
 
     # TODO: Make this configurable
     MAX_SUPERTIPS = 4
@@ -347,15 +347,15 @@ class User(flask_app.Base):
             return False
         return final_match.date < datetime.datetime.now()
 
-    def apify(self, bets=False):
+    def apify(self, bets=False, show_private=False):
 
         d = {}
         d['user_id'] = self.id
         d['name'] = self.name
-        d['logged_in'] = False # TODO: Not implemented yet
+        d['logged_in'] = False  # TODO: Not implemented yet
         d['points'] = self.points
 
-        if self.final_started:
+        if self.final_started or show_private:
             d['champion_id'] = self.champion_id
             d['champion_correct'] = self.champion_correct
 

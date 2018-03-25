@@ -1,16 +1,23 @@
 import flask
+import flask_inputs
+import flask_login
+import sqlalchemy
+
+from flask_login import login_required
+from flask_inputs.validators import JsonSchema
 
 import flask_app
 import models
-import views
 
 from flask_app import app
 
 
 # TODO: No login for the moment
 @app.route('/api/v1/matches')
+@login_required
 def matches_api():
 
+    # TODO: Check eager loading
     matches = flask_app.db_session.query(models.Match)
 
     matches_json = flask.jsonify([match.apify() for match in matches])
@@ -20,13 +27,14 @@ def matches_api():
 
     return matches_json
 
+
 @app.route('/api/v1/matches/<int:match_id>')
 def match_api(match_id):
 
     try:
         match = flask_app.db_session.query(models.Match).filter(models.Match.id == match_id).one()
     except sqlalchemy.orm.exc.NoResultFound:
-        return flask.abort(404)
+        flask.abort(404)
 
     matches_json = flask.jsonify(match.apify(bets=True))
 
@@ -34,6 +42,7 @@ def match_api(match_id):
     matches_json.headers['Access-Control-Allow-Origin'] = '*'
 
     return matches_json
+
 
 @app.route('/api/v1/users')
 def users_api():
@@ -50,13 +59,14 @@ def users_api():
 
     return users_json
 
+
 @app.route('/api/v1/users/<int:user_id>')
 def user_api(user_id):
 
     try:
         user = flask_app.db_session.query(models.User).filter(models.User.id == user_id).one()
     except sqlalchemy.orm.exc.NoResultFound:
-        return flask.abort(405)
+        flask.abort(404)
 
     user_json = flask.jsonify(user.apify(bets=True))
 
@@ -65,7 +75,88 @@ def user_api(user_id):
 
     return user_json
 
+
+@app.route('/api/v1/bets')
+@login_required
+def bets_api():
+
+    current_user = flask_login.current_user
+
+    bets_json = flask.jsonify([bet.apify(match=True) for bet in current_user.visible_bets])
+
+    return bets_json
+
+
+
+
+schema = {
+    'outcome': {'oneOf': [outcome.value for outcome in models.Outcome]},
+    'supertip': 'boolean'
+}
+
+
+class JsonInputs(flask_inputs.Inputs):
+    json = [JsonSchema(schema=schema)]
+
+
+@app.route('/api/v1/bets/<int:match_id>', methods=['POST'])
+@login_required
+def bet_api(match_id):
+
+    inputs = JsonInputs(flask.request)
+
+    if not inputs.validate():
+        return flask.jsonify(success=False, errors=inputs.errors)
+
+    # TODO: Supertips...
+
+    # outcome_value = flask.request.form['outcome']
+    #
+    # try:
+    #     outcome = models.Outcome(outcome_value)
+    # except ValueError:
+    #     flask.abort(400)
+    #
+    current_user = flask_login.current_user
+
+    bets = [bet for bet in current_user.bets if bet.match.id == match_id]
+
+    if not bets:
+        flask.abort(404)
+
+    bet = bets[0]
+
+    if not bet.match.editable:
+        flask.abort(403)
+
+    bet.outcome = outcome
+
+    # TODO: Check if supertips are available
+
+    return flask.jsonify(bet.apify())
+
+
+
+@app.route('/api/v1/status')
+@login_required
 def status_api():
+
+    current_user = flask_login.current_user
+
+    teams = flask_app.db_session.query(models.Team)
+    groups = sorted(list({team.group for team in teams}))
+
+    s = {}
+    s['stages'] = [stage.value for stage in models.Stage]
+    s['groups'] = groups
+    s['user'] = current_user.apify(show_private=True)
+
+    return flask.jsonify(s)
+
+
+
+
+
     """
 
     {
@@ -84,5 +175,3 @@ def status_api():
       "num_users": 42
     }
     """
-
-

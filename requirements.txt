@@ -1,7 +1,10 @@
 Flask==0.12.*
+Flask-Inputs==0.2.*
 Flask-Mail==0.9.*
 Flask-Login==0.4.*
 Flask-WTF==0.14.*
+jsonschema==2.6.*
 SQLAlchemy==1.2.*
 WTForms-Alchemy==0.16.*
 PyMySQL==0.8.*
+parse

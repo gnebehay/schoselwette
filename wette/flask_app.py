@@ -4,7 +4,7 @@ import flask_mail
 import flask_wtf
 import sqlalchemy
 import wtforms_alchemy
-
+import logging
 
 # TODO: Add some more explanation here what all of this is good for
 
@@ -26,11 +26,13 @@ login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+
 @login_manager.user_loader
 def load_user(user_id):
 
     q = db_session.query(models.User).filter(models.User.id == user_id)
     return q.one_or_none()
+
 
 # Establish database connection
 engine = sqlalchemy.create_engine(
@@ -43,9 +45,10 @@ db_session = sqlalchemy.orm.scoped_session(
 Base = sqlalchemy.ext.declarative.declarative_base()
 Base.query = db_session.query_property()
 
-# import logging
-# logging.basicConfig()
-# logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+
+logging.basicConfig()
+logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+
 
 # Cleanup
 @app.teardown_appcontext
@@ -60,6 +63,7 @@ def shutdown_session(exception=None):
 # This code is needed to make form generation work
 BaseModelForm = wtforms_alchemy.model_form_factory(flask_wtf.FlaskForm)
 
+
 # TODO: What is this good for?
 class ModelForm(BaseModelForm):
     @classmethod
@@ -70,4 +74,3 @@ class ModelForm(BaseModelForm):
 import models # noqa
 import views # noqa
 import api # noqa
-
