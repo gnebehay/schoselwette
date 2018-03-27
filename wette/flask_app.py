@@ -24,8 +24,9 @@ mail = flask_mail.Mail(app)
 flask_wtf.csrf.CSRFProtect(app)
 
 # Enable CORS, if requested
-if app.config.get('CORS', False):
-    flask_cors.CORS(app)
+if 'ALLOWED_ORIGINS' in app.config:
+
+    flask_cors.CORS(app, origins=app.config['ALLOWED_ORIGINS'])
 
 # Create login manager
 login_manager = flask_login.LoginManager()

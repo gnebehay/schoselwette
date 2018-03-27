@@ -7,7 +7,7 @@ EVENT_NAME = 'Schoselwette xxx 20yy'
 # TESTING = True
 
 # Enables CORS
-#CORS=False
+#ALLOWED_ORIGINS='*'
 
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
 SQLALCHEMY_POOL_RECYCLE = 3600
