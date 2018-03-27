@@ -1,4 +1,5 @@
 import flask
+import flask_cors
 import flask_login
 import flask_mail
 import flask_wtf
@@ -8,7 +9,11 @@ import logging
 
 # TODO: Add some more explanation here what all of this is good for
 
+
 app = flask.Flask(__name__)
+
+# Load the config file
+app.config.from_object('config')
 
 # TODO: What is this doing here?
 app.debug = True
@@ -18,8 +23,9 @@ mail = flask_mail.Mail(app)
 # Enable Csrf protection
 flask_wtf.csrf.CSRFProtect(app)
 
-# Load the config file
-app.config.from_object('config')
+# Enable CORS, if requested
+if app.config.get('CORS', False):
+    flask_cors.CORS(app)
 
 # Create login manager
 login_manager = flask_login.LoginManager()

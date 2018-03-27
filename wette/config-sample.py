@@ -6,6 +6,9 @@ EVENT_NAME = 'Schoselwette xxx 20yy'
 # Disables recaptcha for local test use
 # TESTING = True
 
+# Enables CORS
+#CORS=False
+
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
 SQLALCHEMY_POOL_RECYCLE = 3600
 
