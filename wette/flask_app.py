@@ -26,7 +26,9 @@ flask_wtf.csrf.CSRFProtect(app)
 # Enable CORS, if requested
 if 'ALLOWED_ORIGINS' in app.config:
 
-    flask_cors.CORS(app, origins=app.config['ALLOWED_ORIGINS'])
+    print('CORS support enabled')
+
+    flask_cors.CORS(app, origins=app.config['ALLOWED_ORIGINS'], supports_credentials=True)
 
 # Create login manager
 login_manager = flask_login.LoginManager()
