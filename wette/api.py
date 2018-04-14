@@ -12,7 +12,6 @@ import models
 from flask_app import app
 
 
-# TODO: No login for the moment
 @app.route('/api/v1/matches')
 @login_required
 def matches_api():
@@ -90,7 +89,7 @@ def bets_api():
 
 
 schema = {
-    'outcome': {'oneOf': [outcome.value for outcome in models.Outcome]},
+    'outcome': {'type': 'string', 'oneOf': [outcome.value for outcome in models.Outcome]},
     'supertip': 'boolean'
 }
 
@@ -100,6 +99,7 @@ class JsonInputs(flask_inputs.Inputs):
 
 
 @app.route('/api/v1/bets/<int:match_id>', methods=['POST'])
+@flask_app.csrf.exempt
 @login_required
 def bet_api(match_id):
 
@@ -108,15 +108,6 @@ def bet_api(match_id):
     if not inputs.validate():
         return flask.jsonify(success=False, errors=inputs.errors)
 
-    # TODO: Supertips...
-
-    # outcome_value = flask.request.form['outcome']
-    #
-    # try:
-    #     outcome = models.Outcome(outcome_value)
-    # except ValueError:
-    #     flask.abort(400)
-    #
     current_user = flask_login.current_user
 
     bets = [bet for bet in current_user.bets if bet.match.id == match_id]
@@ -129,7 +120,12 @@ def bet_api(match_id):
     if not bet.match.editable:
         flask.abort(403)
 
-    bet.outcome = outcome
+    posted_bet = flask.request.get_json()
+
+#    import ipdb; ipdb.set_trace(context=49)
+
+    bet.outcome = models.Outcome(posted_bet['outcome'])
+    bet.supertip = posted_bet['supertip']
 
     # TODO: Check if supertips are available
 

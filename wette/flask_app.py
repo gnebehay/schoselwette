@@ -21,7 +21,7 @@ app.debug = True
 mail = flask_mail.Mail(app)
 
 # Enable Csrf protection
-flask_wtf.csrf.CSRFProtect(app)
+csrf = flask_wtf.csrf.CSRFProtect(app)
 
 # Enable CORS, if requested
 if 'ALLOWED_ORIGINS' in app.config:
@@ -29,6 +29,8 @@ if 'ALLOWED_ORIGINS' in app.config:
     print('CORS support enabled')
 
     flask_cors.CORS(app, origins=app.config['ALLOWED_ORIGINS'], supports_credentials=True)
+
+    logging.getLogger('flask_cors').level = logging.DEBUG
 
 # Create login manager
 login_manager = flask_login.LoginManager()
@@ -56,7 +58,7 @@ Base.query = db_session.query_property()
 
 
 logging.basicConfig()
-logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+#logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 
 # Cleanup
