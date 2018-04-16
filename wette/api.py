@@ -21,9 +21,6 @@ def matches_api():
 
     matches_json = flask.jsonify([match.apify() for match in matches])
 
-    # TODO: get rid of this
-    matches_json.headers['Access-Control-Allow-Origin'] = '*'
-
     return matches_json
 
 
@@ -36,9 +33,6 @@ def match_api(match_id):
         flask.abort(404)
 
     matches_json = flask.jsonify(match.apify(bets=True))
-
-    # TODO: get rid of this
-    matches_json.headers['Access-Control-Allow-Origin'] = '*'
 
     return matches_json
 
@@ -53,9 +47,6 @@ def users_api():
 
     users_json = flask.jsonify([user.apify() for user in users_sorted])
 
-    # TODO: get rid of this
-    users_json.headers['Access-Control-Allow-Origin'] = '*'
-
     return users_json
 
 
@@ -68,9 +59,6 @@ def user_api(user_id):
         flask.abort(404)
 
     user_json = flask.jsonify(user.apify(bets=True))
-
-    # TODO: get rid of this
-    user_json.headers['Access-Control-Allow-Origin'] = '*'
 
     return user_json
 

@@ -30,7 +30,7 @@ if 'ALLOWED_ORIGINS' in app.config:
 
     flask_cors.CORS(app, origins=app.config['ALLOWED_ORIGINS'], supports_credentials=True)
 
-    logging.getLogger('flask_cors').level = logging.DEBUG
+    # logging.getLogger('flask_cors').level = logging.DEBUG
 
 # Create login manager
 login_manager = flask_login.LoginManager()
