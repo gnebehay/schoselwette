@@ -131,6 +131,26 @@ def bet_api(match_id):
 
     return flask.jsonify(bet.apify())
 
+@app.route('/api/v1/champion', methods=['POST'])
+@flask_app.csrf.exempt
+@login_required
+def champion_api(match_id):
+
+    current_user = flask_login.current_user
+
+    if not user.champion_editable:
+        flask.abort(403)
+
+    posted_champion = flask.request.get_json()
+
+    champion_id = posted_champion['champion_id']
+
+    champion = flask_app.db_session.query(Team).filter(Team.id == champion_id).one_or_none()
+
+    current_user.champion = champion
+
+    return flask.jsonify(current_user.apify())
+
 
 
 @app.route('/api/v1/status')
