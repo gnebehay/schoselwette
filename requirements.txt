@@ -8,4 +8,5 @@ jsonschema==2.6.*
 SQLAlchemy==1.2.*
 WTForms-Alchemy==0.16.*
 PyMySQL==0.8.*
+Pandas==0.22
 parse

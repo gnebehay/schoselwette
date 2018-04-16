@@ -99,7 +99,7 @@ class Match(flask_app.Base):
     team1_id = sa.Column(sa.Integer, sa.ForeignKey('teams.id'), nullable=False)
     team2_id = sa.Column(sa.Integer, sa.ForeignKey('teams.id'), nullable=False)
     date = sa.Column(sa.DateTime, nullable=False)
-    stage = sa.Column(sa.Enum(Stage, values_callable=_get_values))
+    stage = sa.Column(sa.Enum(Stage, nullable=False, values_callable=_get_values))
     # TODO: non-negative constraint
     goals_team1 = sa.Column(sa.Integer)
     goals_team2 = sa.Column(sa.Integer)

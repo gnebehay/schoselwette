@@ -1,74 +1,83 @@
-#!venv/bin/python3
+#!/usr/bin/env python3
 
 import datetime
 import os
 
 from parse import *
 
-import wette
-from wette import db_session
+import flask_app
+from flask_app import db_session
 import models
 
 from models import Team, Match, User
 
-#Load teams
-with open('./misc/teams.csv') as f:
+import pandas as pd
 
-    FMT = '{},{},{}'
+# Read Teams
+teams_csv = pd.read_csv('../data/Teams.csv')
 
-    for line in f.readlines():
-        group, name, short_name = parse(FMT, line)
+# Replace missing short names with empty strings
+teams_csv.short_name.fillna('', inplace=True)
 
-        team = db_session.query(Team).filter(Team.name == name).one_or_none()
+for team_csv in teams_csv.itertuples():
 
-        if team is None:
+    team_db = db_session.query(Team).filter(Team.name == team_csv.name).one_or_none()
 
-            team = Team(group=group, name=name, short_name=short_name)
+    if team_db is None:
 
-            db_session.add(team)
+        team_db = Team(name=team_csv.name)
 
+        db_session.add(team_db)
 
-            print('Insert: ' + str(team))
+        print('Insert: ' + str(team_db))
 
-        else:
-            print('Team ' + str(team) + ' already in database.')
-            team.group = group
-            team.short_name = short_name
+    else:
+        print('Team ' + str(team_db) + ' already in database.')
+
+    team_db.group = team_csv.group
+    team_db.short_name = team_csv.short_name
 
 db_session.commit()
 
-MONTHS = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'Mai': 5, 'Jun':6, 'Jul': 7, 'Aug': 8, 'Sep': 9, 'Okt': 10, 'Nov': 11, 'Dez': 12}
+for stage in models.Stage:
 
-for stage in os.listdir('matches'):
+    filename = '../data/' + stage.value
 
-    print('Parsing stage', stage)
+    if not os.path.exists(filename):
+        print("'{}' does not exist, skipping".format(filename))
+        continue
 
-    with open(os.path.join('matches',stage)) as f:
+    matches_csv = pd.read_csv(filename, parse_dates=['date'])
 
-        matches = []
+    for match_csv in matches_csv.itertuples():
 
-        FMT = '{}/{} {}:{} {} - {}'
+        print('Looking up {} - {} in {}'.format(match_csv.team1_name, match_csv.team2_name, stage))
 
-        for line in f.readlines():
-            month, day, hour, minute, team1, team2 = parse(FMT,line)
+        # Don't attempt to put this into the filter condition using a join,
+        # we need these objects anyway in order to create the Match object, if it doesn't exist
+        team1_db = db_session.query(Team).filter(Team.name == match_csv.team1_name).one()
+        team2_db = db_session.query(Team).filter(Team.name == match_csv.team2_name).one()
 
-            team1 = db_session.query(Team).filter(Team.name == team1).one()
-            team2 = db_session.query(Team).filter(Team.name == team2).one()
+        match_db = db_session.query(Match).\
+            filter(
+                Match.team1 == team1_db,
+                Match.team2 == team2_db,
+                Match.stage == stage
+            ).one_or_none()
 
-            # TODO TODO TODO: Move year into data
-            dt = datetime.datetime(2017, month=MONTHS[month], day=int(day), hour=int(hour), minute=int(minute))
+        # This is necessary because sqlalchemy cannot handle pandas timestamps
+        date = match_csv.date.to_pydatetime()
 
-            match = db_session.query(Match).filter(
-                Match.team1 == team1,
-                Match.team2 == team2,
-                Match.stage == stage).one_or_none()
+        if match_db is None:
+            match_db = Match(team1=team1_db, team2=team2_db, stage=stage, date=date)
+            db_session.add(match_db)
+            print('Insert: ' + str(match_db))
+        else:
 
-            if match is None:
-                match = Match(team1=team1, team2=team2, stage=stage, date=dt)
-                db_session.add(match)
-                print('Insert: ' + str(match))
-            else:
-                print('Match ' + str(match) + ' already in database.')
+            print('Match ' + str(match_db) + ' already in database.')
+
+            # Update date
+            match_db.date = date
 
     db_session.commit()
 
