@@ -23,6 +23,11 @@ class Outcome(enum.Enum):
     DRAW = 'X'
     TEAM2_WIN = '2'
 
+class Status(enum.Enum):
+
+    SCHEDULED = 'scheduled'
+    OVER = 'over'
+
 
 # TODO: Explain why sqlalchemy needs that
 def _get_values(enum_type):
@@ -111,7 +116,7 @@ class Match(flask_app.Base):
 
     @property
     def editable(self):
-        return self.date > datetime.datetime.now()
+        return self.status == Status.SCHEDULED
 
     @property
     def outcome(self):
@@ -163,6 +168,14 @@ class Match(flask_app.Base):
 
         return color
 
+    @property
+    def status(self):
+
+        if self.date > datetime.datetime.now():
+            return Status.SCHEDULED
+
+        return Status.OVER
+
     # Sorts bets
     #
     @property
@@ -182,9 +195,7 @@ class Match(flask_app.Base):
         d = {}
         d['match_id'] = self.id
         d['date'] = self.date.isoformat() + 'Z'
-
-        # TODO: Implement this
-        d['status'] = 'over'
+        d['status'] = self.status.value
 
         d['outcome'] = self.outcome.value if self.outcome is not None else None
         d['team1_name'] = self.team1.name

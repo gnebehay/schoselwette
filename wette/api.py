@@ -69,7 +69,7 @@ def bets_api():
 
     current_user = flask_login.current_user
 
-    bets_json = flask.jsonify([bet.apify(match=True) for bet in current_user.visible_bets])
+    bets_json = flask.jsonify([bet.apify(match=True) for bet in current_user.bets])
 
     return bets_json
 
@@ -109,8 +109,6 @@ def bet_api(match_id):
         flask.abort(403)
 
     posted_bet = flask.request.get_json()
-
-#    import ipdb; ipdb.set_trace(context=49)
 
     bet.outcome = models.Outcome(posted_bet['outcome'])
     bet.supertip = posted_bet['supertip']
