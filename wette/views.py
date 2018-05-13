@@ -25,7 +25,7 @@ def index():
 @app.route('/main')
 def main():
 
-    return flask.redirect('/static')
+    return flask.redirect('static')
 
 
 @app.route("/logout")
