@@ -32,7 +32,6 @@
       <ul class="nav--primary__items">
       {% if current_user.is_authenticated %}
         <li class="nav--primary__item"><a class="nav--primary__link" href="{{ url_for('index') }}">Home</a></li>
-        <li class="nav--primary__item"><a class="nav--primary__link" href="{{ url_for('scoreboard') }}">Ranking</a></li>
         <li class="nav--primary__item"><a class="nav--primary__link" href="{{ url_for('about') }}">Rules</a></li>
       {% else %}
         <li class="nav--primary__item"><a class="nav--primary__link" href="{{ url_for('index') }}">Home</a></li>
