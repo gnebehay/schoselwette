@@ -1,49 +1,49 @@
 date,team1_name,team2_name
-14.06.2018 17:00,Russia,Saudi Arabia
-15.06.2018 14:00,Egypt,Uruguay
-15.06.2018 17:00,Morocco,Iran
-15.06.2018 20:00,Portugal,Spain
-16.06.2018 12:00,France,Australia
-16.06.2018 15:00,Argentina,Iceland
-16.06.2018 18:00,Peru,Denmark
-16.06.2018 21:00,Croatia,Nigeria
-17.06.2018 14:00,Costa Rica,Serbia
-17.06.2018 17:00,Germany,Mexico
-17.06.2018 20:00,Brazil,Switzerland
-18.06.2018 14:00,Sweden,South Korea
-18.06.2018 17:00,Belgium,Panama
-18.06.2018 20:00,Tunisia,England
-19.06.2018 14:00,Colombia,Japan
-19.06.2018 17:00,Poland,Senegal
-19.06.2018 20:00,Russia,Egypt
-20.06.2018 14:00,Portugal,Morocco
-20.06.2018 17:00,Uruguay,Saudi Arabia
-20.06.2018 20:00,Iran,Spain
-21.06.2018 14:00,Denmark,Australia
-21.06.2018 17:00,France,Peru
-21.06.2018 20:00,Argentina,Croatia
-22.06.2018 14:00,Brazil,Costa Rica
-22.06.2018 17:00,Nigeria,Iceland
-22.06.2018 20:00,Serbia,Switzerland
-23.06.2018 14:00,Belgium,Tunisia
-23.06.2018 17:00,South Korea,Mexico
-23.06.2018 20:00,Germany,Sweden
-24.06.2018 14:00,England,Panama
-24.06.2018 17:00,Japan,Senegal
-24.06.2018 20:00,Poland,Colombia
-25.06.2018 16:00,Uruguay,Russia
-25.06.2018 16:00,Saudi Arabia,Egypt
-25.06.2018 20:00,Iran,Portugal
-25.06.2018 20:00,Spain,Morocco
-26.06.2018 16:00,Denmark,France
-26.06.2018 16:00,Australia,Peru
-26.06.2018 20:00,Nigeria,Argentina
-26.06.2018 20:00,Iceland,Croatia
-27.06.2018 16:00,Mexico,Sweden
-27.06.2018 16:00,South Korea,Germany
-27.06.2018 20:00,Serbia,Brazil
-27.06.2018 20:00,Switzerland,Costa Rica
-28.06.2018 16:00,Japan,Poland
-28.06.2018 16:00,Senegal,Colombia
-28.06.2018 20:00,Panama,Tunisia
-28.06.2018 20:00,England,Belgium
+14.06.2018 15:00,Russia,Saudi Arabia
+15.06.2018 12:00,Egypt,Uruguay
+15.06.2018 15:00,Morocco,Iran
+15.06.2018 18:00,Portugal,Spain
+16.06.2018 10:00,France,Australia
+16.06.2018 13:00,Argentina,Iceland
+16.06.2018 16:00,Peru,Denmark
+16.06.2018 19:00,Croatia,Nigeria
+17.06.2018 12:00,Costa Rica,Serbia
+17.06.2018 15:00,Germany,Mexico
+17.06.2018 18:00,Brazil,Switzerland
+18.06.2018 12:00,Sweden,South Korea
+18.06.2018 15:00,Belgium,Panama
+18.06.2018 18:00,Tunisia,England
+19.06.2018 12:00,Colombia,Japan
+19.06.2018 15:00,Poland,Senegal
+19.06.2018 18:00,Russia,Egypt
+20.06.2018 12:00,Portugal,Morocco
+20.06.2018 15:00,Uruguay,Saudi Arabia
+20.06.2018 18:00,Iran,Spain
+21.06.2018 12:00,Denmark,Australia
+21.06.2018 15:00,France,Peru
+21.06.2018 18:00,Argentina,Croatia
+22.06.2018 12:00,Brazil,Costa Rica
+22.06.2018 15:00,Nigeria,Iceland
+22.06.2018 18:00,Serbia,Switzerland
+23.06.2018 12:00,Belgium,Tunisia
+23.06.2018 15:00,South Korea,Mexico
+23.06.2018 18:00,Germany,Sweden
+24.06.2018 12:00,England,Panama
+24.06.2018 15:00,Japan,Senegal
+24.06.2018 18:00,Poland,Colombia
+25.06.2018 14:00,Uruguay,Russia
+25.06.2018 14:00,Saudi Arabia,Egypt
+25.06.2018 18:00,Iran,Portugal
+25.06.2018 18:00,Spain,Morocco
+26.06.2018 14:00,Denmark,France
+26.06.2018 14:00,Australia,Peru
+26.06.2018 18:00,Nigeria,Argentina
+26.06.2018 18:00,Iceland,Croatia
+27.06.2018 14:00,Mexico,Sweden
+27.06.2018 14:00,South Korea,Germany
+27.06.2018 18:00,Serbia,Brazil
+27.06.2018 18:00,Switzerland,Costa Rica
+28.06.2018 14:00,Japan,Poland
+28.06.2018 14:00,Senegal,Colombia
+28.06.2018 18:00,Panama,Tunisia
+28.06.2018 18:00,England,Belgium

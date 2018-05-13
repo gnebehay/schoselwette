@@ -171,7 +171,7 @@ class Match(flask_app.Base):
     @property
     def status(self):
 
-        if self.date > datetime.datetime.now():
+        if self.date > datetime.datetime.utcnow():
             return Status.SCHEDULED
 
         return Status.OVER
@@ -349,7 +349,7 @@ class User(flask_app.Base):
     @property
     def champion_editable(self):
         first_match = flask_app.db_session.query(Match).order_by('date').first()
-        return first_match.date > datetime.datetime.now()
+        return first_match.date > datetime.datetime.utcnow()
 
     # TODO: Why is this a property of user?
     @property
@@ -358,7 +358,7 @@ class User(flask_app.Base):
 
         if final_match is None:
             return False
-        return final_match.date < datetime.datetime.now()
+        return final_match.date < datetime.datetime.utcnow()
 
     def apify(self, bets=False, show_private=False):
 
