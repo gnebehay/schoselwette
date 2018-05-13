@@ -11,7 +11,6 @@ import models
 
 from flask_app import app
 
-
 @app.route('/')
 @app.route('/index')
 def index():
@@ -21,6 +20,12 @@ def index():
         return flask.redirect('main')
 
     return flask.render_template('index.html')
+
+@login_required
+@app.route('/main')
+def main():
+
+    return flask.redirect('/static')
 
 
 @app.route("/logout")
@@ -121,6 +126,10 @@ def match(match_id):
         form.populate_obj(match)
 
     return flask.render_template('match.html', match=match, form=form)
+
+@app.route('/about')
+def about():
+    return flask.render_template('about.html', match=match)
 
 @app.route('/forgotten')
 def forgotten():
