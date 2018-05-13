@@ -109,106 +109,6 @@ def register():
 
     return flask.render_template('register.html', form=form)
 
-@app.route('/')
-@app.route('/main', methods=['GET', 'POST'])
-@login_required
-def main():
-
-    current_user = flask_login.current_user
-
-    if not current_user.paid:
-        flask.flash(flask.Markup(app.config['MSG_NOT_PAID']))
-
-    form = forms.ChampionForm(obj=current_user)
-
-    # TODO: Where to put this?
-    all_teams = flask_app.db_session.query(models.Team).order_by('name')
-    form.champion_id.choices = [(None, '')] + [(team.id, team.name) for team in all_teams]
-
-    if flask.request.method == 'POST':
-
-        # This is important, otherwise the tip gets lost.
-        if current_user.champion_editable:
-
-            # This is just for the champion tip
-            if form.validate():
-
-                form.populate_obj(current_user)
-
-        # We only deal with editable bets here so that we do not by accident change old data
-        editable_bets = [bet for bet in current_user.bets if bet.match.editable]
-
-        flashTooManySupertips = False
-
-        # Iterate over all editable tips
-        for bet in editable_bets:
-            # We need to set all supertips and outcomes to None/False,
-            # as unechecked boxes and radio fields are not contained in the form
-
-            bet.outcome = None
-            bet.supertip = False
-
-            outcomeField = 'outcome-{}'.format(bet.match.id)
-            supertipField = 'supertip-{}'.format(bet.match.id)
-
-            if outcomeField in flask.request.form:
-                bet.outcome = flask.request.form[outcomeField]
-
-            if supertipField in flask.request.form:
-                # No matter what was submitted, it means the box was checked
-                if current_user.supertips < models.User.MAX_SUPERTIPS:
-                    bet.supertip = True
-                else:
-                    flashTooManySupertips = True
-
-        if flashTooManySupertips:
-            flask.flash('You selected too many super bets.')
-
-    if current_user.champion is None:
-        flask.flash('The champion bet can be changed until the first match begins.')
-
-    if current_user.supertips < models.User.MAX_SUPERTIPS:
-        flask.flash('Super bets can be used only in the group stage.')
-
-
-    sorted_bets = sorted(current_user.bets, key=lambda x: x.match.date)
-
-    return flask.render_template('main.html', bets=sorted_bets, form=form)
-
-@app.context_processor
-def rankings():
-
-    current_user = flask_login.current_user
-
-    if not current_user.is_authenticated:
-        return {}
-
-    users = flask_app.db_session.query(models.User).filter(models.User.paid)
-
-    users_sorted = sorted(users, key=lambda x: x.points, reverse=True)
-
-    if not current_user.paid:
-        myrank = 0
-    else:
-        myrank = users_sorted.index(current_user)+1
-
-    return dict(rankings=users_sorted, myrank=myrank)
-
-@app.route('/scoreboard')
-@login_required
-def scoreboard():
-
-    return flask.render_template('scoreboard.html')
-
-@app.route('/user/<int:user_id>')
-@login_required
-def user(user_id):
-
-    user = flask_app.db_session.query(models.User).filter(models.User.id == user_id).one()
-
-    return flask.render_template('user.html', user=user)
-
-
 @app.route('/match/<int:match_id>', methods=['GET', 'POST'])
 @login_required
 def match(match_id):
@@ -221,10 +121,6 @@ def match(match_id):
         form.populate_obj(match)
 
     return flask.render_template('match.html', match=match, form=form)
-
-@app.route('/about')
-def about():
-    return flask.render_template('about.html', match=match)
 
 @app.route('/forgotten')
 def forgotten():
@@ -265,26 +161,6 @@ def confirm_payment(user_id):
     send_mail_template('payment_confirmed.eml', recipients=[user.email], user=user)
 
     return flask.render_template('user.html', user=user)
-
-# TODO: delete this
-@app.route('/chat')
-@login_required
-def chat():
-
-    messages = flask_app.db_session.query(models.Message)
-    # .filter(models.Message.date > datetime.date.today())
-
-    return flask.render_template('chat.html', messages=messages)
-
-@app.route('/stats')
-@login_required
-def stats():
-
-    teams = flask_app.db_session.query(models.Team)
-
-    teams = sorted(teams, key=lambda t: t.odds, reverse=True)
-
-    return flask.render_template('stats.html', teams=teams)
 
 @app.route('/make_champion/<int:team_id>')
 @login_required
