@@ -15,10 +15,6 @@ from flask_app import app
 @app.route('/index')
 def index():
 
-    # TODO: Why is this here?
-    if flask_login.current_user.is_authenticated:
-        return flask.redirect('main')
-
     return flask.render_template('index.html')
 
 @login_required
