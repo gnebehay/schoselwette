@@ -30,7 +30,7 @@ def logout():
     flask_login.logout_user()
     return flask.redirect('index')
 
-    
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
 
@@ -58,7 +58,7 @@ def login():
 
             return flask.redirect(next or flask.url_for('index'))
         else:
-            flask.flash('Username/Password combination incorrect')
+            flask.flash('Sorry, wrong email or password.')
 
     return flask.render_template('login.html', form=form)
 

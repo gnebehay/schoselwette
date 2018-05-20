@@ -1,7 +1,7 @@
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-EVENT_NAME = 'Schoselwette xxx 20yy'
+EVENT_NAME = 'Schosel &middot; WM 2018'
 
 # Disables recaptcha for local test use
 # TESTING = True
