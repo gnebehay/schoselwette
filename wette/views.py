@@ -3,6 +3,7 @@ import flask_mail
 import flask_login
 import hashlib
 import markdown
+import os.path
 
 from flask_login import login_required
 
@@ -127,7 +128,7 @@ def match(match_id):
 @app.route('/about')
 def about():
 
-    with open('wette/static/rules.markdown', 'r') as myfile:
+    with open(os.path.join(app.static_folder, 'rules.markdown'), 'r') as myfile:
         content = myfile.read()
 
     content = flask.Markup(markdown.markdown(content))
