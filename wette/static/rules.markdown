@@ -2,18 +2,24 @@
 # Rules
 
 ## Payment
-The participation fee for the whole tournament is **10 EUR / 12 CHF**. After registration you'll get an email from team.schosel@gmail.com containing the bank transfer payment instructions. This is a manual process and might take some time. In case you didn't get the email 2 days after registration, please shoot us an email at the mentioned address.
+The participation fee for the whole tournament is **10 EUR / 12 CHF**. After registration you'll get an email from [team.schosel@gmail.com](mailto:team.schosel@gmail.com) containing the bank transfer payment instructions. This is a manual process and might take some time. In case you didn't get the email 2 days after registration, please shoot us an email at the mentioned address.
 
 Every registered player **will be disqualified** if their participation fee is not transferred to the Schosel bank account **before the first match begins**.
 
 ---
 
+## Community
+If you have specific questions regarding Schosel or you simply like to be in touch with other Schosel players to chat and discuss the game, feel free to join our [WhatsApp group chat](https://chat.whatsapp.com/50I08RtgO1LJnDdXetLmL0).
+
+---
+
 ## Price Money
 The pot equals the sum of all players participation fees. It will be fully paid out to the best players. If you bet on the right outcome of matches and the final cup winner you collect points. If you make it to the top 3 of the score list you win some cash. Here's what's in for you:
-1. First place 30% of the pot
-2. Second place 15% of the pot
-3. Third place 10% of the pot
-4. For each achievement you win you get 5% of the pot
+
+  1. First place **30%** of the pot
+  2. Second place **15%** of the pot
+  3. Third place **10%** of the pot
+  4. For each achievement you win you get **5%** of the pot
 
 ---
 
@@ -30,26 +36,28 @@ Odds are calculated according this simple equation:
 
 **Odds = total number of players / number of players with same bet**
 
-So if you want to get more points, try to place a different bet than the other players.
+So if you want to get more points, try to place a different bet than the other players. Odds apply to bets on matches as well as the final cup winner.
 
 ---
 
 ## Achievements
-In the past players often stopped betting during later cup stages when they realised they couldn't get to the first three ranks in the score table. This is why we decided to introduce achievements that you can win (and get some cash) even if you have a low score. You compete with the other players for the highest rank of each achievement. If you end first on the rankig of an achievement at the end of the cup you win 5% of the pot. In case multiple players score the same amount of points for an achievement they split the 5%.
+In the past players often stopped betting during later cup stages when they realised they couldn't get to the first three ranks in the score table anymore. This is why we decided to introduce achievements that you can win even if you have a low overall score. You compete with the other players for the highest rank of each achievement. If you end first on the rankig of an achievement at the end of the cup you win 5% of the pot. In case multiple players score the same amount of points for an achievement they split the 5%.
 
 ### Gambler
-Player with most correct bets on highest odds of matches.
+Player with most correct bets on highest odds of matches wins this achievement.
 
 ### Superbet Hustler
-Player who scores the most points through super bets.
+Player who scores the most points through super bets wins this achievement.
 
 ### National Expert
-Player with most correct bets for one country.
+Player with most correct bets for one country wins this achievement.
 
 ### Public Enemy
-Player with most wrong bets for one country.
+Player with most wrong bets for one country wins this achievement.
 
 ### Secret Achievement
-There is one secret achievement that will be revealed after the final match. Until then players can only see their ranking for this achievement but they don't know how it's calculated. The organizers of Schosel know the achievement and are therefore excluded and can't win this achievement.
+There is one secret achievement that will be revealed after the final match. Until then players can only see their ranking for this achievement but they don't know how it's calculated. The organizers of Schosel know the achievement and are therefore excluded so they can't win this achievement.
+
+---
 
 **Have fun and good luck! :)**

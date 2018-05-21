@@ -35,6 +35,16 @@
   margin-bottom: .8rem;
 }
 
+.rules-wrapper ol {
+  margin-bottom: .8rem;
+  padding-left: 1.6rem;
+  list-style-type: decimal;
+}
+
+.rules-wrapper li {
+  padding-left: .8rem;
+}
+
 .rules-wrapper strong {
   font-weight: 700;
 }
