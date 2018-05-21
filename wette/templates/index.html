@@ -4,6 +4,27 @@
 <div class="b-wrapper">
   <h1 class="h1">Schosel &middot; Hello Friend :)</h1>
 
-  Please <a href='register'>sign up</a> or <a href="{{ url_for('login')}}">log in</a>.
+  <form class="form" action="{{url_for('login')}}" method="post" name="login">
+      {{ form.hidden_tag() }}
+
+      <div class="form-group">
+        {{ form.email.label(class_='form-input-label') }}
+        {{ render_field(form.email, class="form-control") }}
+      </div>
+
+      <div class="form-group">
+        {{ form.password.label(class_='form-input-label') }}
+        {{ render_field(form.password, class="form-control") }}
+      </div>
+
+      <div class="form-group">
+        {{ render_field(form.rememberme, class="form-check-input") }}
+        {{ form.rememberme.label(class_='form-check-label') }}
+      </div>
+      <div class="form-group"><button class="btn btn--primary" type="submit">Login</button></div>
+
+  </form>
+
+  Or <a href='register'>sign up</a>.
 </div>
 {% endblock %}

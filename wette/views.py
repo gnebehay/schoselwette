@@ -17,7 +17,8 @@ from flask_app import app
 @app.route('/index')
 def index():
 
-    return flask.render_template('index.html')
+    form = forms.LoginForm()
+    return flask.render_template('index.html', form=form)
 
 @login_required
 @app.route('/main')
