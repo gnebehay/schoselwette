@@ -5,6 +5,12 @@
 
 }
 
+.b-wrapper h1 {
+  margin-bottom: 2.4rem;
+  font-size: 125%;
+  font-weight: 700;
+}
+
 .rules-wrapper h1,
 .rules-wrapper h2,
 .rules-wrapper h3,
