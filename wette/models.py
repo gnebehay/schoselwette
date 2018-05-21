@@ -249,6 +249,17 @@ class Team(flask_app.Base):
         return '<Team: id={}, name={}, short_name={}, group={}, champion={}>'.format(
             self.id, self.name, self.short_name, self.group, self.champion)
 
+    def apify(self):
+
+        d = {}
+        d['team_id'] = self.id
+        d['name'] = self.name
+        d['short_name'] = self.short_name
+        d['group'] = self.group
+        d['champion'] = self.champion
+
+        return d
+
 
 class User(flask_app.Base):
 

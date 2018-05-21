@@ -34,7 +34,7 @@ class RegistrationForm(flask_app.ModelForm):
         exclude = ['paid', 'admin']
 
     password = fld.PasswordField('Password', validators=[
-        val.Length(min=8),
+        val.Length(min=3),
         val.EqualTo('confirm', message='The passwords do not match.')])
 
     confirm = fld.PasswordField('Confirm Password')

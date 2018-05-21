@@ -152,6 +152,7 @@ def status_api():
     s['stages'] = [stage.value for stage in models.Stage]
     s['groups'] = groups
     s['user'] = current_user.apify(show_private=True)
+    s['teams'] = [team.apify() for team in teams]
 
     return flask.jsonify(s)
 
