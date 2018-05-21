@@ -2,6 +2,7 @@ import flask
 import flask_mail
 import flask_login
 import hashlib
+import markdown
 
 from flask_login import login_required
 
@@ -125,7 +126,13 @@ def match(match_id):
 
 @app.route('/about')
 def about():
-    return flask.render_template('about.html', match=match)
+
+    with open('wette/static/rules.markdown', 'r') as myfile:
+        content = myfile.read()
+
+    content = flask.Markup(markdown.markdown(content))
+
+    return flask.render_template('about.html',content=content)
 
 @app.route('/forgotten')
 def forgotten():

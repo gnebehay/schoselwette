@@ -1,30 +1,4 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="wrapper">
-<h1>How it works</h1>
-
-	<ul class="list--unordered">
-		<li>Participation fee: 10€ / 11CHF.</li>
-		<li>Collect points by correctly guessing match results.</li>
-		<li>The collected money of all participants will be re-distributed to the top three participants at the ratio 60:30:10.</li>
-		<li>Different from previous instances of the Schoselwette, this time it is only possible to bet on a three-way outcome.</li>
-			- Team 1 wins, Draw, Team 2 wins (in short: 1, X, 2) - due to a highly novel and sophisticated system for awarding points.</li>
-		<li>Bets are made for the final outcome of the game before a potential penalty shootout.</li>
-		<li>Bets can be changed until the beginning of the match.</li>
-		<li><span style='color:red'>New and important!</span> Points are awarded the following way: For each match, the odds for individual match results (1, X, 2) are computed according to this formula:
-			<p>odds = number_of_bets / bets_for_result</p>
-			For example, if there are 10 bets for a match, 7 of which are for team 1, 2 of which are for a draw and 1 is for team 2, then the odds will be:
-			<p>Odds for team 1: 10/7 = 1.42<br>
-			Odds for a draw: 10/2 = 5<br>
-			Odds for team2: 10/1 = 10<br>
-			</p>
-			If you guessed the result of a match correctly, you will get the odds of the result awarded as points.
-			The reasoning behind this new system is to award a much larger amount of points to bets that have a rather unlikely outcome.
-		</li>
-		<li>The odds for a match will be displayed as soon as the match begins.
-		<li>In the group stage, you can mark 4 matches as super bets. These matches will yield double points.
-		<li>Guessing the champion correctly will yield points according to the same formula as for a single match.
-		<li>The matches of the knockout phase will be added as soon as the participating teams are known.
-	</ul>
-</div>
+{{ content }}
 {% endblock %}
