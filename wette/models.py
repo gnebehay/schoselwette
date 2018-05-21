@@ -285,7 +285,7 @@ class User(flask_app.Base):
     # -bets
 
     # TODO: Make this configurable
-    MAX_SUPERTIPS = 4
+    MAX_SUPERTIPS = 8
 
     @property
     def points(self):

@@ -98,6 +98,7 @@ def bet_api(match_id):
 
     current_user = flask_login.current_user
 
+
     bets = [bet for bet in current_user.bets if bet.match.id == match_id]
 
     if not bets:
@@ -112,8 +113,13 @@ def bet_api(match_id):
 
     bet.outcome = models.Outcome(posted_bet['outcome'])
     bet.supertip = posted_bet['supertip']
+    
+    num_supertips = sum([bet.supertip for bet in current_user.bets])
 
-    # TODO: Check if supertips are available
+    # Check if supertips are available
+    if num_supertips > models.User.MAX_SUPERTIPS:
+        flask_app.db_session.rollback()
+        flask.abort(418)
 
     return flask.jsonify(bet.apify())
 
