@@ -63,7 +63,7 @@ def login():
         else:
             flask.flash('Sorry, wrong email or password.')
 
-    return flask.render_template('login.html', form=form)
+    return flask.render_template('index.html', form=form)
 
 # TODO: Move this somewhere else
 def send_mail(msg):
