@@ -5,9 +5,37 @@
 
 }
 
-h1 {
-  margin-bottom: 2.4rem;
+.rules-wrapper h1,
+.rules-wrapper h2,
+.rules-wrapper h3,
+.rules-wrapper h4 {
+  margin: 2.4rem 0 .8rem;
+  font-weight: 700;
+}
+
+.rules-wrapper h1 {
+  font-size: 195.3%;
+}
+
+.rules-wrapper h2 {
+  font-size: 156.3%;
+}
+
+.rules-wrapper h3 {
   font-size: 125%;
+}
+
+.rules-wrapper hr {
+  margin: 3.6rem 0;
+  border: 0;
+  border-bottom: 1px solid #eee;
+}
+
+.rules-wrapper p {
+  margin-bottom: .8rem;
+}
+
+.rules-wrapper strong {
   font-weight: 700;
 }
 
@@ -59,4 +87,10 @@ h1 {
   color: #00496B;
   text-transform: uppercase;
   text-align: center;
+}
+
+.rules-wrapper {
+  margin: 2.4rem auto;
+  padding: 0 2.4rem;
+  max-width: 60rem;
 }

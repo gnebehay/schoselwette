@@ -37,6 +37,7 @@
         {% if current_user.is_authenticated %}
         <nav class="nav">
           <ul class="nav__items">
+            <li class="nav__item"><a class="nav__link" href="{{ url_for('about') }}">Rules</a></li>
             <li class="nav__item"><a class="nav__link" href="{{ url_for('profile') }}">My Account</a></li>
             <li class="nav__item"><a class="nav__link" href="{{ url_for('logout') }}">Logout</a></li>
           </ul>
