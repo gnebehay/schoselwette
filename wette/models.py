@@ -379,6 +379,7 @@ class User(flask_app.Base):
         d['logged_in'] = False  # TODO: Not implemented yet
         d['points'] = self.points
         d['admin'] = self.admin
+        d['paid'] = self.paid
 
         if self.final_started or show_private:
             d['champion_id'] = self.champion_id

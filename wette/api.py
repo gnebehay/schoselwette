@@ -161,26 +161,3 @@ def status_api():
     s['teams'] = [team.apify() for team in teams]
 
     return flask.jsonify(s)
-
-
-
-
-
-    """
-
-    {
-      "stages": [
-	"Group stage",
-	"Round of 16",
-	"Quarter-finals",
-	"Semi-finals",
-	"Final"
-      ],
-      "groups": [
-	"A",
-	"B",
-	"C"
-      ],
-      "num_users": 42
-    }
-    """
