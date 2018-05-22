@@ -59,7 +59,7 @@ def login():
             # next_is_valid should check if the user has valid
             # permission to access the `next` url
 
-            return flask.redirect(next or flask.url_for('index'))
+            return flask.redirect(next or flask.url_for('about'))
         else:
             flask.flash('Sorry, wrong email or password.')
 
@@ -129,7 +129,7 @@ def match(match_id):
 @app.route('/about')
 def about():
 
-    with open(os.path.join(app.static_folder, 'rules.markdown'), 'r') as myfile:
+    with open(os.path.join(app.static_folder, 'rules.markdown'), 'r', encoding='utf-8') as myfile:
         content = myfile.read()
 
     content = flask.Markup(markdown.markdown(content))
