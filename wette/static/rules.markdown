@@ -23,7 +23,7 @@ So if you land on first place and win three additional achievements, you get 62%
 ## Betting
 You bet on the outcome of **all 64 world cup matches** as well as on the final cup winner. For each correct bet you collect points based on automatically calculated odds.
 
-* **During the group phase** you can place **4 super bets** which double the points you get if your bet is correct.
+* **During the whole tournament** you can place **8 super bets** which double the points you get if your bet is correct.
 * You can **only place and change your final cup winner bet until the first match begins**.
 * Match bets on the match outcome (Team 1 wins/Draw/Team 2 wins) can be placed and changed until the match itself begins.
 * Bets are made for the final outcome of the game **before a potential penalty shootout**.
