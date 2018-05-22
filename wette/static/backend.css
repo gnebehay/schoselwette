@@ -38,13 +38,19 @@
 }
 
 .rules-wrapper p {
-  margin-bottom: .8rem;
+  margin-bottom: 2.4rem;
 }
 
 .rules-wrapper ol {
-  margin-bottom: .8rem;
-  padding-left: 1.6rem;
+  margin-bottom: 2.4rem;
+  padding-left: 2rem;
   list-style-type: decimal;
+}
+
+.rules-wrapper ul {
+  margin-bottom: 2.4rem;
+  padding-left: 2rem;
+  list-style-type: disc;
 }
 
 .rules-wrapper li {
