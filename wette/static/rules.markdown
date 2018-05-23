@@ -54,7 +54,7 @@ The points for the correct cup winner bet are calculated the same way. So if for
 ---
 
 ## Achievements
-In the past players often stopped betting during later cup stages when they realised they couldn't get to the first three ranks in the score table anymore. This is why we decided to introduce achievements that you can win even if you have a low overall score. You compete with the other players for the highest rank of each achievement. If you end first on the rankig of an achievement at the end of the cup you win 5% of the pot. In case multiple players score the same amount of points for an achievement they split the 5%.
+In the past players often stopped betting during later cup stages when they realised they couldn't get to the first three ranks in the score table anymore. This is why we decided to introduce achievements that you can win even if you have a low overall score. You compete with the other players for the highest rank of each achievement. If you end first on the ranking of an achievement at the end of the cup you win 4% of the pot. In case multiple players score the same amount of points for an achievement they split the 4%.
 
 ### Gambler
 Player with most correct bets on highest odds of matches wins this achievement.
