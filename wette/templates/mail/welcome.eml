@@ -1,2 +1,40 @@
-Hello
-Welcome to Schosel, {{ user.name }}
+Hallo, {{ user.name }}, willkommen zum Schosel Tippspiel!
+
+Wir freuen uns, dass du dabei bist.
+Um deine Registrierung vollständig abzuschließen, musst du noch die Teilnahmegebühr überweisen.
+Europäer überweisen bitte 10€ auf das österreichische Bankkonto, Schweizer hingegen 12CHF auf das schweizerische Bankkonto.
+
+Sobald deine Zahlung eingegangen ist, siehst du dies auf der Website bestätigt.
+
+Hals und Beinbruch!
+Herr Schosel
+
+------
+
+Hey, {{ user.name }}, welcome to Schosel betting!
+
+We're glad to have you with us!
+To activate your account you'll need to send the participation fee to one of the following bank accounts. If you live in a European country, please transfer 10€ to the Austrian bank account. If you live in Switzerland, please transfer 12CHF to the Swiss bank account.
+
+As soon as we received your payment you'll see it on the website.
+
+Happy betting!
+the man Schosel
+
+------
+
+Europäer 10€
+Empfänger: Schosel
+IBAN: AT831420020014007670
+BIC: EASYATW1
+Verwendungszweck: Email-Adresse, die ihr für Schosel verwendet
+
+------
+
+Schweizer 12CHF
+Empfänger: Schosel
+IBAN: CH8609000000898417060
+BIC: POFICHBEXXX
+Verwendungszweck: Your Email-Address used for registration
+
+------
