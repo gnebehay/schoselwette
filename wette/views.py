@@ -109,7 +109,7 @@ def register():
                                      body=str(user),
                                      recipients=[app.config['ADMIN_MAIL']]))
 
-        return flask.render_template('about.html')
+        return flask.redirect(flask.url_for('about'))
 
     return flask.render_template('register.html', form=form)
 
