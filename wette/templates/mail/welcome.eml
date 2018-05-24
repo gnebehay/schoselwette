@@ -4,7 +4,7 @@ Hallo, {{ user.name }}, willkommen zum Schosel Tippspiel!
 
 Wir freuen uns, dass du dabei bist.
 Um deine Registrierung vollständig abzuschließen, musst du noch die Teilnahmegebühr überweisen.
-Europäer überweisen bitte 10€ auf das österreichische Bankkonto, Schweizer hingegen 12CHF auf das schweizerische Bankkonto.
+Europäer überweisen bitte 10€ auf das österreichische Bankkonto, Schweizer hingegen 12CHF auf das schweizerische Bankkonto. Oder schick das Geld via PayPal an gnebehay@gmail.com :)
 
 Sobald deine Zahlung eingegangen ist, siehst du dies auf der Website bestätigt.
 
@@ -16,7 +16,7 @@ Herr Schosel
 Hey, {{ user.name }}, welcome to Schosel betting!
 
 We're glad to have you with us!
-To activate your account you'll need to send the participation fee to one of the following bank accounts. If you live in a European country, please transfer 10€ to the Austrian bank account. If you live in Switzerland, please transfer 12CHF to the Swiss bank account.
+To activate your account you'll need to send the participation fee to one of the following bank accounts. If you live in a European country, please transfer 10€ to the Austrian bank account. If you live in Switzerland, please transfer 12CHF to the Swiss bank account. Or PayPal the money to gnebehay@gmail.com :)
 
 As soon as we received your payment you'll see it on the website.
 
