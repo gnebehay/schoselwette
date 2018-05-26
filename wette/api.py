@@ -113,7 +113,7 @@ def bet_api(match_id):
 
     posted_outcome = posted_bet['outcome']
     if posted_outcome:
-        bet.outcome = models.Outcome()
+        bet.outcome = models.Outcome(posted_outcome)
     bet.supertip = posted_bet['supertip']
     
     num_supertips = sum([bet.supertip for bet in current_user.bets])
