@@ -111,7 +111,9 @@ def bet_api(match_id):
 
     posted_bet = flask.request.get_json()
 
-    bet.outcome = models.Outcome(posted_bet['outcome'])
+    posted_outcome = posted_bet['outcome']
+    if posted_outcome:
+        bet.outcome = models.Outcome()
     bet.supertip = posted_bet['supertip']
     
     num_supertips = sum([bet.supertip for bet in current_user.bets])
