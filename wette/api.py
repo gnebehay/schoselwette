@@ -11,6 +11,7 @@ import models
 
 from flask_app import app
 
+import time
 
 @app.route('/api/v1/matches')
 @login_required
@@ -67,9 +68,15 @@ def user_api(user_id):
 @login_required
 def bets_api():
 
+    start = time.time()
+
+#    import ipdb; ipdb.set_trace()
+
     current_user = flask_login.current_user
 
     bets_json = flask.jsonify([bet.apify(match=True) for bet in current_user.bets])
+
+    print('Bets api took {} seconds'.format(time.time() - start))
 
     return bets_json
 
@@ -113,7 +120,7 @@ def bet_api(match_id):
 
     posted_outcome = posted_bet['outcome']
     if posted_outcome:
-        bet.outcome = models.Outcome()
+        bet.outcome = models.Outcome(posted_outcome)
     bet.supertip = posted_bet['supertip']
     
     num_supertips = sum([bet.supertip for bet in current_user.bets])
