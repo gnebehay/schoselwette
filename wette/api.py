@@ -5,6 +5,7 @@ import sqlalchemy
 
 from flask_login import login_required
 from flask_inputs.validators import JsonSchema
+from sqlalchemy.orm import joinedload
 
 import flask_app
 import models
@@ -69,7 +70,15 @@ def bets_api():
 
     current_user = flask_login.current_user
 
-    bets_json = flask.jsonify([bet.apify(match=True) for bet in current_user.bets])
+    bets = flask_app.db_session.query(models.Bet).filter(models.Bet.user_id == current_user.id) \
+        .options(
+                joinedload(models.Bet.match).
+                joinedload(models.Match.team1)) \
+        .options(
+                joinedload(models.Bet.match).
+                joinedload(models.Match.team2)) 
+
+    bets_json = flask.jsonify([bet.apify(match=True) for bet in bets])
 
     return bets_json
 

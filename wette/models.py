@@ -206,12 +206,14 @@ class Match(flask_app.Base):
         d['team2_goals'] = self.goals_team2
         d['stage'] = self.stage.value
 
-        odds = {}
-        odds[Outcome.TEAM1_WIN.value] = self.odds[Outcome.TEAM1_WIN]
-        odds[Outcome.TEAM2_WIN.value] = self.odds[Outcome.TEAM2_WIN]
-        odds[Outcome.DRAW.value] = self.odds[Outcome.DRAW]
+        if not self.editable:
 
-        d['odds'] = odds
+            odds = {}
+            odds[Outcome.TEAM1_WIN.value] = self.odds[Outcome.TEAM1_WIN]
+            odds[Outcome.TEAM2_WIN.value] = self.odds[Outcome.TEAM2_WIN]
+            odds[Outcome.DRAW.value] = self.odds[Outcome.DRAW]
+
+            d['odds'] = odds
 
         if bets:
             d['bets'] = [bet.apify(user=True) for bet in self.bets]
