@@ -94,6 +94,12 @@
   </header>
 
     <div class="wrapper">
+      {% if current_user.is_authenticated and not current_user.paid %}
+          <ul class="alert alert-danger">
+            <li class="">You have not paid.</li>
+          </ul>
+      {% endif %}
+
       {% with messages = get_flashed_messages() %}
         {% if messages %}
           <ul class="alert alert-danger">
