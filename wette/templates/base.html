@@ -35,6 +35,7 @@
 
         <nav class="nav">
           <ul class="nav__items">
+            <li class="nav__item"><a class="nav__link" href="static/">Matches</a></li>
             <li class="nav__item"><a class="nav__link" href="{{ url_for('about') }}">Rules</a></li>
         {% if current_user.is_authenticated %}
             <li class="nav__item"><a class="nav__link" href="{{ url_for('profile') }}">My Account</a></li>
