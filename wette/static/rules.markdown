@@ -58,15 +58,45 @@ In the past players often stopped betting during later cup stages when they real
 
 ### Gambler
 Player with most correct bets on highest odds of matches wins this achievement.
+For example:
+
+* Germany plays Saudi Arabia
+* Odds result in Germany 1.5, Draw 2.5, Saudi Arabia 10
+* You bet on Saudi Arabia
+* Saudi Arabia wins
+* You get one gambler achievement point
+* At the end of the tournament the player with most gambler points wins the achievement (4% of pot)
 
 ### Superbet Hustler
 Player who scores the most points through super bets wins this achievement.
+For example:
+
+* Russia plays Uruguay
+* Odds result in Russia 2.5, Draw 5.0, Uruguay 6.0
+* You place a superbet on Uruguay
+* Uruguay wins
+* You get 6.0 * 2 = 12.0 hustler points
+* At the end of the tournament the player with most hustler points wins the achievement (4% of pot)
 
 ### National Expert
 Player with most correct bets for one country wins this achievement.
+For example:
+
+* Russia plays Uruguay
+* You bet on Uruguay (which implies that Russia loses)
+  - If Uruguay wins (and Russia loses) you get 1 expert point for Uruguay and 1 for Russia
+  - If Russia wins (and Uruguay loses) you get 0 expert points
+  - If they draw you get 0 expert points
 
 ### Public Enemy
 Player with most wrong bets for one country wins this achievement.
+For example:
+
+* Russia plays Uruguay
+* You bet on Uruguay (which implies that Russia loses)
+  - If Uruguay wins (and Russia loses) you 0 enemy points
+  - If Russia wins (and Uruguay loses) you get 1 enemy point for Uruguay and 1 for Russia
+  - If they draw you get 1 enemy point for Uruguay and 1 for Russia
 
 ### Secret Achievement
 There is one secret achievement that will be revealed after the final match. Until then players can only see their ranking for this achievement but they don't know how it's calculated. The organizers of Schosel know the achievement and are therefore excluded so they can't win this achievement.

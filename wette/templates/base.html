@@ -35,6 +35,7 @@
 
         <nav class="nav">
           <ul class="nav__items">
+            {% if current_user.is_authenticated %}
             <li class="nav__item">
               <a class="nav__link" href="static/">
                 <div class="nav__img">
@@ -42,6 +43,7 @@
                 </div> Matches
               </a>
             </li>
+            {% endif %}
             <li class="nav__item">
               <a class="nav__link" href="{{ url_for('about') }}">
                 <div class="nav__img">
