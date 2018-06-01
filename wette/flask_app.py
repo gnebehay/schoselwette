@@ -74,14 +74,6 @@ def shutdown_session(exception=None):
 # This code is needed to make form generation work
 BaseModelForm = wtforms_alchemy.model_form_factory(flask_wtf.FlaskForm)
 
-@app.before_request
-def check_payment():
-
-    current_user = flask_login.current_user
-
-    if current_user.is_authenticated and not current_user.paid:
-        flask.flash('You have not paid yet')
-
 # TODO: What is this good for?
 class ModelForm(BaseModelForm):
     @classmethod
