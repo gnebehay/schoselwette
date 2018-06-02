@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+<div class="rules-wrapper">
+
+<h1>Admin</h1>
+
+<h2>Users</h2>
+
+{% for user in users %}
+
+{{ user.name }}
+{% if not user.paid %}
+<a href='{{ url_for("confirm_payment", user_id=user.id) }}'>Confirm payment</a>
+{% endif %}
+{% if not user.admin %}
+<a href='{{ url_for("make_admin", user_id=user.id) }}'>Make admin</a>
+{% endif %}
+
+<br>
+{% endfor %}
+</div>
+
+{% endblock %}
