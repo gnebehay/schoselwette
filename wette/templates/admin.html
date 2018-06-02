@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 
-
 {% block content %}
 <div class="rules-wrapper">
 
@@ -22,6 +21,12 @@
 
 <br>
 {% endfor %}
+
+<h2>Matches</h2>
+{% for match in matches %}
+<a href='{{ url_for("match", match_id=match.id) }}'>{{ match.date }} {{ match.team1.name }} - {{ match.team2.name }}</a><br>
+{% endfor %}
+
 </div>
 
 {% endblock %}

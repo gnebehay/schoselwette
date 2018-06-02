@@ -151,8 +151,9 @@ def admin():
         flask.abort(403)
 
     users = flask_app.db_session.query(models.User).all()
+    matches = flask_app.db_session.query(models.Match).order_by(models.Match.date.asc()).all()
 
-    return flask.render_template('admin.html', users=users)
+    return flask.render_template('admin.html', users=users, matches=matches)
 
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
