@@ -171,5 +171,6 @@ def status_api():
     s['groups'] = groups
     s['user'] = current_user.apify(show_private=True)
     s['teams'] = [team.apify() for team in teams]
+    s['champion_editable'] = current_user.champion_editable
 
     return flask.jsonify(s)
