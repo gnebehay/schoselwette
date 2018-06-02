@@ -143,6 +143,17 @@ def forgotten():
 
     return flask.render_template('forgotten.html', form=form)
 
+@app.route('/admin')
+@login_required
+def admin():
+
+    if not flask_login.current_user.admin:
+        flask.abort(403)
+
+    users = flask_app.db_session.query(models.User).all()
+
+    return flask.render_template('admin.html', users=users)
+
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
@@ -170,11 +181,22 @@ def confirm_payment(user_id):
 
     user.paid = True
 
-    # TODO: Here, there should actually be a db commit, no?
-
     send_mail_template('payment_confirmed.eml', recipients=[user.email], user=user)
 
-    return flask.render_template('user.html', user=user)
+    return flask.redirect('admin')
+
+@app.route('/make_admin/<int:user_id>')
+@login_required
+def make_admin(user_id):
+
+    if not flask_login.current_user.admin:
+        flask.abort(403)
+
+    user = flask_app.db_session.query(models.User).filter(models.User.id == user_id).one()
+
+    user.admin = True
+
+    return flask.redirect('admin')
 
 @app.route('/make_champion/<int:team_id>')
 @login_required

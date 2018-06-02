@@ -26,6 +26,7 @@ class Outcome(enum.Enum):
 class Status(enum.Enum):
 
     SCHEDULED = 'scheduled'
+    LIVE = 'live'
     OVER = 'over'
 
 
@@ -108,6 +109,7 @@ class Match(flask_app.Base):
     # TODO: non-negative constraint
     goals_team1 = sa.Column(sa.Integer)
     goals_team2 = sa.Column(sa.Integer)
+    over = sa.Column(sa.Boolean, nullable=False, default=False)
 
     team1 = sa.orm.relationship('Team', foreign_keys=[team1_id])
     team2 = sa.orm.relationship('Team', foreign_keys=[team2_id])
@@ -125,8 +127,8 @@ class Match(flask_app.Base):
         if self.goals_team1 > self.goals_team2:
             return Outcome.TEAM1_WIN
         if self.goals_team1 < self.goals_team2:
-            return Outcome.DRAW
-        return Outcome.TEAM2_WIN
+            return Outcome.TEAM2_WIN
+        return Outcome.DRAW
 
 
     # Returns a dictionary from outcome -> odd
@@ -171,9 +173,17 @@ class Match(flask_app.Base):
     @property
     def status(self):
 
+        # If the begin time is later than the current time, return SCHEDULED
         if self.date > datetime.datetime.utcnow():
             return Status.SCHEDULED
 
+        # Otherwise, the game has at least started
+
+        # If it is not marked as over, it is live
+        if not self.over:
+            return Status.LIVE
+
+        # Otherwise it is over
         return Status.OVER
 
     # Sorts bets
