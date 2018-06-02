@@ -10,7 +10,9 @@
 
 {% for user in users %}
 
-{{ user.name }}
+{{ user.first_name }}
+{{ user.last_name }}
+{{ user.email }}
 {% if not user.paid %}
 <a href='{{ url_for("confirm_payment", user_id=user.id) }}'>Confirm payment</a>
 {% endif %}
