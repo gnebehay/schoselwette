@@ -83,20 +83,30 @@ Player with most correct bets for one country wins this achievement.
 For example:
 
 * Russia plays Uruguay
+* Odds result in Russia 2.5, Draw 5.0, Uruguay 6.0
 * You bet on Uruguay (which implies that Russia loses)
-  - If Uruguay wins (and Russia loses) you get 1 expert point for Uruguay and 1 for Russia
+  - If Uruguay wins (and Russia loses) you get 6.0 expert point for Uruguay and 2.5 for Russia
   - If Russia wins (and Uruguay loses) you get 0 expert points
   - If they draw you get 0 expert points
 
-### Public Enemy
-Player with most wrong bets for one country wins this achievement.
+### Chief Hattrick
+Players get points whenever they score 3+ times in a row. Player with most points wins this achievement.
 For example:
 
-* Russia plays Uruguay
-* You bet on Uruguay (which implies that Russia loses)
-  - If Uruguay wins (and Russia loses) you 0 enemy points
-  - If Russia wins (and Uruguay loses) you get 1 enemy point for Uruguay and 1 for Russia
-  - If they draw you get 1 enemy point for Uruguay and 1 for Russia
+* 1st match you bet correctly: +0 pts
+* 2nd match you bet correctly: +0 pts
+* 3rd match you bet correctly: +1 pts
+* 4th match you bet correctly: +2 pts
+* 5th match you bet wrong: +0 pts
+* 6th match you bet correctly: +0 pts
+* 7th match you bet correctly: +0 pts
+* 8th match you bet correctly: +0 pts
+* 9th match you bet correctly: +1 pts
+* 10th match you bet correctly: +2 pts
+* 11th match you bet correctly: +3 pts
+* 12th match you bet correctly: +4 pts
+
+You have collected 13 chief hattrick points.
 
 ### Secret Achievement
 There is one secret achievement that will be revealed after the final match. Until then players can only see their ranking for this achievement but they don't know how it's calculated. The organizers of Schosel know the achievement and are therefore excluded so they can't win this achievement.
