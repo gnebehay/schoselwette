@@ -17,6 +17,9 @@ from flask_app import app
 @app.route('/index')
 def index():
 
+    if flask_login.current_user.is_authenticated:
+        return flask.redirect('static')
+
     form = forms.LoginForm()
     return flask.render_template('index.html', form=form)
 
