@@ -100,13 +100,13 @@ For example:
 * 5th match you bet wrong: +0 pts
 * 6th match you bet correctly: +0 pts
 * 7th match you bet correctly: +0 pts
-* 8th match you bet correctly: +0 pts
-* 9th match you bet correctly: +1 pts
-* 10th match you bet correctly: +2 pts
-* 11th match you bet correctly: +3 pts
-* 12th match you bet correctly: +4 pts
+* 8th match you bet correctly: +1 pts
+* 9th match you bet correctly: +2 pts
+* 10th match you bet correctly: +3 pts
+* 11th match you bet correctly: +4 pts
+* 12th match you bet correctly: +5 pts
 
-You have collected 13 chief hattrick points.
+You have collected 18 chief hattrick points.
 
 ### Secret Achievement
 There is one secret achievement that will be revealed after the final match. Until then players can only see their ranking for this achievement but they don't know how it's calculated. The organizers of Schosel know the achievement and are therefore excluded so they can't win this achievement.
