@@ -163,7 +163,7 @@ def status_api():
 
     current_user = flask_login.current_user
 
-    teams = flask_app.db_session.query(models.Team)
+    teams = flask_app.db_session.query(models.Team).order_by(models.Team.name)
     groups = sorted(list({team.group for team in teams}))
 
     s = {}
