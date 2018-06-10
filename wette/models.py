@@ -56,6 +56,10 @@ class Bet(flask_app.Base):
         return self.outcome is not None
 
     @property
+    def correct(self):
+        return self.valid and self.outcome == self.match.outcome
+
+    @property
     def points(self):
 
         # Make sure that outcome is not None
@@ -318,6 +322,69 @@ class User(flask_app.Base):
 
         return False
 
+    # Achievements
+    @property
+    def hustler_points(self):
+
+        points = sum([bet.points for bet in self.bets if bet.supertip])
+
+        return points
+
+    @property
+    def gambler_points(self):
+
+        points = 0
+        for bet in self.bets:
+
+            if not bet.correct:
+                continue
+
+            if bet.match.odds[bet.outcome] == max(bet.match.odds.values()):
+                points += 1
+
+        return points
+
+    @property
+    def expert_points(self):
+
+        points_per_team = collections.defaultdict(int)
+
+        for bet in self.bets:
+
+            if not bet.correct or bet.outcome == Outcome.DRAW:
+                continue
+
+            points_per_team[bet.match.team1] += bet.match.odds[Outcome.TEAM1_WIN]
+            points_per_team[bet.match.team2] += bet.match.odds[Outcome.TEAM2_WIN]
+
+        for team, points in points_per_team.items():
+            print('{}: {}'.format(team, points))
+
+        # Check if dictionary is empty
+        if not points_per_team:
+            return 0
+
+        return max(points_per_team.values())
+
+    @property
+    def hattrick_points(self):
+
+        points = 0
+
+        current_streak = -2
+
+        # TODO: Make sure this is sorted properly
+        for bet in self.bets:
+
+            if bet.correct:
+                current_streak += 1
+
+                points += max(0, current_streak)
+
+            else:
+                current_streak = -2
+
+        return points
 
     def create_missing_bets(self):
 
@@ -401,5 +468,32 @@ class User(flask_app.Base):
 
         if bets:
             d['bets'] = [bet.apify(match=True) for bet in self.visible_bets]
+
+        users = flask_app.db_session.query(User).filter(User.paid).all()
+
+        hustler = {}
+        hustler['score'] = self.hustler_points
+        
+        hustler['rank'] = sorted(users, key=lambda user: user.hustler_points, reverse=True).index(self)+1
+
+        gambler = {}
+        gambler['score'] = self.gambler_points
+        gambler['rank'] = sorted(users, key=lambda user: user.gambler_points, reverse=True).index(self)+1
+
+        expert = {}
+        expert['score'] = self.expert_points
+        expert['rank'] = sorted(users, key=lambda user: user.expert_points, reverse=True).index(self)+1
+
+        hattrick = {}
+        hattrick['score'] = self.hattrick_points
+        hattrick['rank'] = sorted(users, key=lambda user: user.hattrick_points, reverse=True).index(self)+1
+
+        achievements = {}
+        achievements['hustler'] = hustler
+        achievements['gambler'] = gambler
+        achievements['expert'] = expert
+        achievements['hattrick'] = hattrick
+
+        d['achievements'] = achievements
 
         return d
