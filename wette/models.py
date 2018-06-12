@@ -56,6 +56,10 @@ class Bet(flask_app.Base):
         return self.outcome is not None
 
     @property
+    def correct(self):
+        return self.valid and self.outcome == self.match.outcome
+
+    @property
     def points(self):
 
         # Make sure that outcome is not None
@@ -318,6 +322,79 @@ class User(flask_app.Base):
 
         return False
 
+    # Achievements
+    @property
+    def hustler(self):
+
+        points = sum([bet.points for bet in self.bets if bet.supertip])
+
+        correct_bets = sum([1 for bet in self.bets if bet.supertip and bet.correct])
+
+        result_dict = {'points': points, 'correct_bets': correct_bets} 
+
+        return result_dict
+
+    @property
+    def gambler_points(self):
+
+        points = 0
+        for bet in self.bets:
+
+            if not bet.correct:
+                continue
+
+            if bet.match.odds[bet.outcome] == max(bet.match.odds.values()):
+                points += 1
+
+        return points
+
+    @property
+    def expert(self):
+
+        points_per_team = collections.defaultdict(int)
+
+        for bet in self.bets:
+
+            if not bet.correct:
+                continue
+
+            # Count points without superbet
+            points = bet.match.odds[bet.outcome]
+
+            points_per_team[bet.match.team1] += points
+            points_per_team[bet.match.team2] += points
+
+        # Check if dictionary is empty
+        if not points_per_team:
+            points = 0
+            team_name = None
+        else:
+            points = max(points_per_team.values())
+            team_name = max(points_per_team, key=points_per_team.get).name
+
+        result_dict = {'points': points, 'team_name': team_name}
+
+        return result_dict
+
+    @property
+    def hattrick_points(self):
+
+        points = 0
+
+        current_streak = -2
+
+        # TODO: Make sure this is sorted properly
+        for bet in self.bets:
+
+            if bet.correct:
+                current_streak += 1
+
+                points += max(0, current_streak)
+
+            else:
+                current_streak = -2
+
+        return points
 
     def create_missing_bets(self):
 
@@ -401,5 +478,33 @@ class User(flask_app.Base):
 
         if bets:
             d['bets'] = [bet.apify(match=True) for bet in self.visible_bets]
+
+        users = flask_app.db_session.query(User).filter(User.paid).all()
+
+        hustler = {}
+        hustler['score'] = self.hustler['points']
+        hustler['correct_bets'] = self.hustler['correct_bets']
+        hustler['rank'] = sorted(users, key=lambda user: user.hustler['points'], reverse=True).index(self)+1
+
+        gambler = {}
+        gambler['score'] = self.gambler_points
+        gambler['rank'] = sorted(users, key=lambda user: user.gambler_points, reverse=True).index(self)+1
+
+        expert = {}
+        expert['score'] = self.expert['points']
+        expert['team_name'] = self.expert['team_name']
+        expert['rank'] = sorted(users, key=lambda user: user.expert['points'], reverse=True).index(self)+1
+
+        hattrick = {}
+        hattrick['score'] = self.hattrick_points
+        hattrick['rank'] = sorted(users, key=lambda user: user.hattrick_points, reverse=True).index(self)+1
+
+        achievements = {}
+        achievements['hustler'] = hustler
+        achievements['gambler'] = gambler
+        achievements['expert'] = expert
+        achievements['hattrick'] = hattrick
+
+        d['achievements'] = achievements
 
         return d

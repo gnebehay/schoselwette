@@ -85,9 +85,8 @@ For example:
 * Russia plays Uruguay
 * Odds result in Russia 2.5, Draw 5.0, Uruguay 6.0
 * You bet on Uruguay (which implies that Russia loses)
-  - If Uruguay wins (and Russia loses) you get 6.0 expert point for Uruguay and 2.5 for Russia
-  - If Russia wins (and Uruguay loses) you get 0 expert points
-  - If they draw you get 0 expert points
+  - If Uruguay wins (and Russia loses) you get 6.0 expert point for Uruguay and 6.0 for Russia
+  - If Russia wins (and Uruguay loses) or they draw you get 0 expert points
 
 ### Hattrick
 Players get points whenever they score 3+ times in a row. Player with most points wins this extra.
