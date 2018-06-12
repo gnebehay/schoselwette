@@ -324,11 +324,15 @@ class User(flask_app.Base):
 
     # Achievements
     @property
-    def hustler_points(self):
+    def hustler(self):
 
         points = sum([bet.points for bet in self.bets if bet.supertip])
 
-        return points
+        correct_bets = sum([1 for bet in self.bets if bet.supertip and bet.correct])
+
+        result_dict = {'points': points, 'correct_bets': correct_bets} 
+
+        return result_dict
 
     @property
     def gambler_points(self):
@@ -345,7 +349,7 @@ class User(flask_app.Base):
         return points
 
     @property
-    def expert_points(self):
+    def expert(self):
 
         points_per_team = collections.defaultdict(int)
 
@@ -362,9 +366,15 @@ class User(flask_app.Base):
 
         # Check if dictionary is empty
         if not points_per_team:
-            return 0
+            points = 0
+            team_name = None
+        else:
+            points = max(points_per_team.values())
+            team_name = max(points_per_team, key=points_per_team.get).name
 
-        return max(points_per_team.values())
+        result_dict = {'points': points, 'team_name': team_name}
+
+        return result_dict
 
     @property
     def hattrick_points(self):
@@ -472,17 +482,18 @@ class User(flask_app.Base):
         users = flask_app.db_session.query(User).filter(User.paid).all()
 
         hustler = {}
-        hustler['score'] = self.hustler_points
-        
-        hustler['rank'] = sorted(users, key=lambda user: user.hustler_points, reverse=True).index(self)+1
+        hustler['score'] = self.hustler['points']
+        hustler['correct_bets'] = self.hustler['correct_bets']
+        hustler['rank'] = sorted(users, key=lambda user: user.hustler['points'], reverse=True).index(self)+1
 
         gambler = {}
         gambler['score'] = self.gambler_points
         gambler['rank'] = sorted(users, key=lambda user: user.gambler_points, reverse=True).index(self)+1
 
         expert = {}
-        expert['score'] = self.expert_points
-        expert['rank'] = sorted(users, key=lambda user: user.expert_points, reverse=True).index(self)+1
+        expert['score'] = self.expert['points']
+        expert['team_name'] = self.expert['team_name']
+        expert['rank'] = sorted(users, key=lambda user: user.expert['points'], reverse=True).index(self)+1
 
         hattrick = {}
         hattrick['score'] = self.hattrick_points
