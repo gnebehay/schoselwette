@@ -355,14 +355,14 @@ class User(flask_app.Base):
 
         for bet in self.bets:
 
-            if not bet.correct or bet.outcome == Outcome.DRAW:
+            if not bet.correct:
                 continue
 
-            points_per_team[bet.match.team1] += bet.match.odds[Outcome.TEAM1_WIN]
-            points_per_team[bet.match.team2] += bet.match.odds[Outcome.TEAM2_WIN]
+            # Count points without superbet
+            points = bet.match.odds[bet.outcome]
 
-        for team, points in points_per_team.items():
-            print('{}: {}'.format(team, points))
+            points_per_team[bet.match.team1] += points
+            points_per_team[bet.match.team2] += points
 
         # Check if dictionary is empty
         if not points_per_team:
