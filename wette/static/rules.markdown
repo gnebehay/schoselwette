@@ -54,10 +54,10 @@ The points for the correct cup winner bet are calculated the same way. So if for
 ---
 
 ## Goals
-In the past players often stopped betting during later cup stages when they realised they couldn't get to the first three ranks in the score table anymore. This is why we decided to introduce goals that you can win even if you have a low overall score. You compete with the other players for the highest rank of each goal. If you end first on the ranking of a goal at the end of the cup you win 4% of the pot. In case multiple players score the same amount of points for a goal they split the 4%.
+In the past players often stopped betting during later cup stages when they realised they couldn't get to the first three ranks in the score table anymore. This is why we decided to introduce extras that you can win even if you have a low overall score. You compete with the other players for the highest rank of each extra. If you end first on the ranking of an extra at the end of the cup you win 4% of the pot. In case multiple players score the same amount of points for an extra they split the 4%.
 
 ### Gambler
-Player with most correct bets on highest odds of matches wins this goal.
+Player with most correct bets on highest odds of matches wins this extra.
 For example:
 
 * Germany plays Saudi Arabia
@@ -65,10 +65,10 @@ For example:
 * You bet on Saudi Arabia
 * Saudi Arabia wins
 * You get one gambler achievement point
-* At the end of the tournament the player with most gambler points wins the goal (4% of pot)
+* At the end of the tournament the player with most gambler points wins the extra (4% of pot)
 
 ### Hustler
-Player who scores the most points through super bets wins this goal.
+Player who scores the most points through super bets wins this extra.
 For example:
 
 * Russia plays Uruguay
@@ -76,10 +76,10 @@ For example:
 * You place a superbet on Uruguay
 * Uruguay wins
 * You get 6.0 * 2 = 12.0 hustler points
-* At the end of the tournament the player with most hustler points wins the goal (4% of pot)
+* At the end of the tournament the player with most hustler points wins the extra (4% of pot)
 
 ### Expert
-Player with most correct bets for one country wins this goal.
+Player with most correct bets for one country wins this extra.
 For example:
 
 * Russia plays Uruguay
@@ -90,7 +90,7 @@ For example:
   - If they draw you get 0 expert points
 
 ### Hattrick
-Players get points whenever they score 3+ times in a row. Player with most points wins this goal.
+Players get points whenever they score 3+ times in a row. Player with most points wins this extra.
 For example:
 
 * 1st match you bet correctly: +0 pts
@@ -109,7 +109,7 @@ For example:
 You have collected 18 chief hattrick points.
 
 ### Secret
-There is one secret goal that will be revealed after the final match. Until then players can only see their ranking for this goal but they don't know how it's calculated. The organizers of Schosel know the goal and are therefore excluded so they can't win this goal.
+There is one secret extra that will be revealed after the final match. Until then players can only see their ranking for this extra but they don't know how it's calculated. The organizers of Schosel know the extra and are therefore excluded so they can't win this extra.
 
 ---
 
