@@ -62,7 +62,8 @@ def login():
             # next_is_valid should check if the user has valid
             # permission to access the `next` url
 
-            return flask.redirect(next or flask.url_for('about'))
+            # return flask.redirect(next or flask.url_for('about'))
+            return flask.redirect(next or 'index')
         else:
             flask.flash('Sorry, wrong email or password.')
 
