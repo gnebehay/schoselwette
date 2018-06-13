@@ -41,12 +41,20 @@ def match_api(match_id):
 @app.route('/api/v1/users')
 def users_api():
 
-    # TODO: Duplicate code
-    users = flask_app.db_session.query(models.User).filter(models.User.paid)
+    users = flask_app.db_session.query(models.User).filter(models.User.paid) \
+        .options(
+                joinedload(models.User.bets).
+                joinedload(models.Bet.match).
+                joinedload(models.Match.team1)) \
+        .options(
+                joinedload(models.User.bets).
+                joinedload(models.Bet.match).
+                joinedload(models.Match.team2)) \
+        .all()
 
-    users_sorted = sorted(users, key=lambda x: x.points, reverse=True)
+    users_sorted = sorted(users, key=lambda user: user.points(users), reverse=True)
 
-    users_json = flask.jsonify([user.apify() for user in users_sorted])
+    users_json = flask.jsonify([user.apify(users) for user in users_sorted])
 
     return users_json
 
@@ -54,9 +62,19 @@ def users_api():
 @app.route('/api/v1/users/<int:user_id>')
 def user_api(user_id):
 
+    users = flask_app.db_session.query(models.User).filter(models.User.paid) \
+        .options(
+                joinedload(models.User.bets).
+                joinedload(models.Bet.match).
+                joinedload(models.Match.team1)) \
+        .options(
+                joinedload(models.User.bets).
+                joinedload(models.Bet.match).
+                joinedload(models.Match.team2))
+
     try:
-        user = flask_app.db_session.query(models.User).filter(models.User.id == user_id).one()
-    except sqlalchemy.orm.exc.NoResultFound:
+        user = next(u for u in users if u.id == user_id)
+    except StopIteration:
         flask.abort(404)
 
     user_json = flask.jsonify(user.apify(bets=True))
@@ -70,15 +88,28 @@ def bets_api():
 
     current_user = flask_login.current_user
 
-    bets = flask_app.db_session.query(models.Bet).filter(models.Bet.user_id == current_user.id) \
+    users = flask_app.db_session.query(models.User).filter(models.User.paid) \
+        .options(
+                joinedload(models.User.bets).
+                joinedload(models.Bet.match).
+                joinedload(models.Match.team1)) \
+        .options(
+                joinedload(models.User.bets).
+                joinedload(models.Bet.match).
+                joinedload(models.Match.team2)) \
+        .all()
+
+    bets = flask_app.db_session.query(models.Bet) \
+        .filter(models.Bet.user_id == current_user.id) \
         .options(
                 joinedload(models.Bet.match).
                 joinedload(models.Match.team1)) \
         .options(
                 joinedload(models.Bet.match).
-                joinedload(models.Match.team2)) 
+                joinedload(models.Match.team2)) \
+        .all()
 
-    bets_json = flask.jsonify([bet.apify(match=True) for bet in bets])
+    bets_json = flask.jsonify([bet.apify(users, match=True) for bet in bets])
 
     return bets_json
 
@@ -161,6 +192,16 @@ def champion_api():
 @login_required
 def status_api():
 
+    users = flask_app.db_session.query(models.User).filter(models.User.paid) \
+        .options(
+                joinedload(models.User.bets).
+                joinedload(models.Bet.match).
+                joinedload(models.Match.team1)) \
+        .options(
+                joinedload(models.User.bets).
+                joinedload(models.Bet.match).
+                joinedload(models.Match.team2))
+
     current_user = flask_login.current_user
 
     teams = flask_app.db_session.query(models.Team).order_by(models.Team.name)
@@ -169,7 +210,7 @@ def status_api():
     s = {}
     s['stages'] = [stage.value for stage in models.Stage]
     s['groups'] = groups
-    s['user'] = current_user.apify(show_private=True)
+    s['user'] = current_user.apify(users, show_private=True)
     s['teams'] = [team.apify() for team in teams]
     s['champion_editable'] = current_user.champion_editable
 

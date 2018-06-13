@@ -59,8 +59,7 @@ class Bet(flask_app.Base):
     def correct(self):
         return self.valid and self.outcome == self.match.outcome
 
-    @property
-    def points(self):
+    def points(self, users):
 
         # Make sure that outcome is not None
         if not self.valid:
@@ -70,7 +69,7 @@ class Bet(flask_app.Base):
         if self.outcome != self.match.outcome:
             return 0
 
-        points = self.match.odds[self.outcome]
+        points = self.match.odds(users)[self.outcome]
 
         if self.supertip:
             points = points * 2
@@ -84,19 +83,19 @@ class Bet(flask_app.Base):
             self.id, self.user.name, self.match.team1.name, self.match.team2.name,
             self.match.stage, self.supertip, self.outcome)
 
-    def apify(self, match=False, user=False):
+    def apify(self, users, match=False, user=False):
 
         d = {}
 
         d['outcome'] = self.outcome.value if self.outcome is not None else None
         d['supertip'] = self.supertip
-        d['points'] = self.points
+        d['points'] = self.points(users)
 
         if match:
             d['match'] = self.match.apify()
 
         if user:
-            d['user'] = self.user.apify()
+            d['user'] = self.user.apify(users)
 
         return d
 
@@ -136,10 +135,9 @@ class Match(flask_app.Base):
 
 
     # Returns a dictionary from outcome -> odd
-    @property
-    def odds(self):
+    def odds(self, users):
 
-        num_players = flask_app.db_session.query(User).filter(User.paid).count()
+        num_players = len(users)#flask_app.db_session.query(User).filter(User.paid).count()
 
         # Retrieve all valid outcomes for this match
         valid_outcomes = [bet.outcome for bet in self.bets if bet.valid]
@@ -303,10 +301,9 @@ class User(flask_app.Base):
     # TODO: Make this configurable
     MAX_SUPERTIPS = 8
 
-    @property
-    def points(self):
+    def points(self, users):
 
-        points = sum([bet.points for bet in self.bets])
+        points = sum([bet.points(users) for bet in self.bets])
 
         if self.champion_correct:
             points += self.champion.odds
@@ -323,10 +320,9 @@ class User(flask_app.Base):
         return False
 
     # Achievements
-    @property
-    def hustler(self):
+    def hustler(self, users):
 
-        points = sum([bet.points for bet in self.bets if bet.supertip])
+        points = sum([bet.points(users) for bet in self.bets if bet.supertip])
 
         correct_bets = sum([1 for bet in self.bets if bet.supertip and bet.correct])
 
@@ -334,8 +330,7 @@ class User(flask_app.Base):
 
         return result_dict
 
-    @property
-    def gambler_points(self):
+    def gambler_points(self, users):
 
         points = 0
         for bet in self.bets:
@@ -343,13 +338,12 @@ class User(flask_app.Base):
             if not bet.correct:
                 continue
 
-            if bet.match.odds[bet.outcome] == max(bet.match.odds.values()):
+            if bet.match.odds(users)[bet.outcome] == max(bet.match.odds(users).values()):
                 points += 1
 
         return points
 
-    @property
-    def expert(self):
+    def expert(self, users):
 
         points_per_team = collections.defaultdict(int)
 
@@ -359,7 +353,7 @@ class User(flask_app.Base):
                 continue
 
             # Count points without superbet
-            points = bet.match.odds[bet.outcome]
+            points = bet.match.odds(users)[bet.outcome]
 
             points_per_team[bet.match.team1] += points
             points_per_team[bet.match.team2] += points
@@ -376,8 +370,7 @@ class User(flask_app.Base):
 
         return result_dict
 
-    @property
-    def hattrick_points(self):
+    def hattrick_points(self, users):
 
         points = 0
 
@@ -460,13 +453,15 @@ class User(flask_app.Base):
             return False
         return final_match.date < datetime.datetime.utcnow()
 
-    def apify(self, bets=False, show_private=False):
+    def apify(self, users, bets=False, show_private=False):
+
+        print('Apifying {}'.format(self))
 
         d = {}
         d['user_id'] = self.id
         d['name'] = self.name
         d['logged_in'] = False  # TODO: Not implemented yet
-        d['points'] = self.points
+        d['points'] = self.points(users)
         d['admin'] = self.admin
         d['paid'] = self.paid
 
@@ -479,25 +474,23 @@ class User(flask_app.Base):
         if bets:
             d['bets'] = [bet.apify(match=True) for bet in self.visible_bets]
 
-        users = flask_app.db_session.query(User).filter(User.paid).all()
-
         hustler = {}
-        hustler['score'] = self.hustler['points']
-        hustler['correct_bets'] = self.hustler['correct_bets']
-        hustler['rank'] = sorted(users, key=lambda user: user.hustler['points'], reverse=True).index(self)+1
+        hustler['score'] = self.hustler(users)['points']
+        hustler['correct_bets'] = self.hustler(users)['correct_bets']
+        hustler['rank'] = sorted(users, key=lambda user: user.hustler(users)['points'], reverse=True).index(self)+1
 
         gambler = {}
-        gambler['score'] = self.gambler_points
-        gambler['rank'] = sorted(users, key=lambda user: user.gambler_points, reverse=True).index(self)+1
+        gambler['score'] = self.gambler_points(users)
+        gambler['rank'] = sorted(users, key=lambda user: user.gambler_points(users), reverse=True).index(self)+1
 
         expert = {}
-        expert['score'] = self.expert['points']
-        expert['team_name'] = self.expert['team_name']
-        expert['rank'] = sorted(users, key=lambda user: user.expert['points'], reverse=True).index(self)+1
+        expert['score'] = self.expert(users)['points']
+        expert['team_name'] = self.expert(users)['team_name']
+        expert['rank'] = sorted(users, key=lambda user: user.expert(users)['points'], reverse=True).index(self)+1
 
         hattrick = {}
-        hattrick['score'] = self.hattrick_points
-        hattrick['rank'] = sorted(users, key=lambda user: user.hattrick_points, reverse=True).index(self)+1
+        hattrick['score'] = self.hattrick_points(users)
+        hattrick['rank'] = sorted(users, key=lambda user: user.hattrick_points(users), reverse=True).index(self)+1
 
         achievements = {}
         achievements['hustler'] = hustler
