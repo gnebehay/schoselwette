@@ -164,7 +164,18 @@ def bet_api(match_id):
         flask_app.db_session.rollback()
         flask.abort(418)
 
-    return flask.jsonify(bet.apify())
+    users = flask_app.db_session.query(models.User).filter(models.User.paid) \
+        .options(
+                joinedload(models.User.bets).
+                joinedload(models.Bet.match).
+                joinedload(models.Match.team1)) \
+        .options(
+                joinedload(models.User.bets).
+                joinedload(models.Bet.match).
+                joinedload(models.Match.team2)) \
+        .all()
+
+    return flask.jsonify(bet.apify(users))
 
 @app.route('/api/v1/champion', methods=['POST'])
 @flask_app.csrf.exempt
