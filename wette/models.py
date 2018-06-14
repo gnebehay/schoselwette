@@ -472,7 +472,7 @@ class User(flask_app.Base):
         d['visible_supertips'] = self.supertips
 
         if bets:
-            d['bets'] = [bet.apify(match=True) for bet in self.visible_bets]
+            d['bets'] = [bet.apify(users, match=True) for bet in self.visible_bets]
 
         hustler = {}
         hustler['score'] = self.hustler(users)['points']
