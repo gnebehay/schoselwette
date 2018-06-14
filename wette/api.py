@@ -63,6 +63,8 @@ def match_api(match_id):
 @app.route('/api/v1/users')
 def users_api():
 
+    return ""
+
     users = flask_app.db_session.query(models.User).filter(models.User.paid) \
         .options(
                 joinedload(models.User.bets).
