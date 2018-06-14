@@ -92,7 +92,7 @@ class Bet(flask_app.Base):
         d['points'] = self.points(users)
 
         if match:
-            d['match'] = self.match.apify()
+            d['match'] = self.match.apify(users)
 
         if user:
             d['user'] = self.user.apify(users)
@@ -202,7 +202,7 @@ class Match(flask_app.Base):
         return '<Match: id={}, team1={}, team2={}, date={}, stage={}, goals_team1={}, goals_team2={}>'.format(
             self.id, self.team1.name, self.team2.name, self.date, self.stage, self.goals_team1, self.goals_team2)
 
-    def apify(self, bets=False):
+    def apify(self, users, bets=False):
 
         d = {}
         d['match_id'] = self.id
@@ -221,14 +221,14 @@ class Match(flask_app.Base):
         if not self.editable:
 
             odds = {}
-            odds[Outcome.TEAM1_WIN.value] = self.odds[Outcome.TEAM1_WIN]
-            odds[Outcome.TEAM2_WIN.value] = self.odds[Outcome.TEAM2_WIN]
-            odds[Outcome.DRAW.value] = self.odds[Outcome.DRAW]
+            odds[Outcome.TEAM1_WIN.value] = self.odds(users)[Outcome.TEAM1_WIN]
+            odds[Outcome.TEAM2_WIN.value] = self.odds(users)[Outcome.TEAM2_WIN]
+            odds[Outcome.DRAW.value] = self.odds(users)[Outcome.DRAW]
 
             d['odds'] = odds
 
         if bets:
-            d['bets'] = [bet.apify(user=True) for bet in self.bets]
+            d['bets'] = [bet.apify(users, user=True) for bet in self.bets if bet.user.paid]
 
         return d
 
@@ -454,8 +454,6 @@ class User(flask_app.Base):
         return final_match.date < datetime.datetime.utcnow()
 
     def apify(self, users, bets=False, show_private=False):
-
-        print('Apifying {}'.format(self))
 
         d = {}
         d['user_id'] = self.id
