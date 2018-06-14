@@ -70,6 +70,8 @@ def shutdown_session(exception=None):
         db_session.rollback()
         raise
 
+    db_session.remove()
+
 
 # This code is needed to make form generation work
 BaseModelForm = wtforms_alchemy.model_form_factory(flask_wtf.FlaskForm)
