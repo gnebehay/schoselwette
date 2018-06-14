@@ -92,15 +92,14 @@ def user_api(user_id):
         .options(
                 joinedload(models.User.bets).
                 joinedload(models.Bet.match).
-                joinedload(models.Match.team2)) \
-        .all()
+                joinedload(models.Match.team2))
 
     try:
         user = next(u for u in users if u.id == user_id)
     except StopIteration:
         flask.abort(404)
 
-    user_json = flask.jsonify(user.apify(users, bets=True))
+    user_json = flask.jsonify(user.apify(bets=True))
 
     return user_json
 
