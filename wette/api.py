@@ -17,21 +17,10 @@ from flask_app import app
 @login_required
 def matches_api():
 
-    users = flask_app.db_session.query(models.User).filter(models.User.paid) \
-        .options(
-                joinedload(models.User.bets).
-                joinedload(models.Bet.match).
-                joinedload(models.Match.team1)) \
-        .options(
-                joinedload(models.User.bets).
-                joinedload(models.Bet.match).
-                joinedload(models.Match.team2)) \
-        .all()
-
     # TODO: Check eager loading
     matches = flask_app.db_session.query(models.Match)
 
-    matches_json = flask.jsonify([match.apify(users) for match in matches])
+    matches_json = flask.jsonify([match.apify() for match in matches])
 
     return matches_json
 
@@ -44,18 +33,7 @@ def match_api(match_id):
     except sqlalchemy.orm.exc.NoResultFound:
         flask.abort(404)
 
-    users = flask_app.db_session.query(models.User).filter(models.User.paid) \
-        .options(
-                joinedload(models.User.bets).
-                joinedload(models.Bet.match).
-                joinedload(models.Match.team1)) \
-        .options(
-                joinedload(models.User.bets).
-                joinedload(models.Bet.match).
-                joinedload(models.Match.team2)) \
-        .all()
-
-    matches_json = flask.jsonify(match.apify(users, bets=True))
+    matches_json = flask.jsonify(match.apify(bets=True))
 
     return matches_json
 
@@ -222,8 +200,7 @@ def status_api():
         .options(
                 joinedload(models.User.bets).
                 joinedload(models.Bet.match).
-                joinedload(models.Match.team2)) \
-        .all()
+                joinedload(models.Match.team2))
 
     current_user = flask_login.current_user
 
