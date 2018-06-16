@@ -128,6 +128,14 @@ def match(match_id):
     if flask.request.method == 'POST' and form.validate():
         form.populate_obj(match)
 
+        # TODO: Re-compute odds of match
+        match.compute_odds()
+
+        # TODO: Re-compute points of bets and users
+        for bet in match.bets:
+            bet.compute_points()
+            bet.user.compute_points()
+
     return flask.render_template('match.html', match=match, form=form)
 
 @app.route('/about')

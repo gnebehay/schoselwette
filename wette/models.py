@@ -44,6 +44,7 @@ class Bet(flask_app.Base):
     match_id = sa.Column(sa.Integer, sa.ForeignKey('matches.id'))
     outcome = sa.Column(sa.Enum(Outcome, values_callable=_get_values))
     supertip = sa.Column(sa.Boolean, default=False, nullable=False)
+    points = sa.Column(sa.Float, default=0.0, nullable=False)
 
     match = sa.orm.relationship('Match', backref='bets')
     user = sa.orm.relationship('User', backref='bets')
@@ -59,24 +60,24 @@ class Bet(flask_app.Base):
     def correct(self):
         return self.valid and self.outcome == self.match.outcome
 
-    @property
-    def points(self):
+    def compute_points(self):
 
         # Make sure that outcome is not None
         if not self.valid:
-            return 0
+            self.points = 0
+            return
 
         # Make sure that the bet is correct
         if self.outcome != self.match.outcome:
-            return 0
+            self.points = 0
+            return
 
         points = self.match.odds[self.outcome]
 
         if self.supertip:
             points = points * 2
 
-        return points
-
+        self.points = points
 
     def __repr__(self):
         return ('<Bet: id={}, user={}, team1={}, team2={}, stage={}, supertip={}, '
@@ -114,6 +115,9 @@ class Match(flask_app.Base):
     goals_team1 = sa.Column(sa.Integer)
     goals_team2 = sa.Column(sa.Integer)
     over = sa.Column(sa.Boolean, nullable=False, default=False)
+    odds_team1 = sa.Column(sa.Float, default=0.0, nullable=False)
+    odds_draw = sa.Column(sa.Float, default=0.0, nullable=False)
+    odds_team2 = sa.Column(sa.Float, default=0.0, nullable=False)
 
     team1 = sa.orm.relationship('Team', foreign_keys=[team1_id])
     team2 = sa.orm.relationship('Team', foreign_keys=[team2_id])
@@ -134,10 +138,16 @@ class Match(flask_app.Base):
             return Outcome.TEAM2_WIN
         return Outcome.DRAW
 
-
-    # Returns a dictionary from outcome -> odd
     @property
     def odds(self):
+        return {
+                Outcome.TEAM1_WIN: self.odds_team1,
+                Outcome.DRAW: self.odds_draw,
+                Outcome.TEAM2_WIN: self.odds_team2,
+                }
+
+    # Sets the odds properties
+    def compute_odds(self):
 
         num_players = flask_app.db_session.query(User).filter(User.paid).count()
 
@@ -151,7 +161,9 @@ class Match(flask_app.Base):
         for o in counter.keys():
             counter[o] = num_players / counter[o]  # num_players is always greater than counter
 
-        return counter
+        self.odds_team1 = counter[Outcome.TEAM1_WIN]
+        self.odds_draw = counter[Outcome.DRAW]
+        self.odds_team2 = counter[Outcome.TEAM2_WIN]
 
     # TODO: Candidate for removal
     @property
@@ -230,7 +242,7 @@ class Match(flask_app.Base):
             d['odds'] = odds
 
         if bets:
-            d['bets'] = [bet.apify(user=True) for bet in self.bets]
+            d['bets'] = [bet.apify(user=True) for bet in self.bets if bet.user.paid]
 
         return d
 
@@ -291,6 +303,8 @@ class User(flask_app.Base):
     paid = sa.Column(sa.Boolean, nullable=False, default=False)
     admin = sa.Column(sa.Boolean, nullable=False, default=False)
     champion_id = sa.Column(sa.Integer, sa.ForeignKey('teams.id'), nullable=True)
+    points = sa.Column(sa.Float, default=0.0, nullable=False)
+    supertips = sa.Column(sa.Integer, default=0, nullable=False)
     # TODO: Re-add this
     #passwort_reset_token = sa.Column(sa.String(64), nullable=True)
     #passwort_reset_token_validity = sa.Column(sa.String(64), nullable=True)
@@ -303,15 +317,14 @@ class User(flask_app.Base):
     # TODO: Make this configurable
     MAX_SUPERTIPS = 8
 
-    @property
-    def points(self):
+    def compute_points(self):
 
         points = sum([bet.points for bet in self.bets])
 
         if self.champion_correct:
             points += self.champion.odds
 
-        return points
+        self.points = points
 
     @property
     def champion_correct(self):
@@ -411,7 +424,7 @@ class User(flask_app.Base):
             bet.match = match
 
     @property
-    def supertips(self):
+    def compute_supertips(self):
         return len([bet for bet in self.bets if bet.supertip])
 
     @property
@@ -454,6 +467,9 @@ class User(flask_app.Base):
     # TODO: Why is this a property of user?
     @property
     def final_started(self):
+
+        # TODO TODO TODO: Needs to be fixed
+        return False
         final_match = flask_app.db_session.query(Match).filter(Match.stage == Stage.FINAL).one_or_none()
 
         if final_match is None:
@@ -479,32 +495,32 @@ class User(flask_app.Base):
         if bets:
             d['bets'] = [bet.apify(match=True) for bet in self.visible_bets]
 
-        users = flask_app.db_session.query(User).filter(User.paid).all()
-
-        hustler = {}
-        hustler['score'] = self.hustler['points']
-        hustler['correct_bets'] = self.hustler['correct_bets']
-        hustler['rank'] = sorted(users, key=lambda user: user.hustler['points'], reverse=True).index(self)+1
-
-        gambler = {}
-        gambler['score'] = self.gambler_points
-        gambler['rank'] = sorted(users, key=lambda user: user.gambler_points, reverse=True).index(self)+1
-
-        expert = {}
-        expert['score'] = self.expert['points']
-        expert['team_name'] = self.expert['team_name']
-        expert['rank'] = sorted(users, key=lambda user: user.expert['points'], reverse=True).index(self)+1
-
-        hattrick = {}
-        hattrick['score'] = self.hattrick_points
-        hattrick['rank'] = sorted(users, key=lambda user: user.hattrick_points, reverse=True).index(self)+1
-
-        achievements = {}
-        achievements['hustler'] = hustler
-        achievements['gambler'] = gambler
-        achievements['expert'] = expert
-        achievements['hattrick'] = hattrick
-
-        d['achievements'] = achievements
+#        users = flask_app.db_session.query(User).filter(User.paid).all()
+#
+#        hustler = {}
+#        hustler['score'] = self.hustler['points']
+#        hustler['correct_bets'] = self.hustler['correct_bets']
+#        hustler['rank'] = sorted(users, key=lambda user: user.hustler['points'], reverse=True).index(self)+1
+#
+#        gambler = {}
+#        gambler['score'] = self.gambler_points
+#        gambler['rank'] = sorted(users, key=lambda user: user.gambler_points, reverse=True).index(self)+1
+#
+#        expert = {}
+#        expert['score'] = self.expert['points']
+#        expert['team_name'] = self.expert['team_name']
+#        expert['rank'] = sorted(users, key=lambda user: user.expert['points'], reverse=True).index(self)+1
+#
+#        hattrick = {}
+#        hattrick['score'] = self.hattrick_points
+#        hattrick['rank'] = sorted(users, key=lambda user: user.hattrick_points, reverse=True).index(self)+1
+#
+#        achievements = {}
+#        achievements['hustler'] = hustler
+#        achievements['gambler'] = gambler
+#        achievements['expert'] = expert
+#        achievements['hattrick'] = hattrick
+#
+#        d['achievements'] = achievements
 
         return d

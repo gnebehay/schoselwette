@@ -17,8 +17,10 @@ from flask_app import app
 @login_required
 def matches_api():
 
-    # TODO: Check eager loading
-    matches = flask_app.db_session.query(models.Match)
+    matches = flask_app.db_session.query(models.Match) \
+        .options(joinedload(models.Match.team1)) \
+        .options(joinedload(models.Match.team2)) \
+        .all()
 
     matches_json = flask.jsonify([match.apify() for match in matches])
 
@@ -29,7 +31,11 @@ def matches_api():
 def match_api(match_id):
 
     try:
-        match = flask_app.db_session.query(models.Match).filter(models.Match.id == match_id).one()
+        match = flask_app.db_session.query(models.Match) \
+        .options(joinedload(models.Match.bets).joinedload(models.Bet.user)) \
+        .options(joinedload(models.Match.team1)) \
+        .options(joinedload(models.Match.team2)) \
+        .filter(models.Match.id == match_id).one()
     except sqlalchemy.orm.exc.NoResultFound:
         flask.abort(404)
 
@@ -42,11 +48,11 @@ def match_api(match_id):
 def users_api():
 
     # TODO: Duplicate code
-    users = flask_app.db_session.query(models.User).filter(models.User.paid)
+    users = flask_app.db_session.query(models.User) \
+        .filter(models.User.paid) \
+        .order_by(models.User.points.desc())
 
-    users_sorted = sorted(users, key=lambda x: x.points, reverse=True)
-
-    users_json = flask.jsonify([user.apify() for user in users_sorted])
+    users_json = flask.jsonify([user.apify() for user in users])
 
     return users_json
 
@@ -83,8 +89,6 @@ def bets_api():
     return bets_json
 
 
-
-
 schema = {
     'outcome': {'type': 'string', 'oneOf': [outcome.value for outcome in models.Outcome]},
     'supertip': 'boolean'
@@ -107,13 +111,12 @@ def bet_api(match_id):
 
     current_user = flask_login.current_user
 
+    bet = flask_app.db_session.query(models.Bet) \
+        .filter(models.Bet.user_id == current_user.id) \
+        .filter(models.Bet.match_id == match_id).one_or_none()
 
-    bets = [bet for bet in current_user.bets if bet.match.id == match_id]
-
-    if not bets:
+    if bet is None:
         flask.abort(404)
-
-    bet = bets[0]
 
     if not bet.match.editable:
         flask.abort(403)
@@ -131,6 +134,9 @@ def bet_api(match_id):
     if num_supertips > models.User.MAX_SUPERTIPS:
         flask_app.db_session.rollback()
         flask.abort(418)
+
+    # Update supertip count in user
+    current_user.supertips = num_supertips
 
     return flask.jsonify(bet.apify())
 
