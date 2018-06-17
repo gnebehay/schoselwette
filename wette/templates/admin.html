@@ -5,6 +5,11 @@
 
 <h1>Admin</h1>
 
+<h2>Matches</h2>
+{% for match in matches %}
+<a href='{{ url_for("match", match_id=match.id) }}'>{{ match.date }} {{ match.team1.name }} - {{ match.team2.name }}</a><br>
+{% endfor %}
+
 <h2>{{users | length }} Users</h2>
 
 {% for user in users %}
@@ -20,11 +25,6 @@
 {% endif %}
 
 <br>
-{% endfor %}
-
-<h2>Matches</h2>
-{% for match in matches %}
-<a href='{{ url_for("match", match_id=match.id) }}'>{{ match.date }} {{ match.team1.name }} - {{ match.team2.name }}</a><br>
 {% endfor %}
 
 </div>
