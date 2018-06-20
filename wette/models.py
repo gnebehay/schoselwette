@@ -308,8 +308,15 @@ class User(flask_app.Base):
     # TODO: Re-add this
     #passwort_reset_token = sa.Column(sa.String(64), nullable=True)
     #passwort_reset_token_validity = sa.Column(sa.String(64), nullable=True)
+    hustler_points = sa.Column(sa.Float, default=0.0, nullable=False)
+    hustler_correct_bets = sa.Column(sa.Integer, default=0, nullable=False)
+    gambler_points = sa.Column(sa.Float, default=0.0, nullable=False)
+    expert_points = sa.Column(sa.Float, default=0.0, nullable=False)
+    expert_team_id = sa.Column(sa.Integer, sa.ForeignKey('teams.id'))
+    hattrick_points = sa.Column(sa.Float, default=0.0, nullable=False)
 
-    champion = sa.orm.relationship('Team', backref='users')
+    expert_team = sa.orm.relationship('Team', foreign_keys=expert_team_id)
+    champion = sa.orm.relationship('Team', foreign_keys=champion_id, backref='users')
 
     # Backreffed relationships:
     # -bets
@@ -336,19 +343,16 @@ class User(flask_app.Base):
         return False
 
     # Achievements
-    @property
-    def hustler(self):
+    def compute_hustler(self):
 
         points = sum([bet.points for bet in self.bets if bet.supertip])
 
         correct_bets = sum([1 for bet in self.bets if bet.supertip and bet.correct])
 
-        result_dict = {'points': points, 'correct_bets': correct_bets} 
+        self.hustler_points = points
+        self.hustler_correct_bets = correct_bets
 
-        return result_dict
-
-    @property
-    def gambler_points(self):
+    def compute_gambler(self):
 
         points = 0
         for bet in self.bets:
@@ -359,10 +363,9 @@ class User(flask_app.Base):
             if bet.match.odds[bet.outcome] == max(bet.match.odds.values()):
                 points += 1
 
-        return points
+        self.gambler_points = points
 
-    @property
-    def expert(self):
+    def compute_expert(self):
 
         points_per_team = collections.defaultdict(int)
 
@@ -380,17 +383,15 @@ class User(flask_app.Base):
         # Check if dictionary is empty
         if not points_per_team:
             points = 0
-            team_name = None
+            team = None
         else:
             points = max(points_per_team.values())
-            team_name = max(points_per_team, key=points_per_team.get).name
+            team = max(points_per_team, key=points_per_team.get)
 
-        result_dict = {'points': points, 'team_name': team_name}
+        self.expert_points = points
+        self.expert_team = team
 
-        return result_dict
-
-    @property
-    def hattrick_points(self):
+    def compute_hattrick(self):
 
         points = 0
 
@@ -407,7 +408,7 @@ class User(flask_app.Base):
             else:
                 current_streak = -2
 
-        return points
+        self.hattrick_points = points
 
     def create_missing_bets(self):
 
@@ -495,32 +496,30 @@ class User(flask_app.Base):
         if bets:
             d['bets'] = [bet.apify(match=True) for bet in self.visible_bets]
 
-#        users = flask_app.db_session.query(User).filter(User.paid).all()
-#
-#        hustler = {}
-#        hustler['score'] = self.hustler['points']
-#        hustler['correct_bets'] = self.hustler['correct_bets']
-#        hustler['rank'] = sorted(users, key=lambda user: user.hustler['points'], reverse=True).index(self)+1
-#
-#        gambler = {}
-#        gambler['score'] = self.gambler_points
-#        gambler['rank'] = sorted(users, key=lambda user: user.gambler_points, reverse=True).index(self)+1
-#
-#        expert = {}
-#        expert['score'] = self.expert['points']
-#        expert['team_name'] = self.expert['team_name']
-#        expert['rank'] = sorted(users, key=lambda user: user.expert['points'], reverse=True).index(self)+1
-#
-#        hattrick = {}
-#        hattrick['score'] = self.hattrick_points
-#        hattrick['rank'] = sorted(users, key=lambda user: user.hattrick_points, reverse=True).index(self)+1
-#
-#        achievements = {}
-#        achievements['hustler'] = hustler
-#        achievements['gambler'] = gambler
-#        achievements['expert'] = expert
-#        achievements['hattrick'] = hattrick
-#
-#        d['achievements'] = achievements
+        hustler = {}
+        hustler['score'] = self.hustler_points
+        hustler['correct_bets'] = self.hustler_correct_bets
+        hustler['rank'] = None #sorted(users, key=lambda user: user.hustler_points, reverse=True).index(self)+1
+
+        gambler = {}
+        gambler['score'] = self.gambler_points
+        gambler['rank'] = None #sorted(users, key=lambda user: user.gambler_points, reverse=True).index(self)+1
+
+        expert = {}
+        expert['score'] = self.expert_points
+        expert['team_name'] = self.expert_team.name if not self.expert_team is None else None
+        expert['rank'] = None #sorted(users, key=lambda user: user.expert_points, reverse=True).index(self)+1
+
+        hattrick = {}
+        hattrick['score'] = self.hattrick_points
+        hattrick['rank'] = None #sorted(users, key=lambda user: user.hattrick_points, reverse=True).index(self)+1
+
+        achievements = {}
+        achievements['hustler'] = hustler
+        achievements['gambler'] = gambler
+        achievements['expert'] = expert
+        achievements['hattrick'] = hattrick
+
+        d['achievements'] = achievements
 
         return d

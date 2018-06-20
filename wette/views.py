@@ -135,6 +135,10 @@ def match(match_id):
         for bet in match.bets:
             bet.compute_points()
             bet.user.compute_points()
+            bet.user.compute_hustler()
+            bet.user.compute_gambler()
+            bet.user.compute_expert()
+            bet.user.compute_hattrick()
 
     return flask.render_template('match.html', match=match, form=form)
 
