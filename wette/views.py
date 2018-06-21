@@ -140,6 +140,8 @@ def match(match_id):
             bet.user.compute_expert()
             bet.user.compute_hattrick()
 
+        flask.flash('Saved successfully.')
+
     return flask.render_template('match.html', match=match, form=form)
 
 @app.route('/about')

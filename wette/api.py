@@ -50,9 +50,11 @@ def users_api():
     # TODO: Duplicate code
     users = flask_app.db_session.query(models.User) \
         .filter(models.User.paid) \
-        .order_by(models.User.points.desc())
+        .order_by(models.User.points.desc()) \
+        .all()
 
-    users_json = flask.jsonify([user.apify() for user in users])
+
+    users_json = flask.jsonify([user.apify(users=users) for user in users])
 
     return users_json
 
@@ -60,12 +62,17 @@ def users_api():
 @app.route('/api/v1/users/<int:user_id>')
 def user_api(user_id):
 
+    users = flask_app.db_session.query(models.User) \
+        .filter(models.User.paid) \
+        .order_by(models.User.points.desc()) \
+        .all()
+
     try:
-        user = flask_app.db_session.query(models.User).filter(models.User.id == user_id).one()
-    except sqlalchemy.orm.exc.NoResultFound:
+        user = next(user for user in users if users.id == user_id)
+    except StopIteration:
         flask.abort(404)
 
-    user_json = flask.jsonify(user.apify(bets=True))
+    user_json = flask.jsonify(user.apify(bets=True), users=users)
 
     return user_json
 

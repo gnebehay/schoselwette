@@ -477,7 +477,7 @@ class User(flask_app.Base):
             return False
         return final_match.date < datetime.datetime.utcnow()
 
-    def apify(self, bets=False, show_private=False):
+    def apify(self, bets=False, show_private=False, users=None):
 
         d = {}
         d['user_id'] = self.id
@@ -496,30 +496,34 @@ class User(flask_app.Base):
         if bets:
             d['bets'] = [bet.apify(match=True) for bet in self.visible_bets]
 
-        hustler = {}
-        hustler['score'] = self.hustler_points
-        hustler['correct_bets'] = self.hustler_correct_bets
-        hustler['rank'] = None #sorted(users, key=lambda user: user.hustler_points, reverse=True).index(self)+1
+        if users:
 
-        gambler = {}
-        gambler['score'] = self.gambler_points
-        gambler['rank'] = None #sorted(users, key=lambda user: user.gambler_points, reverse=True).index(self)+1
+            d['rank'] = sorted(users, key=lambda user: user.points, reverse=True).index(self)+1
 
-        expert = {}
-        expert['score'] = self.expert_points
-        expert['team_name'] = self.expert_team.name if not self.expert_team is None else None
-        expert['rank'] = None #sorted(users, key=lambda user: user.expert_points, reverse=True).index(self)+1
+            hustler = {}
+            hustler['score'] = self.hustler_points
+            hustler['correct_bets'] = self.hustler_correct_bets
+            hustler['rank'] = sorted(users, key=lambda user: user.hustler_points, reverse=True).index(self)+1
 
-        hattrick = {}
-        hattrick['score'] = self.hattrick_points
-        hattrick['rank'] = None #sorted(users, key=lambda user: user.hattrick_points, reverse=True).index(self)+1
+            gambler = {}
+            gambler['score'] = self.gambler_points
+            gambler['rank'] = sorted(users, key=lambda user: user.gambler_points, reverse=True).index(self)+1
 
-        achievements = {}
-        achievements['hustler'] = hustler
-        achievements['gambler'] = gambler
-        achievements['expert'] = expert
-        achievements['hattrick'] = hattrick
+            expert = {}
+            expert['score'] = self.expert_points
+            expert['team_name'] = self.expert_team.name if not self.expert_team is None else None
+            expert['rank'] = sorted(users, key=lambda user: user.expert_points, reverse=True).index(self)+1
 
-        d['achievements'] = achievements
+            hattrick = {}
+            hattrick['score'] = self.hattrick_points
+            hattrick['rank'] = sorted(users, key=lambda user: user.hattrick_points, reverse=True).index(self)+1
+
+            achievements = {}
+            achievements['hustler'] = hustler
+            achievements['gambler'] = gambler
+            achievements['expert'] = expert
+            achievements['hattrick'] = hattrick
+
+            d['achievements'] = achievements
 
         return d
