@@ -64,7 +64,6 @@ def user_api(user_id):
 
     users = flask_app.db_session.query(models.User) \
         .filter(models.User.paid) \
-        .order_by(models.User.points.desc()) \
         .all()
 
     try:
@@ -179,10 +178,15 @@ def status_api():
     teams = flask_app.db_session.query(models.Team).order_by(models.Team.name)
     groups = sorted(list({team.group for team in teams}))
 
+    # TODO: Duplicate code
+    users = flask_app.db_session.query(models.User) \
+        .filter(models.User.paid) \
+        .all()
+
     s = {}
     s['stages'] = [stage.value for stage in models.Stage]
     s['groups'] = groups
-    s['user'] = current_user.apify(show_private=True)
+    s['user'] = current_user.apify(show_private=True, users=users)
     s['teams'] = [team.apify() for team in teams]
     s['champion_editable'] = current_user.champion_editable
 
