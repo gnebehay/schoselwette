@@ -68,11 +68,11 @@ def user_api(user_id):
         .all()
 
     try:
-        user = next(user for user in users if users.id == user_id)
+        user = next(user for user in users if user.id == user_id)
     except StopIteration:
         flask.abort(404)
 
-    user_json = flask.jsonify(user.apify(bets=True), users=users)
+    user_json = flask.jsonify(user.apify(bets=True, users=users))
 
     return user_json
 
