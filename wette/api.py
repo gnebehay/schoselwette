@@ -49,10 +49,10 @@ def users_api():
 
     # TODO: Duplicate code
     users = flask_app.db_session.query(models.User) \
+        .options(joinedload(models.User.expert_team)) \
         .filter(models.User.paid) \
         .order_by(models.User.points.desc()) \
         .all()
-
 
     users_json = flask.jsonify([user.apify(users=users) for user in users])
 
@@ -62,14 +62,20 @@ def users_api():
 @app.route('/api/v1/users/<int:user_id>')
 def user_api(user_id):
 
+    user = flask_app.db_session.query(models.User) \
+        .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team1)) \
+        .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team2)) \
+        .options(joinedload(models.User.expert_team)) \
+        .filter(models.User.id == user_id) \
+        .one_or_none()
+
+    if user is None:
+        flask.abort(404)
+
     users = flask_app.db_session.query(models.User) \
+        .options(joinedload(models.User.expert_team)) \
         .filter(models.User.paid) \
         .all()
-
-    try:
-        user = next(user for user in users if user.id == user_id)
-    except StopIteration:
-        flask.abort(404)
 
     user_json = flask.jsonify(user.apify(bets=True, users=users))
 
