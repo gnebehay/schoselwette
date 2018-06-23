@@ -5,6 +5,8 @@
 
 <h1>Admin</h1>
 
+<a href='{{ url_for("compute_champion_odds") }}'>Re-compute champion odds</a><br>
+
 <h2>Matches</h2>
 {% for match in matches %}
 <a href='{{ url_for("match", match_id=match.id) }}'>{{ match.date }} {{ match.team1.name }} - {{ match.team2.name }}</a><br>

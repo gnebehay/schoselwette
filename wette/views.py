@@ -204,6 +204,22 @@ def confirm_payment(user_id):
 
     return flask.redirect('admin')
 
+@app.route('/compute_champion_odds')
+@login_required
+def compute_champion_odds():
+
+    if not flask_login.current_user.admin:
+        flask.abort(403)
+
+    teams = flask_app.db_session.query(models.Team).all()
+
+    for team in teams:
+        team.compute_odds()
+
+    flask.flash('Champion odds have been recomputed.')
+
+    return flask.redirect('admin')
+
 @app.route('/make_admin/<int:user_id>')
 @login_required
 def make_admin(user_id):

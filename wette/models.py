@@ -256,21 +256,22 @@ class Team(flask_app.Base):
     short_name = sa.Column(sa.String(16), nullable=False, unique=True)
     group = sa.Column(sa.String(1), nullable=False)
     champion = sa.Column(sa.Boolean, default=False, nullable=False)
+    odds = sa.Column(sa.Float, nullable=False)
 
-    @property
-    def odds(self):
+    def compute_odds(self):
 
-        # Get number of users that placed a bet
-        num_total_bets = flask_app.db_session.query(User).filter(User.champion_id is not None).count()
+        num_players = flask_app.db_session.query(User).filter(User.paid).count()
 
         # Number of users that betted on this particular team
         num_bets_team = len(self.users)
 
-        # Prevent division by 0
-        if num_bets_team == 0:
-            return 0
+        odds = 0
 
-        return num_total_bets / num_bets_team
+        # Prevent division by 0
+        if num_bets_team > 0:
+            odds = num_players / num_bets_team
+
+        self.odds = odds
 
 
     def __repr__(self):
@@ -285,6 +286,7 @@ class Team(flask_app.Base):
         d['short_name'] = self.short_name
         d['group'] = self.group
         d['champion'] = self.champion
+        d['points'] = self.odds
 
         return d
 
