@@ -286,7 +286,7 @@ class Team(flask_app.Base):
         d['short_name'] = self.short_name
         d['group'] = self.group
         d['champion'] = self.champion
-        d['points'] = self.odds
+        d['odds'] = self.odds
 
         return d
 
@@ -465,6 +465,9 @@ class User(flask_app.Base):
     # TODO: Why is this a property of user?
     @property
     def champion_editable(self):
+
+        # TODO TODO TODO: Needs to be fixed
+        return False
         first_match = flask_app.db_session.query(Match).order_by('date').first()
         return first_match.date > datetime.datetime.utcnow()
 
@@ -490,8 +493,8 @@ class User(flask_app.Base):
         d['admin'] = self.admin
         d['paid'] = self.paid
 
-        if self.final_started or show_private:
-            d['champion_id'] = self.champion_id
+        if not self.champion_editable or show_private:
+            d['champion'] = self.champion.apify() if not self.champion is None else None
             d['champion_correct'] = self.champion_correct
 
         d['visible_supertips'] = self.supertips
@@ -514,7 +517,7 @@ class User(flask_app.Base):
 
             expert = {}
             expert['score'] = self.expert_points
-            expert['team_name'] = self.expert_team.name if not self.expert_team is None else None
+            expert['team'] = self.expert_team.apify() if not self.expert_team is None else None
             expert['rank'] = sorted(users, key=lambda user: user.expert_points, reverse=True).index(self)+1
 
             hattrick = {}

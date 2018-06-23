@@ -50,6 +50,7 @@ def users_api():
     # TODO: Duplicate code
     users = flask_app.db_session.query(models.User) \
         .options(joinedload(models.User.expert_team)) \
+        .options(joinedload(models.User.champion)) \
         .filter(models.User.paid) \
         .order_by(models.User.points.desc()) \
         .all()
