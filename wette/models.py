@@ -241,8 +241,8 @@ class Match(flask_app.Base):
 
             d['odds'] = odds
 
-        if bets:
-            d['bets'] = [bet.apify(user=True) for bet in self.bets if bet.user.paid]
+            if bets:
+                d['bets'] = [bet.apify(user=True) for bet in self.bets if bet.user.paid]
 
         return d
 
@@ -448,6 +448,7 @@ class User(flask_app.Base):
     # All valid bets that are no longer editable, sorted by match date
     @property
     def visible_bets(self):
+
         visible_bets = [bet for bet in self.bets if bet.valid and not bet.match.editable]
         return sorted(visible_bets, key=lambda bet: bet.match.date)
 
