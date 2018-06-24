@@ -504,25 +504,25 @@ class User(flask_app.Base):
 
         if users:
 
-            d['rank'] = sorted(users, key=lambda user: user.points, reverse=True).index(self)+1
+            d['rank'] = sorted([user.points for user in users], reverse=True).index(self.points)+1
 
             hustler = {}
             hustler['score'] = self.hustler_points
             hustler['correct_bets'] = self.hustler_correct_bets
-            hustler['rank'] = sorted(users, key=lambda user: user.hustler_points, reverse=True).index(self)+1
+            hustler['rank'] = sorted([user.hustler_points for user in users], reverse=True).index(self.hustler_points)+1
 
             gambler = {}
             gambler['score'] = self.gambler_points
-            gambler['rank'] = sorted(users, key=lambda user: user.gambler_points, reverse=True).index(self)+1
+            gambler['rank'] = sorted([user.gambler_points for user in users], reverse=True).index(self.gambler_points)+1
 
             expert = {}
             expert['score'] = self.expert_points
             expert['team'] = self.expert_team.apify() if not self.expert_team is None else None
-            expert['rank'] = sorted(users, key=lambda user: user.expert_points, reverse=True).index(self)+1
+            expert['rank'] = sorted([user.expert_points for user in users], reverse=True).index(self.expert_points)+1
 
             hattrick = {}
             hattrick['score'] = self.hattrick_points
-            hattrick['rank'] = sorted(users, key=lambda user: user.hattrick_points, reverse=True).index(self)+1
+            hattrick['rank'] = sorted([user.hattrick_points for user in users], reverse=True).index(self.hattrick_points)+1
 
             achievements = {}
             achievements['hustler'] = hustler

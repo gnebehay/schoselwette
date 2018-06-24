@@ -58,7 +58,7 @@ Base.query = db_session.query_property()
 
 
 logging.basicConfig()
-logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+#logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 
 # Cleanup
