@@ -7,8 +7,13 @@
 
 <a href='{{ url_for("compute_champion_odds") }}'>Re-compute champion odds</a><br>
 
-<h2>Matches</h2>
-{% for match in matches %}
+<h2>Upcoming/Live Matches</h2>
+{% for match in matches if not match.over %}
+<a href='{{ url_for("match", match_id=match.id) }}'>{{ match.date }} {{ match.team1.name }} - {{ match.team2.name }}</a><br>
+{% endfor %}
+
+<h2>Matches that are over</h2>
+{% for match in matches if match.over %}
 <a href='{{ url_for("match", match_id=match.id) }}'>{{ match.date }} {{ match.team1.name }} - {{ match.team2.name }}</a><br>
 {% endfor %}
 
