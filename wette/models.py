@@ -14,6 +14,7 @@ class Stage(enum.Enum):
     ROUND_OF_16 = 'Round of 16'
     QUARTER_FINAL = 'Quarter-finals'
     SEMI_FINALS = 'Semi-finals'
+    THIRD_PLACE_PLAY_OFF = 'Third place play-off'
     FINAL = 'Final'
 
 
