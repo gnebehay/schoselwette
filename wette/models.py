@@ -317,6 +317,7 @@ class User(flask_app.Base):
     expert_points = sa.Column(sa.Float, default=0.0, nullable=False)
     expert_team_id = sa.Column(sa.Integer, sa.ForeignKey('teams.id'))
     hattrick_points = sa.Column(sa.Float, default=0.0, nullable=False)
+    secret_points = sa.Column(sa.Float, default=0.0, nullable=False)
 
     expert_team = sa.orm.relationship('Team', foreign_keys=expert_team_id)
     champion = sa.orm.relationship('Team', foreign_keys=champion_id, backref='users')
@@ -413,6 +414,19 @@ class User(flask_app.Base):
 
         self.hattrick_points = points
 
+    def compute_secret(self):
+
+        points = 0
+        for bet in self.bets:
+
+            if not bet.valid:
+                continue
+
+            if bet.outcome != bet.match.outcome:
+                points += 1
+
+        self.secret_points = points
+
     def create_missing_bets(self):
 
         all_matches = flask_app.db_session.query(Match)
@@ -472,6 +486,7 @@ class User(flask_app.Base):
         first_match = flask_app.db_session.query(Match).order_by('date').first()
         return first_match.date > datetime.datetime.utcnow()
 
+    # TODO: This seems not to be used for anything anyway
     # TODO: Why is this a property of user?
     @property
     def final_started(self):
@@ -525,11 +540,16 @@ class User(flask_app.Base):
             hattrick['score'] = self.hattrick_points
             hattrick['rank'] = sorted([user.hattrick_points for user in users], reverse=True).index(self.hattrick_points)+1
 
+            secret = {}
+            secret['score'] = self.secret_points
+            secret['rank'] = sorted([user.secret_points for user in users], reverse=True).index(self.secret_points)+1
+
             achievements = {}
             achievements['hustler'] = hustler
             achievements['gambler'] = gambler
             achievements['expert'] = expert
             achievements['hattrick'] = hattrick
+            achievements['secret'] = secret
 
             d['achievements'] = achievements
 

@@ -139,6 +139,7 @@ def match(match_id):
             bet.user.compute_gambler()
             bet.user.compute_expert()
             bet.user.compute_hattrick()
+            bet.user.compute_secret()
 
         flask.flash('Saved successfully.')
 
