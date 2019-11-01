@@ -73,4 +73,4 @@ class ForgottenForm(flask_wtf.FlaskForm):
 class UserForm(flask_app.ModelForm):
     class Meta:
         model = models.User
-        exclude = ['paid', 'password']
+        exclude = ['admin', 'paid', 'password']

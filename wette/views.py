@@ -128,6 +128,21 @@ def match(match_id):
     if flask.request.method == 'POST' and form.validate():
         form.populate_obj(match)
 
+        # TODO: Re-compute odds of match
+        match.compute_odds()
+
+        # TODO: Re-compute points of bets and users
+        for bet in match.bets:
+            bet.compute_points()
+            bet.user.compute_points()
+            bet.user.compute_hustler()
+            bet.user.compute_gambler()
+            bet.user.compute_expert()
+            bet.user.compute_hattrick()
+            bet.user.compute_secret()
+
+        flask.flash('Saved successfully.')
+
     return flask.render_template('match.html', match=match, form=form)
 
 @app.route('/about')
@@ -187,6 +202,22 @@ def confirm_payment(user_id):
     user.paid = True
 
     send_mail_template('payment_confirmed.eml', recipients=[user.email], user=user)
+
+    return flask.redirect('admin')
+
+@app.route('/compute_champion_odds')
+@login_required
+def compute_champion_odds():
+
+    if not flask_login.current_user.admin:
+        flask.abort(403)
+
+    teams = flask_app.db_session.query(models.Team).all()
+
+    for team in teams:
+        team.compute_odds()
+
+    flask.flash('Champion odds have been recomputed.')
 
     return flask.redirect('admin')
 

@@ -47,7 +47,7 @@ for stage in models.Stage:
         print("'{}' does not exist, skipping".format(filename))
         continue
 
-    matches_csv = pd.read_csv(filename, parse_dates=['date'])
+    matches_csv = pd.read_csv(filename, parse_dates=['date'], dayfirst=True)
 
     for match_csv in matches_csv.itertuples():
 

@@ -26,7 +26,7 @@ Over: {{ render_field(form.over) }}
   <input type="submit" value="Save">
 </form>
 
-{% if match.stage == 'Final' %}
+{% if match.id == 64 %}
 <a href='{{ url_for('make_champion', team_id=match.team1.id) }}'>Make {{ match.team1.name}} champion</a><br>
 <a href='{{ url_for('make_champion', team_id=match.team2.id) }}'>Make {{ match.team2.name}} champion</a><br>
 <a href='{{ url_for('make_champion', team_id=0) }}'>Clear champion</a><br>

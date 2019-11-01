@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 
-from flask_app import app
+import flask_app
+import models
 import hashlib
 
-print(hashlib.md5(bytes(app.config['PASSWORD_SALT'] + 'X_c2hUi9', 'utf-8')).hexdigest())
+user_id = 1
+
+user = flask_app.db_session.query(models.User).filter(models.User.id == user_id).one_or_none()
+
+user.password = hashlib.md5(bytes(flask_app.app.config['PASSWORD_SALT'] + 'X_c2hUi9', 'utf-8')).hexdigest()
+
+flask_app.db_session.commit()
