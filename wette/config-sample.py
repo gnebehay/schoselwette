@@ -3,7 +3,6 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 EVENT_NAME = 'Schosel &middot; WM 2018'
 
-# Disables recaptcha for local test use
 # TESTING = True
 
 # Enables CORS
@@ -11,17 +10,9 @@ EVENT_NAME = 'Schosel &middot; WM 2018'
 
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
 SQLALCHEMY_POOL_RECYCLE = 3600
-
-WTF_CSRF_ENABLED = True
-SECRET_KEY = 'my-uber-secret-key'
+SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 PASSWORD_SALT = 'my-uber-secred-salt'
-
-# RECAPTCHA_PARAMETERS = {'hl': 'zh', 'render': 'explicit'}
-# RECAPTCHA_DATA_ATTRS = {'theme': 'dark'}
-
-RECAPTCHA_PUBLIC_KEY = 'blah'
-RECAPTCHA_PRIVATE_KEY = 'blah'
 
 ADMIN_MAIL = 'abc@def.gh'
 
@@ -29,3 +20,11 @@ ADMIN_MAIL = 'abc@def.gh'
 MAIN_MAIL = 'abc@def.gh'
 
 MSG_NOT_PAID = "You have not paid yet. Please contact <a href='mailto:{MAIN_MAIL}'>{MAIN_MAIL}</a> for payment options. If you don't pay until the beginning of the first match, you will be scratched.".format(MAIN_MAIL=MAIN_MAIL)
+
+SECRET_KEY = 'abc'
+
+# Flask-User settings
+USER_APP_NAME = "Flask-User QuickStart App"      # Shown in and email templates and page footers
+USER_ENABLE_EMAIL = False      # Disable email authentication
+USER_ENABLE_USERNAME = True    # Enable username authentication
+USER_REQUIRE_RETYPE_PASSWORD = False    # Simplify register form

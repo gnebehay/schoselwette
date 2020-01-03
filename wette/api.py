@@ -3,14 +3,71 @@ import flask_inputs
 import flask_login
 import sqlalchemy
 
+import hashlib
+import jsonschema
+
 from flask_login import login_required
-from flask_inputs.validators import JsonSchema
 from sqlalchemy.orm import joinedload
 
 import flask_app
 import models
 
 from flask_app import app
+
+login_schema = {
+        'type': 'object',
+        'properties': {
+            'email': {'type': 'string'},
+            'password': {'type': 'string'},
+            'rememberme': {'type': 'boolean'}
+            },
+        'required': ['email', 'password']}
+
+
+def validate(post, schema):
+
+    try:
+        jsonschema.validate(post, schema=schema)
+    except (jsonschema.ValidationError, jsonschema.SchemaError) as e:
+
+        errors = list(jsonschema.Draft7Validator(schema).iter_errors(post))
+
+        errors = [e.message for e in errors]
+
+        return flask.jsonify(errors=errors), 400
+
+    return None
+
+
+@app.route('/api/v1/login', methods=['POST'])
+def login():
+
+    posted_login = flask.request.get_json()
+
+    validation_result = validate(posted_login, login_schema)
+    if validation_result is not None: return validation_result
+
+    salted_password = bytes(app.config['PASSWORD_SALT'] + posted_login['password'], 'utf-8')
+    password_hash = hashlib.md5(salted_password).hexdigest()
+
+    q = flask_app.db.session.query(models.User).filter(
+        models.User.email == posted_login['email'],
+        models.User.password == password_hash)
+
+    user = q.first()
+
+    if user is not None:
+
+        flask_login.login_user(user, remember=form.rememberme.data)
+
+        return 
+
+    return flask.jsonify(errors=["Incorrect credentials"]), 401
+
+@app.route('/api/v1/logout', methods=['POST'])
+def logout():
+    flask_login.logout_user()
+    return flask.jsonify("Success")
 
 
 @app.route('/api/v1/matches')
@@ -28,6 +85,7 @@ def matches_api():
 
 
 @app.route('/api/v1/matches/<int:match_id>')
+@login_required
 def match_api(match_id):
 
     try:
@@ -56,6 +114,7 @@ def match_api(match_id):
 
 
 @app.route('/api/v1/users')
+@login_required
 def users_api():
 
     # TODO: Duplicate code
@@ -72,6 +131,7 @@ def users_api():
 
 
 @app.route('/api/v1/users/<int:user_id>')
+@login_required
 def user_api(user_id):
 
     user = flask_app.db_session.query(models.User) \
@@ -126,25 +186,21 @@ def bets_api():
     return bets_json
 
 
-schema = {
+betSchema = {
     'outcome': {'type': 'string', 'oneOf': [outcome.value for outcome in models.Outcome]},
     'supertip': 'boolean'
 }
 
 
-class JsonInputs(flask_inputs.Inputs):
-    json = [JsonSchema(schema=schema)]
-
 
 @app.route('/api/v1/bets/<int:match_id>', methods=['POST'])
-@flask_app.csrf.exempt
 @login_required
 def bet_api(match_id):
 
-    inputs = JsonInputs(flask.request)
-
-    if not inputs.validate():
-        return flask.jsonify(success=False, errors=inputs.errors)
+#    inputs = BetPost(flask.request)
+#
+#    if not inputs.validate():
+#        return flask.jsonify(success=False, errors=inputs.errors)
 
     current_user = flask_login.current_user
 
@@ -178,7 +234,6 @@ def bet_api(match_id):
     return flask.jsonify(bet.apify())
 
 @app.route('/api/v1/champion', methods=['POST'])
-@flask_app.csrf.exempt
 @login_required
 def champion_api():
 

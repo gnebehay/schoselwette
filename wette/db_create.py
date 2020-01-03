@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
 
-from flask_app import Base, engine
+from flask_app import db
 
-Base.metadata.create_all(engine)
+db.create_all()

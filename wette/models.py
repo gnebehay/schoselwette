@@ -2,20 +2,13 @@ import collections
 import datetime
 import enum
 
+import flask_user
 import sqlalchemy as sa
 import sqlalchemy_utils as sa_utils
 
 import flask_app
 
-
-class Stage(enum.Enum):
-
-    GROUP_STAGE = 'Group stage'
-    ROUND_OF_16 = 'Round of 16'
-    QUARTER_FINAL = 'Quarter-finals'
-    SEMI_FINALS = 'Semi-finals'
-    THIRD_PLACE_PLAY_OFF = 'Third place play-off'
-    FINAL = 'Final'
+from flask_app import db
 
 
 class Outcome(enum.Enum):
@@ -36,7 +29,7 @@ def _get_values(enum_type):
     return [e.value for e in enum_type]
 
 
-class Bet(flask_app.Base):
+class Bet(db.Model):
 
     __tablename__ = 'bets'
 
@@ -103,7 +96,7 @@ class Bet(flask_app.Base):
         return d
 
 
-class Match(flask_app.Base):
+class Match(db.Model):
 
     __tablename__ = 'matches'
 
@@ -111,7 +104,7 @@ class Match(flask_app.Base):
     team1_id = sa.Column(sa.Integer, sa.ForeignKey('teams.id'), nullable=False)
     team2_id = sa.Column(sa.Integer, sa.ForeignKey('teams.id'), nullable=False)
     date = sa.Column(sa.DateTime, nullable=False)
-    stage = sa.Column(sa.Enum(Stage, nullable=False, values_callable=_get_values))
+    stage = sa.Column(sa.String(256), nullable=False)
     # TODO: non-negative constraint
     goals_team1 = sa.Column(sa.Integer)
     goals_team2 = sa.Column(sa.Integer)
@@ -248,7 +241,7 @@ class Match(flask_app.Base):
         return d
 
 
-class Team(flask_app.Base):
+class Team(db.Model):
 
     __tablename__ = 'teams'
 
@@ -292,7 +285,7 @@ class Team(flask_app.Base):
         return d
 
 
-class User(flask_app.Base):
+class User(db.Model, flask_user.UserMixin):
 
     __tablename__ = 'users'
 
