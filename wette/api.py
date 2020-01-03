@@ -58,16 +58,21 @@ def login():
 
     if user is not None:
 
-        flask_login.login_user(user, remember=form.rememberme.data)
+        if 'remember' in posted_login:
+            remember = posted_login['remember']
+        else:
+            remember = False
 
-        return 
+        flask_login.login_user(user, remember=remember)
+
+        return flask.jsonify(sucess=True)
 
     return flask.jsonify(errors=["Incorrect credentials"]), 401
 
 @app.route('/api/v1/logout', methods=['POST'])
 def logout():
     flask_login.logout_user()
-    return flask.jsonify("Success")
+    return flask.jsonify(sucess=True)
 
 
 @app.route('/api/v1/matches')
