@@ -49,9 +49,7 @@ def login():
     salted_password = bytes(app.config['PASSWORD_SALT'] + posted_login['password'], 'utf-8')
     password_hash = hashlib.md5(salted_password).hexdigest()
 
-    q = flask_app.db.session.query(models.User).filter(
-        models.User.email == posted_login['email'],
-        models.User.password == password_hash)
+    q = models.User.query.filter_by(email=posted_login['email'], password=password_hash)
 
     user = q.first()
 
@@ -64,7 +62,7 @@ def login():
 
         flask_login.login_user(user, remember=remember)
 
-        return flask.jsonify(sucess=True)
+        return flask.jsonify(success=True)
 
     return flask.jsonify(errors=["Incorrect credentials"]), 401
 
@@ -78,12 +76,12 @@ def logout():
 @login_required
 def matches_api():
 
-    matches = flask_app.db_session.query(models.Match) \
+    matches = models.Match.query \
         .options(joinedload(models.Match.team1)) \
         .options(joinedload(models.Match.team2)) \
         .all()
 
-    matches_json = flask.jsonify([match.apify(users) for match in matches])
+    matches_json = flask.jsonify([match.apify() for match in matches])
 
     return matches_json
 
@@ -93,7 +91,7 @@ def matches_api():
 def match_api(match_id):
 
     try:
-        match = flask_app.db_session.query(models.Match) \
+        match = flask_app.db.query(models.Match) \
         .options(joinedload(models.Match.bets).joinedload(models.Bet.user)) \
         .options(joinedload(models.Match.team1)) \
         .options(joinedload(models.Match.team2)) \
@@ -101,18 +99,7 @@ def match_api(match_id):
     except sqlalchemy.orm.exc.NoResultFound:
         flask.abort(404)
 
-    users = flask_app.db_session.query(models.User).filter(models.User.paid) \
-        .options(
-                joinedload(models.User.bets).
-                joinedload(models.Bet.match).
-                joinedload(models.Match.team1)) \
-        .options(
-                joinedload(models.User.bets).
-                joinedload(models.Bet.match).
-                joinedload(models.Match.team2)) \
-        .all()
-
-    matches_json = flask.jsonify(match.apify(users, bets=True))
+    matches_json = flask.jsonify(match.apify(bets=True))
 
     return matches_json
 
@@ -122,10 +109,10 @@ def match_api(match_id):
 def users_api():
 
     # TODO: Duplicate code
-    users = flask_app.db_session.query(models.User) \
-        .options(joinedload(models.User.expert_team)) \
-        .options(joinedload(models.User.champion)) \
-        .filter(models.User.paid) \
+    users = flask_app.db.query(models.User) \
+            .options(joinedload(models.User.expert_team)) \
+            .options(joinedload(models.User.champion)) \
+            .filter(models.User.paid) \
         .order_by(models.User.points.desc()) \
         .all()
 
@@ -138,7 +125,7 @@ def users_api():
 @login_required
 def user_api(user_id):
 
-    user = flask_app.db_session.query(models.User) \
+    user = flask_app.db.query(models.User) \
         .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team1)) \
         .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team2)) \
         .options(joinedload(models.User.expert_team)) \
@@ -148,7 +135,7 @@ def user_api(user_id):
     if user is None:
         flask.abort(404)
 
-    users = flask_app.db_session.query(models.User) \
+    users = flask_app.db.query(models.User) \
         .options(joinedload(models.User.expert_team)) \
         .filter(models.User.paid) \
         .all()
@@ -164,7 +151,7 @@ def bets_api():
 
     current_user = flask_login.current_user
 
-    users = flask_app.db_session.query(models.User).filter(models.User.paid) \
+    users = flask_app.db.query(models.User).filter(models.User.paid) \
         .options(
                 joinedload(models.User.bets).
                 joinedload(models.Bet.match).
@@ -175,7 +162,7 @@ def bets_api():
                 joinedload(models.Match.team2)) \
         .all()
 
-    bets = flask_app.db_session.query(models.Bet) \
+    bets = flask_app.db.query(models.Bet) \
         .filter(models.Bet.user_id == current_user.id) \
         .options(
                 joinedload(models.Bet.match).
@@ -208,7 +195,7 @@ def bet_api(match_id):
 
     current_user = flask_login.current_user
 
-    bet = flask_app.db_session.query(models.Bet) \
+    bet = flask_app.db.query(models.Bet) \
         .filter(models.Bet.user_id == current_user.id) \
         .filter(models.Bet.match_id == match_id).one_or_none()
 
@@ -229,7 +216,7 @@ def bet_api(match_id):
 
     # Check if supertips are available
     if num_supertips > models.User.MAX_SUPERTIPS:
-        flask_app.db_session.rollback()
+        flask_app.db.rollback()
         flask.abort(418)
 
     # Update supertip count in user
@@ -250,7 +237,7 @@ def champion_api():
 
     champion_id = posted_champion['champion_id']
 
-    champion = flask_app.db_session.query(models.Team).filter(models.Team.id == champion_id).one_or_none()
+    champion = flask_app.db.query(models.Team).filter(models.Team.id == champion_id).one_or_none()
 
     current_user.champion_id = champion_id
     current_user.champion = champion
@@ -263,7 +250,7 @@ def champion_api():
 @login_required
 def status_api():
 
-    users = flask_app.db_session.query(models.User).filter(models.User.paid) \
+    users = flask_app.db.query(models.User).filter(models.User.paid) \
         .options(
                 joinedload(models.User.bets).
                 joinedload(models.Bet.match).
@@ -276,11 +263,11 @@ def status_api():
 
     current_user = flask_login.current_user
 
-    teams = flask_app.db_session.query(models.Team).order_by(models.Team.name)
+    teams = flask_app.db.query(models.Team).order_by(models.Team.name)
     groups = sorted(list({team.group for team in teams}))
 
     # TODO: Duplicate code
-    users = flask_app.db_session.query(models.User) \
+    users = flask_app.db.query(models.User) \
         .filter(models.User.paid) \
         .all()
 

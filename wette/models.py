@@ -142,7 +142,7 @@ class Match(db.Model):
     # Sets the odds properties
     def compute_odds(self):
 
-        num_players = len(users)#flask_app.db_session.query(User).filter(User.paid).count()
+        num_players = len(users)#flask_app.db.query(User).filter(User.paid).count()
 
         # Retrieve all valid outcomes for this match
         valid_outcomes = [bet.outcome for bet in self.bets if bet.valid]
@@ -163,7 +163,7 @@ class Match(db.Model):
     def color(self):
 
         # Maximal odds, e.g. 14
-        num_players = flask_app.db_session.query(User).filter(User.paid).count()
+        num_players = flask_app.db.query(User).filter(User.paid).count()
 
         if num_players == 0:
             return {outcome: 50 for outcome in ['1', 'X', '2']}
@@ -209,7 +209,7 @@ class Match(db.Model):
         return '<Match: id={}, team1={}, team2={}, date={}, stage={}, goals_team1={}, goals_team2={}>'.format(
             self.id, self.team1.name, self.team2.name, self.date, self.stage, self.goals_team1, self.goals_team2)
 
-    def apify(self, users, bets=False):
+    def apify(self, bets=False):
 
         d = {}
         d['match_id'] = self.id
@@ -223,14 +223,14 @@ class Match(db.Model):
         d['team2_name'] = self.team2.name
         d['team2_iso'] = self.team2.short_name
         d['team2_goals'] = self.goals_team2
-        d['stage'] = self.stage.value
+        d['stage'] = self.stage
 
         if not self.editable:
 
             odds = {}
-            odds[Outcome.TEAM1_WIN.value] = self.odds(users)[Outcome.TEAM1_WIN]
-            odds[Outcome.TEAM2_WIN.value] = self.odds(users)[Outcome.TEAM2_WIN]
-            odds[Outcome.DRAW.value] = self.odds(users)[Outcome.DRAW]
+            odds[Outcome.TEAM1_WIN.value] = self.odds[Outcome.TEAM1_WIN]
+            odds[Outcome.TEAM2_WIN.value] = self.odds[Outcome.TEAM2_WIN]
+            odds[Outcome.DRAW.value] = self.odds[Outcome.DRAW]
 
             d['odds'] = odds
 
@@ -253,7 +253,7 @@ class Team(db.Model):
 
     def compute_odds(self):
 
-        num_players = flask_app.db_session.query(User).filter(User.paid).count()
+        num_players = flask_app.db.query(User).filter(User.paid).count()
 
         # Number of users that betted on this particular team
         num_bets_team = len(self.users)
@@ -421,7 +421,7 @@ class User(db.Model):
 
     def create_missing_bets(self):
 
-        all_matches = flask_app.db_session.query(Match)
+        all_matches = flask_app.db.query(Match)
 
         matches_of_existing_bets = [bet.match for bet in self.bets]
 
@@ -475,7 +475,7 @@ class User(db.Model):
 
         # TODO TODO TODO: Needs to be fixed
         return False
-        first_match = flask_app.db_session.query(Match).order_by('date').first()
+        first_match = flask_app.db.query(Match).order_by('date').first()
         return first_match.date > datetime.datetime.utcnow()
 
     # TODO: This seems not to be used for anything anyway
@@ -485,7 +485,7 @@ class User(db.Model):
 
         # TODO TODO TODO: Needs to be fixed
         return False
-        final_match = flask_app.db_session.query(Match).filter(Match.stage == Stage.FINAL).one_or_none()
+        final_match = flask_app.db.query(Match).filter(Match.stage == Stage.FINAL).one_or_none()
 
         if final_match is None:
             return False
