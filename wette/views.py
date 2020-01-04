@@ -69,23 +69,6 @@ def login():
 
     return flask.render_template('index.html', form=form)
 
-# TODO: Move this somewhere else
-def send_mail(msg):
-    try:
-        msg.sender = app.config['MAIN_MAIL']
-        flask_app.mail.send(msg)
-    except:
-        print('Tried to send mail, did not work.')
-        print(msg)
-
-def send_mail_template(tpl, recipients, **kwargs):
-    rendered_mail = flask.render_template('mail/' + tpl, **kwargs)
-    subject = rendered_mail.splitlines()[0]
-    body = '\n'.join(rendered_mail.splitlines()[1:])
-
-    msg = flask_mail.Message(subject=subject, body=body, recipients=recipients)
-
-    send_mail(msg)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():

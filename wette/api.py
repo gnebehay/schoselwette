@@ -13,14 +13,6 @@ import models
 
 from flask_app import app
 
-login_schema = {
-        'type': 'object',
-        'properties': {
-            'email': {'type': 'string'},
-            'password': {'type': 'string'},
-            'rememberme': {'type': 'boolean'}
-            },
-        'required': ['email', 'password']}
 
 
 def validate(post, schema):
@@ -37,6 +29,55 @@ def validate(post, schema):
 
     return None
 
+register_schema = {
+        'type': 'object',
+        'properties': {
+            'email': {'type': 'string'},
+            'password': {'type': 'string', 'minLength': 8},
+            'firstName': {'type': 'string'},
+            'lastName': {'type': 'string'}
+            },
+        'required': ['email', 'password', 'firstName', 'lastName']}
+
+@app.route('/api/v1/register', methods=['POST'])
+def register():
+
+    posted_login = flask.request.get_json()
+
+    validation_result = validate(posted_login, login_schema)
+    if validation_result is not None: return validation_result
+
+    user = models.User()
+    user.email = posted_login['email']
+    user.first_name = posted_login['firstName']
+    user.last_name = posted_login['lastName']
+    user.paid = False
+
+    salted_password = bytes(app.config['PASSWORD_SALT'] + posted_login['password'], 'utf-8')
+    user.password= hashlib.md5(salted_password).hexdigest()
+
+    flask_app.db.session.add(user)
+
+    user.create_missing_bets()
+
+    flask_app.send_mail_template('welcome.eml', recipients=[user.email], user=user)
+
+    # TODO: reenable this
+    #flask_app.send_mail(flask_mail.Message('Neuer Schoselwetter',
+    #                             body=str(user),
+    #                             recipients=[app.config['ADMIN_MAIL']]))
+
+    return flask.jsonify(success=True)
+
+
+login_schema = {
+        'type': 'object',
+        'properties': {
+            'email': {'type': 'string'},
+            'password': {'type': 'string'},
+            'rememberme': {'type': 'boolean'}
+            },
+        'required': ['email', 'password']}
 
 @app.route('/api/v1/login', methods=['POST'])
 def login():

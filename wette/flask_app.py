@@ -6,6 +6,22 @@ import flask_login
 import sqlalchemy
 import logging
 
+def send_mail(msg):
+    try:
+        msg.sender = app.config['MAIN_MAIL']
+        mail.send(msg)
+    except:
+        print('Tried to send mail, did not work.')
+        print(msg)
+
+def send_mail_template(tpl, recipients, **kwargs):
+    rendered_mail = flask.render_template('mail/' + tpl, **kwargs)
+    subject = rendered_mail.splitlines()[0]
+    body = '\n'.join(rendered_mail.splitlines()[1:])
+
+    msg = flask_mail.Message(subject=subject, body=body, recipients=recipients)
+
+    send_mail(msg)
 
 logging.basicConfig()
 
@@ -15,6 +31,7 @@ app = flask.Flask(__name__)
 # Load the config file
 app.config.from_object('config')
 
+mail = flask_mail.Mail(app)
 
 # Establish database connection
 engine = sqlalchemy.create_engine(
@@ -43,7 +60,6 @@ import api # noqa
 #
 ## TODO: Add some more explanation here what all of this is good for
 #
-#mail = flask_mail.Mail(app)
 #
 ## Enable CORS, if requested
 #if 'ALLOWED_ORIGINS' in app.config:

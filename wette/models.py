@@ -421,7 +421,7 @@ class User(db.Model):
 
     def create_missing_bets(self):
 
-        all_matches = flask_app.db.query(Match)
+        all_matches = Match.query.all()
 
         matches_of_existing_bets = [bet.match for bet in self.bets]
 
