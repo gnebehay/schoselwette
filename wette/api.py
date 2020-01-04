@@ -109,7 +109,7 @@ def match_api(match_id):
 def users_api():
 
     # TODO: Duplicate code
-    users = flask_app.db.query(models.User) \
+    users = models.User.query \
             .options(joinedload(models.User.expert_team)) \
             .options(joinedload(models.User.champion)) \
             .filter(models.User.paid) \

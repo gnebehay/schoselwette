@@ -491,13 +491,13 @@ class User(db.Model):
             return False
         return final_match.date < datetime.datetime.utcnow()
 
-    def apify(self, bets=False, show_private=False, users=None):
+    def apify(self, bets=False, show_private=False, users=False):
 
         d = {}
         d['user_id'] = self.id
         d['name'] = self.name
         d['logged_in'] = False  # TODO: Not implemented yet
-        d['points'] = self.points(users)
+        d['points'] = self.points
         d['admin'] = self.admin
         d['paid'] = self.paid
 
