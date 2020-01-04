@@ -108,7 +108,6 @@ def match_api(match_id):
 @login_required
 def users_api():
 
-    # TODO: Duplicate code
     users = models.User.query \
             .options(joinedload(models.User.expert_team)) \
             .options(joinedload(models.User.champion)) \
@@ -135,12 +134,7 @@ def user_api(user_id):
     if user is None:
         flask.abort(404)
 
-    users = flask_app.db.query(models.User) \
-        .options(joinedload(models.User.expert_team)) \
-        .filter(models.User.paid) \
-        .all()
-
-    user_json = flask.jsonify(user.apify(bets=True, users=users))
+    user_json = flask.jsonify(user.apify(bets=True))
 
     return user_json
 
@@ -183,9 +177,9 @@ def bet_api(match_id):
 
     current_user = flask_login.current_user
 
-    bet = flask_app.db.query(models.Bet) \
-        .filter(models.Bet.user_id == current_user.id) \
-        .filter(models.Bet.match_id == match_id).one_or_none()
+    bet = models.Bet.query \
+        .filter_by(user_id=current_user.id, match_id=match_id) \
+        .one_or_none()
 
     if bet is None:
         flask.abort(404)
@@ -238,31 +232,15 @@ def champion_api():
 @login_required
 def status_api():
 
-    users = flask_app.db.query(models.User).filter(models.User.paid) \
-        .options(
-                joinedload(models.User.bets).
-                joinedload(models.Bet.match).
-                joinedload(models.Match.team1)) \
-        .options(
-                joinedload(models.User.bets).
-                joinedload(models.Bet.match).
-                joinedload(models.Match.team2)) \
-        .all()
-
     current_user = flask_login.current_user
 
-    teams = flask_app.db.query(models.Team).order_by(models.Team.name)
+    teams = models.Team.query.order_by(models.Team.name)
     groups = sorted(list({team.group for team in teams}))
 
-    # TODO: Duplicate code
-    users = flask_app.db.query(models.User) \
-        .filter(models.User.paid) \
-        .all()
-
     s = {}
-    s['stages'] = [stage.value for stage in models.Stage]
+    s['stages'] = 'tbd'
     s['groups'] = groups
-    s['user'] = current_user.apify(show_private=True, users=users)
+    s['user'] = current_user.apify(show_private=True)
     s['teams'] = [team.apify() for team in teams]
     s['champion_editable'] = current_user.champion_editable
 
