@@ -69,7 +69,7 @@ def login():
 @app.route('/api/v1/logout', methods=['POST'])
 def logout():
     flask_login.logout_user()
-    return flask.jsonify(sucess=True)
+    return flask.jsonify(success=True)
 
 
 @app.route('/api/v1/matches')
@@ -151,19 +151,7 @@ def bets_api():
 
     current_user = flask_login.current_user
 
-    users = flask_app.db.query(models.User).filter(models.User.paid) \
-        .options(
-                joinedload(models.User.bets).
-                joinedload(models.Bet.match).
-                joinedload(models.Match.team1)) \
-        .options(
-                joinedload(models.User.bets).
-                joinedload(models.Bet.match).
-                joinedload(models.Match.team2)) \
-        .all()
-
-    bets = flask_app.db.query(models.Bet) \
-        .filter(models.Bet.user_id == current_user.id) \
+    bets = models.Bet.query.filter_by(user_id=current_user.id) \
         .options(
                 joinedload(models.Bet.match).
                 joinedload(models.Match.team1)) \
@@ -172,7 +160,7 @@ def bets_api():
                 joinedload(models.Match.team2)) \
         .all()
 
-    bets_json = flask.jsonify([bet.apify(users, match=True) for bet in bets])
+    bets_json = flask.jsonify([bet.apify(match=True) for bet in bets])
 
     return bets_json
 

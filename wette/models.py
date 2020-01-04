@@ -78,19 +78,19 @@ class Bet(db.Model):
             self.id, self.user.name, self.match.team1.name, self.match.team2.name,
             self.match.stage, self.supertip, self.outcome)
 
-    def apify(self, users, match=False, user=False):
+    def apify(self, match=False, user=False):
 
         d = {}
 
         d['outcome'] = self.outcome.value if self.outcome is not None else None
         d['supertip'] = self.supertip
-        d['points'] = self.points(users)
+        d['points'] = self.points
 
         if match:
-            d['match'] = self.match.apify(users)
+            d['match'] = self.match.apify()
 
         if user:
-            d['user'] = self.user.apify(users)
+            d['user'] = self.user.apify()
 
         return d
 
