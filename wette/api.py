@@ -1,5 +1,4 @@
 import flask
-import flask_inputs
 import flask_login
 import sqlalchemy
 

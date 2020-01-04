@@ -2,7 +2,6 @@ import collections
 import datetime
 import enum
 
-import flask_user
 import sqlalchemy as sa
 import sqlalchemy_utils as sa_utils
 
@@ -285,7 +284,7 @@ class Team(db.Model):
         return d
 
 
-class User(db.Model, flask_user.UserMixin):
+class User(db.Model):
 
     __tablename__ = 'users'
 
