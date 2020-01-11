@@ -43,6 +43,16 @@ db = flask_sqlalchemy.SQLAlchemy(app)
 
 logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+        raise
+
+    db.session.remove()
+
 import models # noqa
 
 login_manager = flask_login.LoginManager()
@@ -79,15 +89,6 @@ import api # noqa
 #
 #
 ## Cleanup
-#@app.teardown_appcontext
-#def shutdown_session(exception=None):
-#    try:
-#        db.session.commit()
-#    except:
-#        db.session.rollback()
-#        raise
-#
-#    db.session.remove()
 
 
 # This import is at the end to avoid circular imports (e.g. app would not be found)
