@@ -132,11 +132,11 @@ def matches_api():
 def match_api(match_id):
 
     try:
-        match = flask_app.db.query(models.Match) \
+        match = models.Match.query \
         .options(joinedload(models.Match.bets).joinedload(models.Bet.user)) \
         .options(joinedload(models.Match.team1)) \
         .options(joinedload(models.Match.team2)) \
-        .filter(models.Match.id == match_id).one()
+        .filter_by(id=match_id).one()
     except sqlalchemy.orm.exc.NoResultFound:
         flask.abort(404)
 
@@ -165,11 +165,11 @@ def users_api():
 @login_required
 def user_api(user_id):
 
-    user = flask_app.db.query(models.User) \
+    user = models.User.query \
         .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team1)) \
         .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team2)) \
         .options(joinedload(models.User.expert_team)) \
-        .filter(models.User.id == user_id) \
+        .filter_by(id=user_id) \
         .one_or_none()
 
     if user is None:
@@ -200,21 +200,26 @@ def bets_api():
     return bets_json
 
 
-betSchema = {
-    'outcome': {'type': 'string', 'oneOf': [outcome.value for outcome in models.Outcome]},
-    'supertip': 'boolean'
-}
-
+bet_schema = {
+    'type': 'object',
+    'properties': {
+        'outcome': {'type': 'string', 'enum': [outcome.value for outcome in models.Outcome]},
+        'supertip': {'type': 'boolean'}
+    },
+    'required': ['outcome', 'supertip']}
 
 
 @app.route('/api/v1/bets/<int:match_id>', methods=['POST'])
 @login_required
 def bet_api(match_id):
 
-#    inputs = BetPost(flask.request)
-#
-#    if not inputs.validate():
-#        return flask.jsonify(success=False, errors=inputs.errors)
+    print('xxx')
+    print([outcome.value for outcome in models.Outcome])
+
+    posted_bet = flask.request.get_json()
+
+    validation_result = validate(posted_bet, bet_schema)
+    if validation_result is not None: return validation_result
 
     current_user = flask_login.current_user
 
@@ -247,6 +252,7 @@ def bet_api(match_id):
 
     return flask.jsonify(bet.apify())
 
+
 @app.route('/api/v1/champion', methods=['POST'])
 @login_required
 def champion_api():
@@ -260,7 +266,7 @@ def champion_api():
 
     champion_id = posted_champion['champion_id']
 
-    champion = flask_app.db.query(models.Team).filter(models.Team.id == champion_id).one_or_none()
+    champion = models.Team.query.filter_by(id=champion_id).one_or_none()
 
     current_user.champion_id = champion_id
     current_user.champion = champion
