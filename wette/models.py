@@ -473,9 +473,7 @@ class User(db.Model):
     @property
     def champion_editable(self):
 
-        # TODO TODO TODO: Needs to be fixed
-        return False
-        first_match = flask_app.db.query(Match).order_by('date').first()
+        first_match = Match.query.order_by('date').first()
         return first_match.date > datetime.datetime.utcnow()
 
     # TODO: This seems not to be used for anything anyway

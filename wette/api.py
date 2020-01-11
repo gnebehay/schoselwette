@@ -213,9 +213,6 @@ bet_schema = {
 @login_required
 def bet_api(match_id):
 
-    print('xxx')
-    print([outcome.value for outcome in models.Outcome])
-
     posted_bet = flask.request.get_json()
 
     validation_result = validate(posted_bet, bet_schema)
@@ -253,9 +250,21 @@ def bet_api(match_id):
     return flask.jsonify(bet.apify())
 
 
+champion_schema = {
+    'type': 'object',
+    'properties': {
+        'champion_id': {'type': 'integer'}
+    },
+    'required': ['champion_id']}
+
 @app.route('/api/v1/champion', methods=['POST'])
 @login_required
 def champion_api():
+
+    posted_champion = flask.request.get_json()
+
+    validation_result = validate(posted_champion, champion_schema)
+    if validation_result is not None: return validation_result
 
     current_user = flask_login.current_user
 
