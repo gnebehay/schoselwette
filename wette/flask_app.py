@@ -69,17 +69,17 @@ import api # noqa
 
 #
 ## TODO: Add some more explanation here what all of this is good for
-#
-#
-## Enable CORS, if requested
-#if 'ALLOWED_ORIGINS' in app.config:
-#
-#    print('CORS support enabled')
-#
-#    flask_cors.CORS(app, origins=app.config['ALLOWED_ORIGINS'], supports_credentials=True)
-#
-#    # logging.getLogger('flask_cors').level = logging.DEBUG
-#
+
+
+# Enable CORS, if requested
+if 'ALLOWED_ORIGINS' in app.config:
+
+   print('CORS support enabled')
+
+   flask_cors.CORS(app, origins=app.config['ALLOWED_ORIGINS'], supports_credentials=True)
+
+   # logging.getLogger('flask_cors').level = logging.DEBUG
+
 ## Create login manager
 #login_manager = flask_login.LoginManager()
 #login_manager.init_app(app)
