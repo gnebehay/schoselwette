@@ -49,12 +49,13 @@ def register():
 
     user = models.User()
     user.email = posted_login['email']
+    user.email_hash = hashlib.md5(bytes(user.email, 'utf-8')).hexdigest()
     user.first_name = posted_login['firstName']
     user.last_name = posted_login['lastName']
     user.paid = False
 
     salted_password = bytes(app.config['PASSWORD_SALT'] + posted_login['password'], 'utf-8')
-    user.password= hashlib.md5(salted_password).hexdigest()
+    user.password = hashlib.md5(salted_password).hexdigest()
 
     flask_app.db.session.add(user)
 

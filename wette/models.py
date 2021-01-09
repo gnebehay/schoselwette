@@ -291,9 +291,10 @@ class User(db.Model):
     id = sa.Column(sa.Integer, primary_key=True)
     # TODO: email should be unique, but can currently not be enforced because
     # the column is too large to create an index on it
-    email = sa.Column(sa_utils.EmailType, nullable=False, info={'label': 'Email'})
-    first_name = sa.Column(sa.String(64), nullable=False, info={'label': 'First Name'})
-    last_name = sa.Column(sa.String(64), nullable=False, info={'label': 'Last Name'})
+    email = sa.Column(sa_utils.EmailType, nullable=False)
+    email_hash = sa.Column(sa.String(320), nullable=False, unique=True)
+    first_name = sa.Column(sa.String(64), nullable=False)
+    last_name = sa.Column(sa.String(64), nullable=False)
     password = sa.Column(sa.String(64), nullable=False)
     paid = sa.Column(sa.Boolean, nullable=False, default=False)
     admin = sa.Column(sa.Boolean, nullable=False, default=False)
