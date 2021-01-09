@@ -1,30 +1,31 @@
-# Instructions
+# How to run locally
 
-1) Install python stuff
+1) Go to code directory
 ```
-./setup
+cd code
 
 ```
-2) Copy config-sample.py to config.py
+1) Install dependencies
 ```
-cp config-sample.py config.py
-```
+./setup.sh
 
-3) Create database
 ```
-./db_create.py
+1) Copy config-sample.py to config.py
 ```
-
-4) Populate database with meaningful stuff
-```
-./import_stuff.py
+cp wette/config-sample.py wette/config.py
 ```
 
-5) Start app
+1) Active virtual environment
+```
+./venv/bin/activate
+```
+
+1) Create database
+```
+wette/db_create.py
+```
+
+1) Start app
 ```
 ./run.py
 ```
-
-6) ????
-
-7) PROFIT!!!
