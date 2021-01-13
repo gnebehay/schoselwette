@@ -1,37 +1,33 @@
 # How to run locally
 
-1) Go to code directory
+1) Edit `wette/config-<sqlite||mysql>-sample.py` file and replace `<values>` (only first time after cloning repo)
+
+2) Copy `wette/config-<sqlite||mysql>-sample.py` to `wette/config.py` (only first time after cloning repo)
 ```
-cd code
+cp wette/config-mysql-sample.py wette/config.py
 ```
 
-1) Copy config-sample.py to config.py
-```
-cp wette/config-sample.py wette/config.py
-```
-
-1) Create a virtual environment
+3) Create a virtual environment
 ```
 python3 -m venv venv
 ```
 
-1) Install dependencies
+4) Install dependencies (after cloning or pulling repo)
 ```
 ./setup.sh
-
 ```
 
-1) Active virtual environment
+5) Activate virtual environment
 ```
-./venv/bin/activate
+source ./venv/bin/activate
 ```
 
-1) Create database
+6) Create database (only first time after cloning repo)
 ```
 wette/db_create.py
 ```
 
-1) Start app
+7) Start app
 ```
-./run.py
+./run.sh
 ```
