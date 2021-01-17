@@ -106,7 +106,7 @@ def login():
 
         return flask.jsonify(success=True)
 
-    return flask.jsonify(errors=["Incorrect credentials"]), 401
+    return flask.jsonify(errors=["Oops, wrong login data."]), 401
 
 @app.route('/api/v1/logout', methods=['POST'])
 def logout():
@@ -237,7 +237,7 @@ def bet_api(match_id):
     if posted_outcome:
         bet.outcome = models.Outcome(posted_outcome)
     bet.supertip = posted_bet['supertip']
-    
+
     num_supertips = sum([bet.supertip for bet in current_user.bets])
 
     # Check if supertips are available
