@@ -221,10 +221,9 @@ class Team(db.Model):
 
         self.odds = odds
 
-    def apify_team(self):
+    def apify(self):
         return {'team_id': self.id,
                 'name': self.name,
-                'short_name': self.short_name,
                 'group': self.group,
                 'champion': self.champion,
                 'odds': self.odds}
@@ -349,18 +348,66 @@ class User(db.Model):
         visible_bets = [bet for bet in self.bets if bet.valid and not bet.match.editable]
         return sorted(visible_bets, key=lambda bet: bet.match.date)
 
-    def apify(self, include_champion=False):
+
+    def apify(self, all_other_users, include_public_bets=False, include_private_bets=False):
+
+        def apify_bets(bets):
+
+            public_bets = []
+            for bet in bets:
+
+                # Start with the match as a base
+                public_bet_entry = bet.match.apify()
+
+                bet_entry = bet.apify()
+
+                points_by_challenge = bet.points()
+
+                challenges = []
+                for challenge, points in points_by_challenge.items():
+                    challenge_entry = challenge.apify()
+                    challenge_entry['points'] = points
+
+                    challenges.append(challenge_entry)
+
+                bet_entry['points'] = challenges
+                public_bet_entry['bet'] = bet_entry
+
+                public_bets.append(public_bet_entry)
+            return public_bets
+
         d = {'admin': self.admin,
              'avatar': 'https://api.hello-avatar.com/adorables/400/' + self.name,
              'user_id': self.id,
              'name': self.name,
              'reward': self.reward,
-             'visible_superbets': self.supertips
+             'visible_superbets': self.supertips,
+             'champion': self.champion.apify if self.champion is not None else None,
+             'champion_correct': self.champion_correct
              }
 
-        if include_champion:
-            d['champion'] = self.champion.apify if self.champion is not None else None
-            d['champion_correct'] = self.champion_correct
+        if include_public_bets:
+            d['public_bets'] = apify_bets(self.visible_bets)
+
+        if include_private_bets:
+            d['private_bets'] = apify_bets(self.bets)
+
+        scores = []
+        for challenge in Challenge:
+            challenge_entry = challenge.apify()
+
+            user_points_for_challenge = self.points_for_challenge(challenge)
+
+            challenge_entry['points'] = user_points_for_challenge
+
+            ranking = sorted(
+                [other_user.points_for_challenge(challenge) for other_user in all_other_users],
+                reverse=True)
+            challenge_entry['rank'] = ranking.index(user_points_for_challenge) + 1
+
+            scores.append(challenge_entry)
+
+        d['scores'] = scores
 
         return d
 

@@ -59,6 +59,8 @@ register_schema = {
     'required': ['email', 'password', 'firstName', 'lastName']}
 
 
+
+
 @app.route('/api/v1/register', methods=['POST'])
 def register():
     posted_login = flask.request.get_json()
@@ -142,51 +144,7 @@ def users_api():
         .filter(models.User.paid) \
         .all()
 
-    user_entries = []
-    for user in users:
-
-        user_entry = user.apify()
-
-        public_bets = []
-        for bet in user.visible_bets:
-
-            # Start with the match as a base
-            public_bet_entry = bet.match.apify()
-
-            bet_entry = bet.apify()
-
-            points_by_challenge = bet.points()
-
-            challenges = []
-            for challenge, points in points_by_challenge.items():
-                challenge_entry = challenge.apify()
-                challenge_entry['points'] = points
-
-                challenges.append(challenge_entry)
-
-            bet_entry['points'] = challenges
-            public_bet_entry['bet'] = bet_entry
-
-            public_bets.append(public_bet_entry)
-
-        user_entry['public_bets'] = public_bets
-
-        scores = []
-
-        for challenge in models.Challenge:
-            challenge_entry = challenge.apify()
-
-            user_points_for_challenge = user.points_for_challenge(challenge)
-            ranking = sorted([other_user.points_for_challenge(challenge) for other_user in users], reverse=True)
-
-            challenge_entry['points'] = user_points_for_challenge
-            challenge_entry['rank'] = ranking.index(user_points_for_challenge) + 1
-
-            scores.append(challenge_entry)
-
-        user_entry['scores'] = scores
-
-        user_entries.append(user_entry)
+    user_entries = [user.apify(users, include_public_bets=True) for user in users]
 
     return flask.jsonify(user_entries)
 
@@ -337,7 +295,7 @@ def champion_api():
     current_user.champion_id = champion_id
     current_user.champion = champion
 
-    return flask.jsonify(current_user.apify(show_private=True))
+    return flask.jsonify(current_user.apify(include_private_bets=True))
 
 
 @app.route('/api/v1/status')
@@ -345,13 +303,22 @@ def champion_api():
 def status_api():
     current_user = flask_login.current_user
 
+    users = models.User.query \
+        .options(joinedload(models.User.champion)) \
+        .filter(models.User.paid) \
+        .all()
+
     teams = models.Team.query.order_by(models.Team.name)
     groups = sorted(list({team.group for team in teams}))
 
-    s = {'stages': 'tbd',
+    matches = models.Match.query
+    stages = sorted(list({match.stage for match in matches}))
+
+    s = {'stages': stages,
          'groups': groups,
-         'user': current_user.apify(show_private=True),
+         'user': current_user.apify(users, include_private_bets=True),
          'teams': [team.apify() for team in teams],
-         'champion_editable': current_user.champion_editable}
+         'champion_editable': champion_editable()}
 
     return flask.jsonify(s)
+
