@@ -1,9 +1,16 @@
 # How to run locally
 
-1) Copy config-sample.py to config.py
+1) Go to code directory
 ```
-cp wette/config-sample.py wette/config.py
+cd code
 ```
+
+1) Copy `wette/config-<sqlite||mysql>-sample.py` to config.py
+```
+cp wette/config-<sqlite||mysql>.py wette/config.py
+```
+
+1) Edit `wette/config.py` file and replace `<values>` (only first time after cloning repo)
 
 1) Create a virtual environment
 ```
