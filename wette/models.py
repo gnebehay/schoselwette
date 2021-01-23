@@ -243,6 +243,9 @@ class User(db.Model):
         Challenge.SECRET: 'secret_points',
     }
 
+    # TODO: implement this
+    reward = 0
+
     def compute_points(self):
 
         # These are all dictionaries

@@ -41,6 +41,7 @@ def apify_user(user, include_champion=False, include_bets=False):
          'avatar': 'https://api.hello-avatar.com/adorables/400/' + user.name,
          'user_id': user.id,
          'name': user.name,
+         'reward': user.reward,
          'visible_superbets': user.supertips
          }
 
