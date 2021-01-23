@@ -12,7 +12,6 @@ from sqlalchemy.orm import joinedload
 
 import flask_app
 import models
-import apification
 
 from flask_app import app
 
@@ -24,8 +23,8 @@ def champion_editable():
 
 ## TODO: This seems not to be used for anything anyway
 ## TODO: Why is this a property of user?
-#@property
-#def final_started(self):
+# @property
+# def final_started(self):
 #    # TODO TODO TODO: Needs to be fixed
 #    return False
 #    final_match = flask_app.db.query(Match).filter(Match.stage == Stage.FINAL).one_or_none()
@@ -36,7 +35,6 @@ def champion_editable():
 
 
 def validate(post, schema):
-
     try:
         jsonschema.validate(post, schema=schema)
     except (jsonschema.ValidationError, jsonschema.SchemaError) as e:
@@ -49,19 +47,20 @@ def validate(post, schema):
 
     return None
 
+
 register_schema = {
-        'type': 'object',
-        'properties': {
-            'email': {'type': 'string'},
-            'password': {'type': 'string', 'minLength': 8},
-            'firstName': {'type': 'string'},
-            'lastName': {'type': 'string'}
-            },
-        'required': ['email', 'password', 'firstName', 'lastName']}
+    'type': 'object',
+    'properties': {
+        'email': {'type': 'string'},
+        'password': {'type': 'string', 'minLength': 8},
+        'firstName': {'type': 'string'},
+        'lastName': {'type': 'string'}
+    },
+    'required': ['email', 'password', 'firstName', 'lastName']}
+
 
 @app.route('/api/v1/register', methods=['POST'])
 def register():
-
     posted_login = flask.request.get_json()
 
     validation_result = validate(posted_login, login_schema)
@@ -84,7 +83,7 @@ def register():
     flask_app.send_mail_template('welcome.eml', recipients=[user.email], user=user)
 
     # TODO: reenable this
-    #flask_app.send_mail(flask_mail.Message('Neuer Schoselwetter',
+    # flask_app.send_mail(flask_mail.Message('Neuer Schoselwetter',
     #                             body=str(user),
     #                             recipients=[app.config['ADMIN_MAIL']]))
 
@@ -92,17 +91,17 @@ def register():
 
 
 login_schema = {
-        'type': 'object',
-        'properties': {
-            'email': {'type': 'string'},
-            'password': {'type': 'string'},
-            'rememberme': {'type': 'boolean'}
-            },
-        'required': ['email', 'password']}
+    'type': 'object',
+    'properties': {
+        'email': {'type': 'string'},
+        'password': {'type': 'string'},
+        'rememberme': {'type': 'boolean'}
+    },
+    'required': ['email', 'password']}
+
 
 @app.route('/api/v1/login', methods=['POST'])
 def login():
-
     posted_login = flask.request.get_json()
 
     validation_result = validate(posted_login, login_schema)
@@ -128,15 +127,16 @@ def login():
 
     return flask.jsonify(errors=["Oops, wrong login data."]), 401
 
+
 @app.route('/api/v1/logout', methods=['POST'])
 def logout():
     flask_login.logout_user()
     return flask.jsonify(success=True)
 
+
 @app.route('/api/v1/users')
 @login_required
 def users_api():
-
     users = models.User.query \
         .options(joinedload(models.User.champion)) \
         .filter(models.User.paid) \
@@ -145,21 +145,21 @@ def users_api():
     user_entries = []
     for user in users:
 
-        user_entry = apification.apify_user(user)
+        user_entry = user.apify()
 
         public_bets = []
         for bet in user.visible_bets:
 
             # Start with the match as a base
-            public_bet_entry = apification.apify_match(bet.match)
+            public_bet_entry = bet.match.apify()
 
-            bet_entry = apification.apify_bet(bet)
+            bet_entry = bet.apify()
 
             points_by_challenge = bet.points()
 
             challenges = []
             for challenge, points in points_by_challenge.items():
-                challenge_entry = apification.apify_challenge(challenge)
+                challenge_entry = challenge.apify()
                 challenge_entry['points'] = points
 
                 challenges.append(challenge_entry)
@@ -174,7 +174,7 @@ def users_api():
         scores = []
 
         for challenge in models.Challenge:
-            challenge_entry = apification.apify_challenge(challenge)
+            challenge_entry = challenge.apify()
 
             user_points_for_challenge = user.points_for_challenge(challenge)
             ranking = sorted([other_user.points_for_challenge(challenge) for other_user in users], reverse=True)
@@ -190,10 +190,10 @@ def users_api():
 
     return flask.jsonify(user_entries)
 
+
 @app.route('/api/v1/matches')
 @login_required
 def matches_api():
-
     matches = models.Match.query \
         .options(joinedload(models.Match.team1)) \
         .options(joinedload(models.Match.team2)) \
@@ -207,13 +207,12 @@ def matches_api():
 @app.route('/api/v1/matches/<int:match_id>')
 @login_required
 def match_api(match_id):
-
     try:
         match = models.Match.query \
-        .options(joinedload(models.Match.bets).joinedload(models.Bet.user)) \
-        .options(joinedload(models.Match.team1)) \
-        .options(joinedload(models.Match.team2)) \
-        .filter_by(id=match_id).one()
+            .options(joinedload(models.Match.bets).joinedload(models.Bet.user)) \
+            .options(joinedload(models.Match.team1)) \
+            .options(joinedload(models.Match.team2)) \
+            .filter_by(id=match_id).one()
     except sqlalchemy.orm.exc.NoResultFound:
         flask.abort(404)
 
@@ -222,12 +221,9 @@ def match_api(match_id):
     return matches_json
 
 
-
-
 @app.route('/api/v1/users/<int:user_id>')
 @login_required
 def user_api(user_id):
-
     user = models.User.query \
         .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team1)) \
         .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team2)) \
@@ -246,16 +242,15 @@ def user_api(user_id):
 @app.route('/api/v1/bets')
 @login_required
 def bets_api():
-
     current_user = flask_login.current_user
 
     bets = models.Bet.query.filter_by(user_id=current_user.id) \
         .options(
-                joinedload(models.Bet.match).
-                joinedload(models.Match.team1)) \
+        joinedload(models.Bet.match).
+            joinedload(models.Match.team1)) \
         .options(
-                joinedload(models.Bet.match).
-                joinedload(models.Match.team2)) \
+        joinedload(models.Bet.match).
+            joinedload(models.Match.team2)) \
         .all()
 
     bets_json = flask.jsonify([bet.apify(match=True) for bet in bets])
@@ -275,7 +270,6 @@ bet_schema = {
 @app.route('/api/v1/bets/<int:match_id>', methods=['POST'])
 @login_required
 def bet_api(match_id):
-
     posted_bet = flask.request.get_json()
 
     validation_result = validate(posted_bet, bet_schema)
@@ -320,10 +314,10 @@ champion_schema = {
     },
     'required': ['champion_id']}
 
+
 @app.route('/api/v1/champion', methods=['POST'])
 @login_required
 def champion_api():
-
     posted_champion = flask.request.get_json()
 
     validation_result = validate(posted_champion, champion_schema)
@@ -346,21 +340,18 @@ def champion_api():
     return flask.jsonify(current_user.apify(show_private=True))
 
 
-
 @app.route('/api/v1/status')
 @login_required
 def status_api():
-
     current_user = flask_login.current_user
 
     teams = models.Team.query.order_by(models.Team.name)
     groups = sorted(list({team.group for team in teams}))
 
-    s = {}
-    s['stages'] = 'tbd'
-    s['groups'] = groups
-    s['user'] = current_user.apify(show_private=True)
-    s['teams'] = [team.apify() for team in teams]
-    s['champion_editable'] = current_user.champion_editable
+    s = {'stages': 'tbd',
+         'groups': groups,
+         'user': current_user.apify(show_private=True),
+         'teams': [team.apify() for team in teams],
+         'champion_editable': current_user.champion_editable}
 
     return flask.jsonify(s)

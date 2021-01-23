@@ -22,6 +22,10 @@ class Challenge(enum.Enum):
     BALANCED = 4
     SECRET = 5
 
+    def apify(self):
+        return {'challenge_id': self.value,
+                'name': self.name}
+
 
 class Status(enum.Enum):
     SCHEDULED = 'scheduled'
@@ -35,7 +39,6 @@ def _get_values(enum_type):
 
 
 class Bet(db.Model):
-
     __tablename__ = 'bets'
 
     id = sa.Column(sa.Integer, primary_key=True)
@@ -58,7 +61,6 @@ class Bet(db.Model):
         return self.valid and self.outcome == self.match.outcome
 
     def points(self):
-
         base_factor = int(self.correct * (1 + self.supertip))
         points = base_factor * self.match.odds[self.outcome]
 
@@ -72,6 +74,10 @@ class Bet(db.Model):
                 Challenge.BALANCED: base_factor * is_draw,
                 Challenge.SECRET: base_factor * first_goal_scored_different_from_outcome}
 
+    def apify(self):
+        return {'outcome': self.outcome.value if self.outcome is not None else None,
+                'superbet': self.supertip}
+
     def __repr__(self):
         return ('<Bet: id={}, user={}, team1={}, team2={}, stage={}, supertip={}, '
                 'outcome={}>').format(
@@ -80,7 +86,6 @@ class Bet(db.Model):
 
 
 class Match(db.Model):
-
     __tablename__ = 'matches'
 
     id = sa.Column(sa.Integer, primary_key=True)
@@ -118,10 +123,10 @@ class Match(db.Model):
     @property
     def odds(self):
         return {
-                Outcome.TEAM1_WIN: self.odds_team1,
-                Outcome.DRAW: self.odds_draw,
-                Outcome.TEAM2_WIN: self.odds_team2,
-                }
+            Outcome.TEAM1_WIN: self.odds_team1,
+            Outcome.DRAW: self.odds_draw,
+            Outcome.TEAM2_WIN: self.odds_team2,
+        }
 
     # Sets the odds properties
     def compute_odds(self, num_players):
@@ -139,7 +144,6 @@ class Match(db.Model):
         self.odds_team1 = counter[Outcome.TEAM1_WIN]
         self.odds_draw = counter[Outcome.DRAW]
         self.odds_team2 = counter[Outcome.TEAM2_WIN]
-
 
     @property
     def status(self):
@@ -163,8 +167,30 @@ class Match(db.Model):
     def bets_sorted(self):
         return sorted(self.bets,
                       key=lambda x: (x.points, x.outcome) if x.outcome is not None
-                                     else ('1', x.supertip),
+                      else ('1', x.supertip),
                       reverse=True)
+
+    def apify(self):
+        d = {'match_id': self.id,
+             'date': self.date.isoformat() + 'Z',
+             'status': self.status.value,
+             'outcome': self.outcome.value if self.outcome is not None else None,
+             'team1_name': self.team1.name,
+             'team1_goals': self.goals_team1,
+             'team2_name': self.team2.name,
+             'team2_goals': self.goals_team2,
+             'stage': self.stage}
+
+        if not self.editable:
+            d['odds'] = {Outcome.TEAM1_WIN.value: self.odds[Outcome.TEAM1_WIN],
+                         Outcome.TEAM2_WIN.value: self.odds[Outcome.TEAM2_WIN],
+                         Outcome.DRAW.value: self.odds[Outcome.DRAW]}
+
+            # # TODO: Check if this is used
+            # if include_bets:
+            #     d['bets'] = [bet.apify(user=True) for bet in self.bets if bet.user.paid]
+
+        return d
 
     # TODO: Revisit this after jsonification
     def __repr__(self):
@@ -172,9 +198,7 @@ class Match(db.Model):
             self.id, self.team1.name, self.team2.name, self.date, self.stage, self.goals_team1, self.goals_team2)
 
 
-
 class Team(db.Model):
-
     __tablename__ = 'teams'
 
     id = sa.Column(sa.Integer, primary_key=True)
@@ -184,7 +208,6 @@ class Team(db.Model):
     odds = sa.Column(sa.Float, nullable=False)
 
     def compute_odds(self):
-
         num_players = flask_app.db.query(User).filter(User.paid).count()
 
         # Number of users that betted on this particular team
@@ -198,14 +221,20 @@ class Team(db.Model):
 
         self.odds = odds
 
+    def apify_team(self):
+        return {'team_id': self.id,
+                'name': self.name,
+                'short_name': self.short_name,
+                'group': self.group,
+                'champion': self.champion,
+                'odds': self.odds}
+
     def __repr__(self):
         return '<Team: id={}, name={}, short_name={}, group={}, champion={}>'.format(
             self.id, self.name, self.short_name, self.group, self.champion)
 
 
-
 class User(db.Model):
-
     __tablename__ = 'users'
 
     id = sa.Column(sa.Integer, primary_key=True)
@@ -220,8 +249,8 @@ class User(db.Model):
     points = sa.Column(sa.Float, default=0.0, nullable=False)
     supertips = sa.Column(sa.Integer, default=0, nullable=False)
     # TODO: Re-add this
-    #passwort_reset_token = sa.Column(sa.String(64), nullable=True)
-    #passwort_reset_token_validity = sa.Column(sa.String(64), nullable=True)
+    # passwort_reset_token = sa.Column(sa.String(64), nullable=True)
+    # passwort_reset_token_validity = sa.Column(sa.String(64), nullable=True)
     kings_game_points = sa.Column(sa.Float, default=0.0, nullable=False)
     oldfashioned_points = sa.Column(sa.Float, default=0.0, nullable=False)
     underdog_points = sa.Column(sa.Float, default=0.0, nullable=False)
@@ -261,8 +290,9 @@ class User(db.Model):
         self.secret_points = challenge_points[Challenge.SECRET]
 
         # TODO: Champion bet
-#        if self.champion_correct:
-#            points += self.champion.odds
+
+    #        if self.champion_correct:
+    #            points += self.champion.odds
 
     def points_for_challenge(self, challenge):
         return self.__getattribute__(self.__challenge_to_attribute[challenge])
@@ -309,6 +339,7 @@ class User(db.Model):
 
     def get_id(self):
         return str(self.id)
+
     # END
 
     # All valid bets that are no longer editable, sorted by match date
@@ -317,6 +348,21 @@ class User(db.Model):
 
         visible_bets = [bet for bet in self.bets if bet.valid and not bet.match.editable]
         return sorted(visible_bets, key=lambda bet: bet.match.date)
+
+    def apify(self, include_champion=False):
+        d = {'admin': self.admin,
+             'avatar': 'https://api.hello-avatar.com/adorables/400/' + self.name,
+             'user_id': self.id,
+             'name': self.name,
+             'reward': self.reward,
+             'visible_superbets': self.supertips
+             }
+
+        if include_champion:
+            d['champion'] = self.champion.apify if self.champion is not None else None
+            d['champion_correct'] = self.champion_correct
+
+        return d
 
     def __repr__(self):
         return '<User: id={}, email={}, first_name={}, last_name={}, paid={}, champion_id={}>'.format(
