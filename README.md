@@ -1,10 +1,5 @@
 # How to run locally
 
-1) Go to code directory
-```
-cd code
-```
-
 1) Copy config-sample.py to config.py
 ```
 cp wette/config-sample.py wette/config.py

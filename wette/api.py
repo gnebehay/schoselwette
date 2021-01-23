@@ -1,3 +1,5 @@
+import datetime
+
 import flask
 import flask_login
 import sqlalchemy
@@ -10,9 +12,27 @@ from sqlalchemy.orm import joinedload
 
 import flask_app
 import models
+import apification
 
 from flask_app import app
 
+
+def champion_editable():
+    first_match = models.Match.query.order_by('date').first()
+    return first_match.date > datetime.datetime.utcnow()
+
+
+## TODO: This seems not to be used for anything anyway
+## TODO: Why is this a property of user?
+#@property
+#def final_started(self):
+#    # TODO TODO TODO: Needs to be fixed
+#    return False
+#    final_match = flask_app.db.query(Match).filter(Match.stage == Stage.FINAL).one_or_none()
+#
+#    if final_match is None:
+#        return False
+#    return final_match.date < datetime.datetime.utcnow()
 
 
 def validate(post, schema):
@@ -113,6 +133,62 @@ def logout():
     flask_login.logout_user()
     return flask.jsonify(success=True)
 
+@app.route('/api/v1/users')
+@login_required
+def users_api():
+
+    users = models.User.query \
+        .options(joinedload(models.User.champion)) \
+        .filter(models.User.paid) \
+        .all()
+
+    user_entries = []
+    for user in users:
+
+        user_entry = apification.apify_user(user)
+
+        public_bets = []
+        for bet in user.visible_bets:
+
+            # Start with the match as a base
+            public_bet_entry = apification.apify_match(bet.match)
+
+            bet_entry = apification.apify_bet(bet)
+
+            points_by_challenge = bet.points()
+
+            challenges = []
+            for challenge, points in points_by_challenge.items():
+                challenge_entry = apification.apify_challenge(challenge)
+                challenge_entry['points'] = points
+
+                challenges.append(challenge_entry)
+
+            bet_entry['points'] = challenges
+            public_bet_entry['bet'] = bet_entry
+
+            public_bets.append(public_bet_entry)
+
+        user_entry['public_bets'] = public_bets
+
+        scores = []
+
+        for challenge in models.Challenge:
+            challenge_entry = apification.apify_challenge(challenge)
+
+            user_points_for_challenge = user.points_for_challenge(challenge)
+            ranking = sorted([other_user.points_for_challenge(challenge) for other_user in users], reverse=True)
+
+            challenge_entry['points'] = user_points_for_challenge
+            challenge_entry['rank'] = ranking.index(user_points_for_challenge) + 1
+
+            scores.append(challenge_entry)
+
+        user_entry['scores'] = scores
+
+        user_entries.append(user_entry)
+
+    return flask.jsonify(user_entries)
 
 @app.route('/api/v1/matches')
 @login_required
@@ -146,20 +222,6 @@ def match_api(match_id):
     return matches_json
 
 
-@app.route('/api/v1/users')
-@login_required
-def users_api():
-
-    users = models.User.query \
-            .options(joinedload(models.User.expert_team)) \
-            .options(joinedload(models.User.champion)) \
-            .filter(models.User.paid) \
-        .order_by(models.User.points.desc()) \
-        .all()
-
-    users_json = flask.jsonify([user.apify(users=users) for user in users])
-
-    return users_json
 
 
 @app.route('/api/v1/users/<int:user_id>')
@@ -241,7 +303,7 @@ def bet_api(match_id):
     num_supertips = sum([bet.supertip for bet in current_user.bets])
 
     # Check if supertips are available
-    if num_supertips > models.User.MAX_SUPERTIPS:
+    if num_supertips > models.User.MAX_SUPERBETS:
         flask_app.db.rollback()
         flask.abort(418)
 

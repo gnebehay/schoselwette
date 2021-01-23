@@ -65,6 +65,7 @@ def load_user(user_id):
     return q.one_or_none()
 
 
+import views # noqa
 import api # noqa
 
 #
