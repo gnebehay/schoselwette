@@ -41,8 +41,10 @@ def compute_champion_odds():
 
     teams = flask_app.db_session.query(models.Team).all()
 
+    num_players = flask_app.db.query(models.User).filter(models.User.paid).count()
+
     for team in teams:
-        team.compute_odds()
+        team.compute_odds(num_players)
 
     flask.flash('Champion odds have been recomputed.')
 
