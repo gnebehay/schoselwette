@@ -5,6 +5,9 @@ import enum
 import sqlalchemy as sa
 import sqlalchemy_utils as sa_utils
 
+import flask_app
+from flask_app import db
+
 
 class Outcome(enum.Enum):
     TEAM1_WIN = '1'
@@ -164,6 +167,7 @@ class Team(db.Model):
     odds = sa.Column(sa.Float, nullable=False)
 
     def compute_odds(self, num_players):
+
         # Number of users that betted on this particular team
         num_bets_team = len(self.users)
 
