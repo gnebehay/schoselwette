@@ -22,6 +22,7 @@ class Challenge(enum.Enum):
     BALANCED = 4
     SECRET = 5
 
+
 class Status(enum.Enum):
     SCHEDULED = 'scheduled'
     LIVE = 'live'
@@ -68,13 +69,6 @@ class Bet(db.Model):
                 Challenge.UNDERDOG: base_factor * is_highest_odds,
                 Challenge.BALANCED: base_factor * is_draw,
                 Challenge.SECRET: base_factor * first_goal_scored_different_from_outcome}
-
-
-    def __repr__(self):
-        return ('<Bet: id={}, user={}, team1={}, team2={}, stage={}, supertip={}, '
-                'outcome={}>').format(
-            self.id, self.user.name, self.match.team1.name, self.match.team2.name,
-            self.match.stage, self.supertip, self.outcome)
 
 
 class Match(db.Model):
@@ -163,12 +157,6 @@ class Match(db.Model):
                       reverse=True)
 
 
-
-    def __repr__(self):
-        return '<Match: id={}, team1={}, team2={}, date={}, stage={}, goals_team1={}, goals_team2={}>'.format(
-            self.id, self.team1.name, self.team2.name, self.date, self.stage, self.goals_team1, self.goals_team2)
-
-
 class Team(db.Model):
     __tablename__ = 'teams'
 
@@ -191,11 +179,6 @@ class Team(db.Model):
             odds = num_players / num_bets_team
 
         self.odds = odds
-
-
-    def __repr__(self):
-        return '<Team: id={}, name={}, short_name={}, group={}, champion={}>'.format(
-            self.id, self.name, self.short_name, self.group, self.champion)
 
 
 class User(db.Model):
@@ -309,8 +292,3 @@ class User(db.Model):
 
         visible_bets = [bet for bet in self.bets if bet.valid and not bet.match.editable]
         return sorted(visible_bets, key=lambda bet: bet.match.date)
-
-
-    def __repr__(self):
-        return '<User: id={}, email={}, first_name={}, last_name={}, paid={}, champion_id={}>'.format(
-            self.id, self.email, self.first_name, self.last_name, self.paid, self.champion_id)
