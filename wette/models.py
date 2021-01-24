@@ -22,11 +22,6 @@ class Challenge(enum.Enum):
     BALANCED = 4
     SECRET = 5
 
-    def apify(self):
-        return {'challenge_id': self.value,
-                'name': self.name}
-
-
 class Status(enum.Enum):
     SCHEDULED = 'scheduled'
     LIVE = 'live'

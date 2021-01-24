@@ -191,6 +191,34 @@ def matches_api():
     return flask.jsonify(d)
 
 
+@app.route('/api/v1/challenge/<int:challenge_id>')
+@login_required
+def challenge_api(challenge_id):
+
+    try:
+        challenge = models.Challenge(challenge_id)
+    except ValueError:
+        flask.abort(404)
+
+    users = models.User.query \
+        .filter(models.User.paid) \
+        .all()
+
+    d = apify_challenge(challenge)
+
+    ranking = sorted([user.points_for_challenge(challenge) for user in users], reverse=True)
+
+    user_entries = []
+    for user in users:
+        user_entry = apify_user(user)
+        user_entry['score'] = user.points_for_challenge(challenge)
+        user_entry['rank'] = ranking.index(user.points_for_challenge(challenge)) + 1
+        user_entries.append(user_entry)
+
+    d['users'] = user_entries
+
+    return flask.jsonify(d)
+
 @app.route('/api/v1/matches/<int:match_id>')
 @login_required
 def match_api(match_id):
@@ -396,12 +424,14 @@ def apify_user(user,
 
             user_points_for_challenge = user.points_for_challenge(challenge)
 
-            challenge_entry['points'] = user_points_for_challenge
-
+            # TODO: If there is an outer loop over all users, we are duplicating work here
             ranking = sorted(
                 [other_user.points_for_challenge(challenge) for other_user in all_other_users],
                 reverse=True)
-            challenge_entry['rank'] = ranking.index(user_points_for_challenge) + 1
+            rank = ranking.index(user_points_for_challenge) + 1
+
+            challenge_entry['points'] = user_points_for_challenge
+            challenge_entry['rank'] = rank
 
             scores.append(challenge_entry)
 
@@ -453,3 +483,10 @@ def apify_bet(bet):
     d['points'] = challenges
 
     return d
+
+
+def apify_challenge(challenge):
+    return {'challenge_id': challenge.value,
+            'name': challenge.name}
+
+
