@@ -59,7 +59,7 @@ register_schema = {
     'required': ['email', 'password', 'firstName', 'lastName']}
 
 
-@app.route('/api/v1/register', methods=['POST'])
+@app.route('/register', methods=['POST'])
 def register():
     posted_login = flask.request.get_json()
 
@@ -100,7 +100,7 @@ login_schema = {
     'required': ['email', 'password']}
 
 
-@app.route('/api/v1/login', methods=['POST'])
+@app.route('/login', methods=['POST'])
 def login():
     posted_login = flask.request.get_json()
 
@@ -128,13 +128,13 @@ def login():
     return flask.jsonify(errors=["Oops, wrong login data."]), 401
 
 
-@app.route('/api/v1/logout', methods=['POST'])
+@app.route('/logout', methods=['POST'])
 def logout():
     flask_login.logout_user()
     return flask.jsonify(success=True)
 
 
-@app.route('/api/v1/users')
+@app.route('/users')
 @login_required
 def users_api():
     users = models.User.query \
@@ -151,7 +151,7 @@ def users_api():
     return flask.jsonify(user_entries)
 
 
-@app.route('/api/v1/matches')
+@app.route('/matches')
 @login_required
 def matches_api():
     def apify_matches(matches, user_bets_by_match_id):
@@ -191,7 +191,7 @@ def matches_api():
     return flask.jsonify(d)
 
 
-@app.route('/api/v1/challenge/<int:challenge_id>')
+@app.route('/challenge/<int:challenge_id>')
 @login_required
 def challenge_api(challenge_id):
 
@@ -219,7 +219,7 @@ def challenge_api(challenge_id):
 
     return flask.jsonify(d)
 
-@app.route('/api/v1/matches/<int:match_id>')
+@app.route('/matches/<int:match_id>')
 @login_required
 def match_api(match_id):
     try:
@@ -236,7 +236,7 @@ def match_api(match_id):
     return matches_json
 
 
-@app.route('/api/v1/users/<int:user_id>')
+@app.route('/users/<int:user_id>')
 @login_required
 def user_api(user_id):
     user = models.User.query \
@@ -254,7 +254,7 @@ def user_api(user_id):
     return user_json
 
 
-@app.route('/api/v1/bets')
+@app.route('/bets')
 @login_required
 def bets_api():
     current_user = flask_login.current_user
@@ -282,7 +282,7 @@ bet_schema = {
     'required': ['outcome', 'supertip']}
 
 
-@app.route('/api/v1/bets/<int:match_id>', methods=['POST'])
+@app.route('/bets/<int:match_id>', methods=['POST'])
 @login_required
 def bet_api(match_id):
     posted_bet = flask.request.get_json()
@@ -330,7 +330,7 @@ champion_schema = {
     'required': ['champion_id']}
 
 
-@app.route('/api/v1/champion', methods=['POST'])
+@app.route('/champion', methods=['POST'])
 @login_required
 def champion_api():
     posted_champion = flask.request.get_json()
@@ -355,7 +355,7 @@ def champion_api():
     return flask.jsonify(current_user.apify(include_private_bets=True))
 
 
-@app.route('/api/v1/status')
+@app.route('/status')
 @login_required
 def status_api():
     current_user = flask_login.current_user
