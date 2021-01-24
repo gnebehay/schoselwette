@@ -59,8 +59,6 @@ register_schema = {
     'required': ['email', 'password', 'firstName', 'lastName']}
 
 
-
-
 @app.route('/api/v1/register', methods=['POST'])
 def register():
     posted_login = flask.request.get_json()
@@ -144,7 +142,11 @@ def users_api():
         .filter(models.User.paid) \
         .all()
 
-    user_entries = [user.apify(users, include_public_bets=True) for user in users]
+    user_entries = [apify_user(user,
+                               include_public_bets=True,
+                               include_champion=True,
+                               include_scores_for_users=users)
+                    for user in users]
 
     return flask.jsonify(user_entries)
 
@@ -152,14 +154,41 @@ def users_api():
 @app.route('/api/v1/matches')
 @login_required
 def matches_api():
+    def apify_matches(matches, user_bets_by_match_id):
+        matches_entries = []
+        for match in matches:
+            match_entry = apify_match(match)
+
+            user_bet_for_match = user_bets_by_match_id[match.id]
+
+            match_entry['private_bet'] = apify_bet(user_bet_for_match)
+            matches_entries.append(match_entry)
+
+        return matches_entries
+
+    current_user = flask_login.current_user
+
+    user_bets = current_user.bets
+
+    user_bets_by_match_id = {user_bet.match_id: user_bet for user_bet in user_bets}
+
+    # TODO: This is not sufficient
     matches = models.Match.query \
         .options(joinedload(models.Match.team1)) \
         .options(joinedload(models.Match.team2)) \
         .all()
 
-    matches_json = flask.jsonify([match.apify() for match in matches])
+    live_matches = [match for match in matches if match.status == models.Status.LIVE]
+    live_matches_entries = apify_matches(live_matches, user_bets_by_match_id)
+    over_matches = [match for match in matches if match.status == models.Status.OVER]
+    over_matches_entries = apify_matches(over_matches, user_bets_by_match_id)
+    scheduled_matches_entries = [apify_match(match) for match in matches if match.status == models.Status.SCHEDULED]
 
-    return matches_json
+    d = {'live': live_matches_entries,
+         'over': over_matches_entries,
+         'scheduled': scheduled_matches_entries}
+
+    return flask.jsonify(d)
 
 
 @app.route('/api/v1/matches/<int:match_id>')
@@ -316,9 +345,111 @@ def status_api():
 
     s = {'stages': stages,
          'groups': groups,
-         'user': current_user.apify(users, include_private_bets=True),
-         'teams': [team.apify() for team in teams],
+         'user': apify_user(current_user,
+                            include_private_bets=True,
+                            include_champion=True,
+                            include_scores_for_users=users),
+         'teams': [apify_team(team) for team in teams],
          'champion_editable': champion_editable()}
 
     return flask.jsonify(s)
 
+
+def apify_user(user,
+               include_public_bets=False,
+               include_private_bets=False,
+               include_champion=False,
+               include_scores_for_users=None):
+    def apify_matches_with_bets(bets):
+        matches_with_bets = []
+        for bet in bets:
+            match_entry = apify_match(bet.match)
+            match_entry['bet'] = apify_bet(bet)
+            matches_with_bets.append(match_entry)
+        return matches_with_bets
+
+    d = {'admin': user.admin,
+         'avatar': 'https://api.hello-avatar.com/adorables/400/' + user.name,
+         'user_id': user.id,
+         'name': user.name,
+         'reward': 0,
+         'logged_in': False,
+         'visible_superbets': user.supertips}
+
+    if include_champion:
+        d['champion'] = apify_team(user.champion) if user.champion is not None else None
+        d['champion_correct'] = user.champion_correct
+
+    if include_public_bets:
+        d['public_bets'] = apify_matches_with_bets(user.visible_bets)
+
+    if include_private_bets:
+        d['private_bets'] = apify_matches_with_bets(user.bets)
+
+    # TODO: This should probably not be here
+    if include_scores_for_users is not None:
+        all_other_users = include_scores_for_users
+
+        scores = []
+        for challenge in models.Challenge:
+            challenge_entry = challenge.apify()
+
+            user_points_for_challenge = user.points_for_challenge(challenge)
+
+            challenge_entry['points'] = user_points_for_challenge
+
+            ranking = sorted(
+                [other_user.points_for_challenge(challenge) for other_user in all_other_users],
+                reverse=True)
+            challenge_entry['rank'] = ranking.index(user_points_for_challenge) + 1
+
+            scores.append(challenge_entry)
+
+        d['scores'] = scores
+
+    return d
+
+
+def apify_team(team):
+    return {'team_id': team.id,
+            'name': team.name,
+            'group': team.group,
+            'champion': team.champion,
+            'odds': team.odds}
+
+
+def apify_match(match):
+    d = {'match_id': match.id,
+         'date': match.date.isoformat() + 'Z',
+         'status': match.status.value,
+         'outcome': match.outcome.value if match.outcome is not None else None,
+         'team1_name': match.team1.name,
+         'team1_goals': match.goals_team1,
+         'team2_name': match.team2.name,
+         'team2_goals': match.goals_team2,
+         'stage': match.stage}
+
+    if not match.editable:
+        d['odds'] = {models.Outcome.TEAM1_WIN.value: match.odds[models.Outcome.TEAM1_WIN],
+                     models.Outcome.TEAM2_WIN.value: match.odds[models.Outcome.TEAM2_WIN],
+                     models.Outcome.DRAW.value: match.odds[models.Outcome.DRAW]}
+
+    return d
+
+
+def apify_bet(bet):
+    d = {'outcome': bet.outcome.value if bet.outcome is not None else None,
+         'superbet': bet.supertip}
+
+    points_by_challenge = bet.points()
+
+    challenges = []
+    for challenge, points in points_by_challenge.items():
+        challenge_entry = challenge.apify()
+        challenge_entry['points'] = points
+
+        challenges.append(challenge_entry)
+
+    d['points'] = challenges
+
+    return d
