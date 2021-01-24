@@ -420,7 +420,7 @@ def apify_user(user,
 
         scores = []
         for challenge in models.Challenge:
-            challenge_entry = challenge.apify()
+            challenge_entry = apify_challenge(challenge)
 
             user_points_for_challenge = user.points_for_challenge(challenge)
 
@@ -475,7 +475,7 @@ def apify_bet(bet):
 
     challenges = []
     for challenge, points in points_by_challenge.items():
-        challenge_entry = challenge.apify()
+        challenge_entry = apify_challenge(challenge)
         challenge_entry['points'] = points
 
         challenges.append(challenge_entry)
