@@ -4,29 +4,36 @@
 ```
 cd code
 ```
-1) Copy `wette/config-<sqlite||mysql>-sample.py` to config.py
+
+2) Copy `wette/config-<sqlite||mysql>-sample.py` to config.py
 ```
 cp wette/config-<sqlite||mysql>.py wette/config.py
 ```
-1) Edit `wette/config.py` file and replace `<values>` (only first time after cloning repo)
-1) Create a virtual environment
+
+3) Edit `wette/config.py` file and replace `<values>` (only first time after cloning repo)
+
+4) Create a virtual environment
 ```
 python3 -m venv venv
 ```
-1) Install dependencies
+
+5) Install dependencies
 ```
 ./setup.sh
 
 ```
-1) Active virtual environment
+
+6) Active virtual environment
 ```
 ./venv/bin/activate
 ```
-1) Create database
+
+7) Create database
 ```
 wette/db_create.py
 ```
-1) Start app
+
+8) Start app
 ```
 ./run.py
 ```
