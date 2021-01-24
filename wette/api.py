@@ -16,24 +16,6 @@ import models
 from flask_app import app
 
 
-def champion_editable():
-    first_match = models.Match.query.order_by('date').first()
-    return first_match.date > datetime.datetime.utcnow()
-
-
-## TODO: This seems not to be used for anything anyway
-## TODO: Why is this a property of user?
-# @property
-# def final_started(self):
-#    # TODO TODO TODO: Needs to be fixed
-#    return False
-#    final_match = flask_app.db.query(Match).filter(Match.stage == Stage.FINAL).one_or_none()
-#
-#    if final_match is None:
-#        return False
-#    return final_match.date < datetime.datetime.utcnow()
-
-
 def validate(post, schema):
     try:
         jsonschema.validate(post, schema=schema)
@@ -48,22 +30,26 @@ def validate(post, schema):
     return None
 
 
-register_schema = {
-    'type': 'object',
-    'properties': {
-        'email': {'type': 'string'},
-        'password': {'type': 'string', 'minLength': 8},
-        'firstName': {'type': 'string'},
-        'lastName': {'type': 'string'}
-    },
-    'required': ['email', 'password', 'firstName', 'lastName']}
+def champion_editable():
+    first_match = models.Match.query.order_by('date').first()
+    return first_match.date > datetime.datetime.utcnow()
 
 
 @app.route('/register', methods=['POST'])
 def register():
+    register_schema = {
+        'type': 'object',
+        'properties': {
+            'email': {'type': 'string'},
+            'password': {'type': 'string', 'minLength': 8},
+            'firstName': {'type': 'string'},
+            'lastName': {'type': 'string'}
+        },
+        'required': ['email', 'password', 'firstName', 'lastName']}
+
     posted_login = flask.request.get_json()
 
-    validation_result = validate(posted_login, login_schema)
+    validation_result = validate(posted_login, register_schema)
     if validation_result is not None: return validation_result
 
     user = models.User()
@@ -90,18 +76,17 @@ def register():
     return flask.jsonify(success=True)
 
 
-login_schema = {
-    'type': 'object',
-    'properties': {
-        'email': {'type': 'string'},
-        'password': {'type': 'string'},
-        'rememberme': {'type': 'boolean'}
-    },
-    'required': ['email', 'password']}
-
-
 @app.route('/login', methods=['POST'])
 def login():
+    login_schema = {
+        'type': 'object',
+        'properties': {
+            'email': {'type': 'string'},
+            'password': {'type': 'string'},
+            'rememberme': {'type': 'boolean'}
+        },
+        'required': ['email', 'password']}
+
     posted_login = flask.request.get_json()
 
     validation_result = validate(posted_login, login_schema)
@@ -137,6 +122,8 @@ def logout():
 @app.route('/users')
 @login_required
 def users_api():
+
+    # TODO: This is a super common query and needs to be extracted
     users = models.User.query \
         .options(joinedload(models.User.champion)) \
         .filter(models.User.paid) \
@@ -194,7 +181,6 @@ def matches_api():
 @app.route('/challenge/<int:challenge_id>')
 @login_required
 def challenge_api(challenge_id):
-
     try:
         challenge = models.Challenge(challenge_id)
     except ValueError:
@@ -218,6 +204,7 @@ def challenge_api(challenge_id):
     d['users'] = user_entries
 
     return flask.jsonify(d)
+
 
 @app.route('/matches/<int:match_id>')
 @login_required
@@ -273,18 +260,17 @@ def bets_api():
     return bets_json
 
 
-bet_schema = {
-    'type': 'object',
-    'properties': {
-        'outcome': {'type': 'string', 'enum': [outcome.value for outcome in models.Outcome]},
-        'supertip': {'type': 'boolean'}
-    },
-    'required': ['outcome', 'supertip']}
-
-
 @app.route('/bets/<int:match_id>', methods=['POST'])
 @login_required
 def bet_api(match_id):
+    bet_schema = {
+        'type': 'object',
+        'properties': {
+            'outcome': {'type': 'string', 'enum': [outcome.value for outcome in models.Outcome]},
+            'superbet': {'type': 'boolean'}
+        },
+        'required': ['outcome', 'superbet']}
+
     posted_bet = flask.request.get_json()
 
     validation_result = validate(posted_bet, bet_schema)
@@ -307,7 +293,7 @@ def bet_api(match_id):
     posted_outcome = posted_bet['outcome']
     if posted_outcome:
         bet.outcome = models.Outcome(posted_outcome)
-    bet.supertip = posted_bet['supertip']
+    bet.superbet = posted_bet['superbet']
 
     num_supertips = sum([bet.supertip for bet in current_user.bets])
 
@@ -319,40 +305,50 @@ def bet_api(match_id):
     # Update supertip count in user
     current_user.supertips = num_supertips
 
-    return flask.jsonify(bet.apify())
-
-
-champion_schema = {
-    'type': 'object',
-    'properties': {
-        'champion_id': {'type': 'integer'}
-    },
-    'required': ['champion_id']}
+    return flask.jsonify(success=True)
 
 
 @app.route('/champion', methods=['POST'])
 @login_required
 def champion_api():
+    champion_schema = {
+        'type': 'object',
+        'properties': {
+            'champion_id': {'type': 'integer'}
+        },
+        'required': ['champion_id']}
+
     posted_champion = flask.request.get_json()
 
     validation_result = validate(posted_champion, champion_schema)
-    if validation_result is not None: return validation_result
+    if validation_result is not None:
+        return validation_result
 
     current_user = flask_login.current_user
 
-    if not current_user.champion_editable:
+    if not champion_editable():
         flask.abort(403)
-
-    posted_champion = flask.request.get_json()
 
     champion_id = posted_champion['champion_id']
 
-    champion = models.Team.query.filter_by(id=champion_id).one_or_none()
+    teams = models.Team.query.options(joinedload(models.Team.users)).all()
 
-    current_user.champion_id = champion_id
-    current_user.champion = champion
+    try:
+        current_user.champion = next(team for team in teams if team.id == champion_id)
+    except StopIteration:
+        flask.abort(404)
 
-    return flask.jsonify(current_user.apify(include_private_bets=True))
+    users = models.User.query \
+        .options(joinedload(models.User.champion)) \
+        .filter(models.User.paid) \
+        .all()
+
+    num_players = len(users)
+
+    for team in teams:
+        team.compute_odds(num_players)
+
+    return flask.jsonify(success=True)
 
 
 @app.route('/status')
@@ -488,5 +484,3 @@ def apify_bet(bet):
 def apify_challenge(challenge):
     return {'challenge_id': challenge.value,
             'name': challenge.name}
-
-

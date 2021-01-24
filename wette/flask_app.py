@@ -65,7 +65,6 @@ def load_user(user_id):
     return q.one_or_none()
 
 
-import views # noqa
 import api # noqa
 
 #
@@ -81,15 +80,3 @@ if 'ALLOWED_ORIGINS' in app.config:
 
    # logging.getLogger('flask_cors').level = logging.DEBUG
 
-## Create login manager
-#login_manager = flask_login.LoginManager()
-#login_manager.init_app(app)
-#login_manager.login_view = 'login'
-#
-#
-#
-#
-## Cleanup
-
-
-# This import is at the end to avoid circular imports (e.g. app would not be found)

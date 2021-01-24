@@ -5,7 +5,6 @@ import enum
 import sqlalchemy as sa
 import sqlalchemy_utils as sa_utils
 
-import flask_app
 from flask_app import db
 
 
@@ -29,7 +28,7 @@ class Status(enum.Enum):
     OVER = 'over'
 
 
-# TODO: Explain why sqlalchemy needs that
+# sqlalchemy needs this for enums
 def _get_values(enum_type):
     return [e.value for e in enum_type]
 
@@ -166,8 +165,10 @@ class Team(db.Model):
     champion = sa.Column(sa.Boolean, default=False, nullable=False)
     odds = sa.Column(sa.Float, nullable=False)
 
-    def compute_odds(self, num_players):
+    # Backreffed relationships:
+    # -users
 
+    def compute_odds(self, num_players):
         # Number of users that betted on this particular team
         num_bets_team = len(self.users)
 
@@ -194,9 +195,6 @@ class User(db.Model):
     champion_id = sa.Column(sa.Integer, sa.ForeignKey('teams.id'), nullable=True)
     points = sa.Column(sa.Float, default=0.0, nullable=False)
     supertips = sa.Column(sa.Integer, default=0, nullable=False)
-    # TODO: Re-add this
-    # passwort_reset_token = sa.Column(sa.String(64), nullable=True)
-    # passwort_reset_token_validity = sa.Column(sa.String(64), nullable=True)
     kings_game_points = sa.Column(sa.Float, default=0.0, nullable=False)
     oldfashioned_points = sa.Column(sa.Float, default=0.0, nullable=False)
     underdog_points = sa.Column(sa.Float, default=0.0, nullable=False)
@@ -207,7 +205,6 @@ class User(db.Model):
     # Backreffed relationships:
     # -bets
 
-    # TODO: Make this configurable
     MAX_SUPERBETS = 8
 
     __challenge_to_attribute = {
@@ -231,11 +228,6 @@ class User(db.Model):
         self.underdog_points = challenge_points[Challenge.UNDERDOG]
         self.balanced_points = challenge_points[Challenge.BALANCED]
         self.secret_points = challenge_points[Challenge.SECRET]
-
-        # TODO: Champion bet
-
-    #        if self.champion_correct:
-    #            points += self.champion.odds
 
     def points_for_challenge(self, challenge):
         return self.__getattribute__(self.__challenge_to_attribute[challenge])
