@@ -29,7 +29,7 @@ logging.basicConfig()
 app = flask.Flask(__name__)
 
 # Load the config file
-app.config.from_object('config')
+app.config.from_pyfile('config.py')
 
 mail = flask_mail.Mail(app)
 
@@ -53,7 +53,7 @@ def shutdown_session(exception=None):
 
     db.session.remove()
 
-import models # noqa
+from . import models # noqa
 
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
@@ -65,7 +65,7 @@ def load_user(user_id):
     return q.one_or_none()
 
 
-import api # noqa
+from . import api # noqa
 
 #
 ## TODO: Add some more explanation here what all of this is good for

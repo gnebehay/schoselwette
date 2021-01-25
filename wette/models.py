@@ -5,7 +5,7 @@ import enum
 import sqlalchemy as sa
 import sqlalchemy_utils as sa_utils
 
-from flask_app import db
+from . import db
 
 
 class Outcome(enum.Enum):

@@ -9,10 +9,9 @@ import jsonschema
 from flask_login import login_required
 from sqlalchemy.orm import joinedload
 
-import flask_app
-import models
-
-from flask_app import app
+from . import models
+from . import app
+from . import db
 
 
 def validate(post, schema):
@@ -301,7 +300,8 @@ def bet_api(match_id):
 
     # Check if supertips are available
     if num_supertips > models.User.MAX_SUPERBETS:
-        flask_app.db.rollback()
+        # TODO: doesn't abort always cause a rollback?
+        db.rollback()
         flask.abort(418)
 
     # Update supertip count in user
