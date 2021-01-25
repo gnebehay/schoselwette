@@ -21,16 +21,6 @@ def admin():
 
     return flask.render_template('admin.html', users=users, matches=matches)
 
-@app.route('/confirm_payment/<int:user_id>')
-def confirm_payment(user_id):
-
-    user = flask_app.db_session.query(models.User).filter(models.User.id == user_id).one()
-
-    user.paid = True
-
-    send_mail_template('payment_confirmed.eml', recipients=[user.email], user=user)
-
-    return flask.redirect('admin')
 
 @app.route('/compute_champion_odds')
 @login_required

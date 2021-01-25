@@ -2,7 +2,6 @@ import datetime
 
 import flask
 import flask_login
-import sqlalchemy
 
 import hashlib
 import jsonschema
@@ -30,7 +29,7 @@ def validate(post, schema):
     return None
 
 
-def champion_editable():
+def before_tournament_start():
     first_match = models.Match.query.order_by('date').first()
     return first_match.date > datetime.datetime.utcnow()
 
@@ -66,7 +65,8 @@ def register():
 
     user.create_missing_bets()
 
-    flask_app.send_mail_template('welcome.eml', recipients=[user.email], user=user)
+    # TODO: email
+    #flask_app.send_mail_template('welcome.eml', recipients=[user.email], user=user)
 
     # TODO: reenable this
     # flask_app.send_mail(flask_mail.Message('Neuer Schoselwetter',
@@ -279,6 +279,7 @@ def bet_api(match_id):
 
     current_user = flask_login.current_user
 
+    # TODO: joinedload match
     bet = models.Bet.query \
         .filter_by(user_id=current_user.id, match_id=match_id) \
         .one_or_none()
@@ -306,7 +307,12 @@ def bet_api(match_id):
     # Update supertip count in user
     current_user.supertips = num_supertips
 
-    # TODO: Recompute odds
+    num_users = models.User.query \
+        .options(joinedload(models.User.champion)) \
+        .filter(models.User.paid) \
+        .count()
+
+    bet.match.compute_odds(num_users)
 
     return flask.jsonify(success=True)
 
@@ -329,7 +335,7 @@ def champion_api():
 
     current_user = flask_login.current_user
 
-    if not champion_editable():
+    if not before_tournament_start():
         flask.abort(403)
 
     champion_id = posted_champion['champion_id']
@@ -377,9 +383,35 @@ def status_api():
                             include_champion=True,
                             include_scores_for_users=users),
          'teams': [apify_team(team) for team in teams],
-         'champion_editable': champion_editable()}
+         'champion_editable': before_tournament_start()}
 
     return flask.jsonify(s)
+
+@app.route('/confirm_payment/<int:user_id>', methods=['POST'])
+@login_required
+def confirm_payment(user_id):
+
+    if not flask_login.current_user.admin:
+        flask.abort(403)
+
+    if not before_tournament_start():
+        flask.abort(403)
+
+    user = models.User.query.filter(models.User.id == user_id).one()
+
+    user.paid = True
+
+    # Now all odds have to be recomputed
+    # But not the points of the players, because we don't allow registration before the first match starts
+    num_players = models.User.query.filter(models.User.paid).count()
+    matches = models.Match.query.all()
+
+    for match in matches:
+        match.compute_odds(num_players)
+
+#    send_mail_template('payment_confirmed.eml', recipients=[user.email], user=user)
+
+    return flask.jsonify(success=True)
 
 
 def apify_user(user,
