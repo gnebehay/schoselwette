@@ -161,6 +161,7 @@ class Team(db.Model):
 
     id = sa.Column(sa.Integer, primary_key=True)
     name = sa.Column(sa.String(128), nullable=False, unique=True)
+    short_name = sa.Column(sa.String(3), nullable=False, unique=True)
     group = sa.Column(sa.String(1), nullable=False)
     champion = sa.Column(sa.Boolean, default=False, nullable=False)
     odds = sa.Column(sa.Float, nullable=False)

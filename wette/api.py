@@ -206,58 +206,58 @@ def challenge_api(challenge_id):
     return flask.jsonify(d)
 
 
-@app.route('/matches/<int:match_id>')
-@login_required
-def match_api(match_id):
-    try:
-        match = models.Match.query \
-            .options(joinedload(models.Match.bets).joinedload(models.Bet.user)) \
-            .options(joinedload(models.Match.team1)) \
-            .options(joinedload(models.Match.team2)) \
-            .filter_by(id=match_id).one()
-    except sqlalchemy.orm.exc.NoResultFound:
-        flask.abort(404)
-
-    matches_json = flask.jsonify(match.apify(bets=True))
-
-    return matches_json
-
-
-@app.route('/users/<int:user_id>')
-@login_required
-def user_api(user_id):
-    user = models.User.query \
-        .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team1)) \
-        .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team2)) \
-        .options(joinedload(models.User.expert_team)) \
-        .filter_by(id=user_id) \
-        .one_or_none()
-
-    if user is None:
-        flask.abort(404)
-
-    user_json = flask.jsonify(user.apify(bets=True))
-
-    return user_json
+#@app.route('/matches/<int:match_id>')
+#@login_required
+#def match_api(match_id):
+#    try:
+#        match = models.Match.query \
+#            .options(joinedload(models.Match.bets).joinedload(models.Bet.user)) \
+#            .options(joinedload(models.Match.team1)) \
+#            .options(joinedload(models.Match.team2)) \
+#            .filter_by(id=match_id).one()
+#    except sqlalchemy.orm.exc.NoResultFound:
+#        flask.abort(404)
+#
+#    matches_json = flask.jsonify(match.apify(bets=True))
+#
+#    return matches_json
 
 
-@app.route('/bets')
-@login_required
-def bets_api():
-    current_user = flask_login.current_user
+#@app.route('/users/<int:user_id>')
+#@login_required
+#def user_api(user_id):
+#    user = models.User.query \
+#        .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team1)) \
+#        .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team2)) \
+#        .options(joinedload(models.User.expert_team)) \
+#        .filter_by(id=user_id) \
+#        .one_or_none()
+#
+#    if user is None:
+#        flask.abort(404)
+#
+#    user_json = flask.jsonify(user.apify(bets=True))
+#
+#    return user_json
 
-    bets = models.Bet.query.filter_by(user_id=current_user.id) \
-        .options(
-        joinedload(models.Bet.match).
-            joinedload(models.Match.team1)) \
-        .options(
-        joinedload(models.Bet.match).
-            joinedload(models.Match.team2)) \
-        .all()
 
-    bets_json = flask.jsonify([bet.apify(match=True) for bet in bets])
-
-    return bets_json
+# @app.route('/bets')
+# @login_required
+# def bets_api():
+#     current_user = flask_login.current_user
+#
+#     bets = models.Bet.query.filter_by(user_id=current_user.id) \
+#         .options(
+#         joinedload(models.Bet.match).
+#             joinedload(models.Match.team1)) \
+#         .options(
+#         joinedload(models.Bet.match).
+#             joinedload(models.Match.team2)) \
+#         .all()
+#
+#     bets_json = flask.jsonify([bet.apify(match=True) for bet in bets])
+#
+#     return bets_json
 
 
 @app.route('/bets/<int:match_id>', methods=['POST'])
@@ -274,7 +274,8 @@ def bet_api(match_id):
     posted_bet = flask.request.get_json()
 
     validation_result = validate(posted_bet, bet_schema)
-    if validation_result is not None: return validation_result
+    if validation_result is not None:
+        return validation_result
 
     current_user = flask_login.current_user
 
@@ -304,6 +305,8 @@ def bet_api(match_id):
 
     # Update supertip count in user
     current_user.supertips = num_supertips
+
+    # TODO: Recompute odds
 
     return flask.jsonify(success=True)
 
@@ -439,6 +442,7 @@ def apify_user(user,
 def apify_team(team):
     return {'team_id': team.id,
             'name': team.name,
+            'short_name': team.short_name,
             'group': team.group,
             'champion': team.champion,
             'odds': team.odds}
@@ -450,8 +454,10 @@ def apify_match(match):
          'status': match.status.value,
          'outcome': match.outcome.value if match.outcome is not None else None,
          'team1_name': match.team1.name,
+         'team1_iso': match.team1.short_name,
          'team1_goals': match.goals_team1,
          'team2_name': match.team2.name,
+         'team2_iso': match.team2.short_name,
          'team2_goals': match.goals_team2,
          'stage': match.stage}
 
