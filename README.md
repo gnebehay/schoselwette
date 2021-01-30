@@ -7,7 +7,7 @@ cd code
 
 2) Copy `wette/config-<sqlite||mysql>-sample.py` to config.py
 ```
-cp wette/config-<sqlite||mysql>.py wette/config.py
+cp wette/config-<sqlite||mysql>-sample.py wette/config.py
 ```
 
 3) Edit `wette/config.py` file and replace `<values>` (only first time after cloning repo)
