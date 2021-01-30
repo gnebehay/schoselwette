@@ -60,7 +60,7 @@ def register():
     salted_password = bytes(app.config['PASSWORD_SALT'] + posted_login['password'], 'utf-8')
     user.password = hashlib.md5(salted_password).hexdigest()
 
-    flask_app.db.session.add(user)
+    db.session.add(user)
 
     user.create_missing_bets()
 
