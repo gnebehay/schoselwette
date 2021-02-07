@@ -30,6 +30,10 @@ def validate(post, schema):
 
 def before_tournament_start():
     first_match = models.Match.query.order_by('date').first()
+
+    if first_match is None:
+        return True
+
     return first_match.date > datetime.datetime.utcnow()
 
 
@@ -459,7 +463,11 @@ def apify_user(user,
             ranking = sorted(
                 [other_user.points_for_challenge(challenge) for other_user in all_other_users],
                 reverse=True)
-            rank = ranking.index(user_points_for_challenge) + 1
+            try:
+                rank = ranking.index(user_points_for_challenge) + 1
+            except ValueError:
+                # This happens when there are no paid users at all
+                rank = 1
 
             challenge_entry['points'] = user_points_for_challenge
             challenge_entry['rank'] = rank

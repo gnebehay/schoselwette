@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
 
-from flask_app import db
+from . import db
 
 db.create_all()
