@@ -56,7 +56,11 @@ class Bet(db.Model):
         return self.valid and self.outcome == self.match.outcome
 
     def points(self):
-        base_factor = int(self.correct * (1 + self.supertip))
+
+        if not self.correct:
+            return {challenge: 0.0 for challenge in Challenge}
+
+        base_factor = int(1 + self.supertip)
         points = base_factor * self.match.odds[self.outcome]
 
         is_highest_odds = self.match.odds[self.outcome] == max(self.match.odds.values())

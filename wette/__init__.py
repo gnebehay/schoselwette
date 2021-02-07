@@ -66,6 +66,7 @@ def load_user(user_id):
 
 
 from . import api # noqa
+from . import admin # noqa
 
 #
 ## TODO: Add some more explanation here what all of this is good for

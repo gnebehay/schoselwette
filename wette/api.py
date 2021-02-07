@@ -1,40 +1,15 @@
-import datetime
-
 import flask
 import flask_login
 
 import hashlib
-import jsonschema
 
 from flask_login import login_required
 from sqlalchemy.orm import joinedload
 
-from . import models
 from . import app
 from . import db
-
-
-def validate(post, schema):
-    try:
-        jsonschema.validate(post, schema=schema)
-    except (jsonschema.ValidationError, jsonschema.SchemaError) as e:
-
-        errors = list(jsonschema.Draft7Validator(schema).iter_errors(post))
-
-        errors = [e.message for e in errors]
-
-        return flask.jsonify(errors=errors), 400
-
-    return None
-
-
-def before_tournament_start():
-    first_match = models.Match.query.order_by('date').first()
-
-    if first_match is None:
-        return True
-
-    return first_match.date > datetime.datetime.utcnow()
+from . import common
+from . import models
 
 
 @app.route('/register', methods=['POST'])
@@ -51,7 +26,7 @@ def register():
 
     posted_login = flask.request.get_json()
 
-    validation_result = validate(posted_login, register_schema)
+    validation_result = common.validate(posted_login, register_schema)
     if validation_result is not None: return validation_result
 
     user = models.User()
@@ -92,7 +67,7 @@ def login():
 
     posted_login = flask.request.get_json()
 
-    validation_result = validate(posted_login, login_schema)
+    validation_result = common.validate(posted_login, login_schema)
     if validation_result is not None: return validation_result
 
     salted_password = bytes(app.config['PASSWORD_SALT'] + posted_login['password'], 'utf-8')
@@ -126,11 +101,7 @@ def logout():
 @login_required
 def users_api():
 
-    # TODO: This is a super common query and needs to be extracted
-    users = models.User.query \
-        .options(joinedload(models.User.champion)) \
-        .filter(models.User.paid) \
-        .all()
+    users = common.query_paying_users()
 
     user_entries = [apify_user(user,
                                include_public_bets=True,
@@ -139,6 +110,8 @@ def users_api():
                     for user in users]
 
     return flask.jsonify(user_entries)
+
+
 
 
 @app.route('/matches')
@@ -189,9 +162,7 @@ def challenge_api(challenge_id):
     except ValueError:
         flask.abort(404)
 
-    users = models.User.query \
-        .filter(models.User.paid) \
-        .all()
+    users = common.query_paying_users()
 
     d = apify_challenge(challenge)
 
@@ -276,7 +247,7 @@ def bet_api(match_id):
 
     posted_bet = flask.request.get_json()
 
-    validation_result = validate(posted_bet, bet_schema)
+    validation_result = common.validate(posted_bet, bet_schema)
     if validation_result is not None:
         return validation_result
 
@@ -312,7 +283,6 @@ def bet_api(match_id):
     current_user.supertips = num_supertips
 
     num_users = models.User.query \
-        .options(joinedload(models.User.champion)) \
         .filter(models.User.paid) \
         .count()
 
@@ -333,13 +303,13 @@ def champion_api():
 
     posted_champion = flask.request.get_json()
 
-    validation_result = validate(posted_champion, champion_schema)
+    validation_result = common.validate(posted_champion, champion_schema)
     if validation_result is not None:
         return validation_result
 
     current_user = flask_login.current_user
 
-    if not before_tournament_start():
+    if not common.is_before_tournament_start():
         flask.abort(403)
 
     champion_id = posted_champion['champion_id']
@@ -351,10 +321,7 @@ def champion_api():
     except StopIteration:
         flask.abort(404)
 
-    users = models.User.query \
-        .options(joinedload(models.User.champion)) \
-        .filter(models.User.paid) \
-        .all()
+    users = common.query_paying_users()
 
     num_players = len(users)
 
@@ -369,10 +336,7 @@ def champion_api():
 def status_api():
     current_user = flask_login.current_user
 
-    users = models.User.query \
-        .options(joinedload(models.User.champion)) \
-        .filter(models.User.paid) \
-        .all()
+    users = common.query_paying_users()
 
     teams = models.Team.query.order_by(models.Team.name)
     groups = sorted(list({team.group for team in teams}))
@@ -387,35 +351,9 @@ def status_api():
                             include_champion=True,
                             include_scores_for_users=users),
          'teams': [apify_team(team) for team in teams],
-         'champion_editable': before_tournament_start()}
+         'champion_editable': common.is_before_tournament_start()}
 
     return flask.jsonify(s)
-
-@app.route('/confirm_payment/<int:user_id>', methods=['POST'])
-@login_required
-def confirm_payment(user_id):
-
-    if not flask_login.current_user.admin:
-        flask.abort(403)
-
-    if not before_tournament_start():
-        flask.abort(403)
-
-    user = models.User.query.filter(models.User.id == user_id).one()
-
-    user.paid = True
-
-    # Now all odds have to be recomputed
-    # But not the points of the players, because we don't allow registration before the first match starts
-    num_players = models.User.query.filter(models.User.paid).count()
-    matches = models.Match.query.all()
-
-    for match in matches:
-        match.compute_odds(num_players)
-
-#    send_mail_template('payment_confirmed.eml', recipients=[user.email], user=user)
-
-    return flask.jsonify(success=True)
 
 
 def apify_user(user,
