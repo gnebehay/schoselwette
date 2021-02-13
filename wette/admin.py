@@ -23,7 +23,7 @@ def confirm_payment(user_id):
     if not common.is_before_tournament_start():
         flask.abort(403)
 
-    user = models.User.query.filter(models.User.id == user_id).one()
+    user = models.User.query.filter_by(id=user_id).one()
 
     user.paid = True
 
@@ -42,7 +42,7 @@ def confirm_payment(user_id):
 
 @app.route('/admin/match', methods=['POST'])
 @login_required
-def new_match():
+def match():
 
     if not flask_login.current_user.admin:
         flask.abort(403)
@@ -99,6 +99,96 @@ def new_match():
         print('Match ' + str(match_db) + ' already in database.')
 
         match_db.date = match_datetime
-        match_db.stage = posted_stage
 
     return flask.jsonify(success=True)
+
+
+@app.route('/admin/outcome/<int:match_id>', methods=['POST'])
+@login_required
+def outcome(match_id):
+
+    if not flask_login.current_user.admin:
+        flask.abort(403)
+
+    match = models.Match.query.filter_by(id=match_id).one_or_none()
+
+    if match is None:
+        flask.abort(404)
+
+    outcome_schema = {
+        'type': 'object',
+        'properties': {
+            'goalsTeam1': {'type': 'int'},
+            'goalsTeam2': {'type': 'int'}
+        },
+        'required': ['goalsTeam1', 'goalsTeam2']}
+
+    posted_outcome = flask.request.get_json()
+
+    validation_result = common.validate(posted_outcome, outcome_schema)
+    if validation_result is not None:
+        return validation_result
+
+    match.goals_team1 = posted_outcome['goalsTeam1']
+    match.goals_team2 = posted_outcome['goalsTeam2']
+
+    users = common.query_paying_users()
+    for user in users:
+        user.compute_points()
+
+    return flask.jsonify(success=True)
+
+
+@app.route('/admin/make_admin/<int:user_id>')
+@login_required
+def make_admin(user_id):
+
+    if not flask_login.current_user.admin:
+        flask.abort(403)
+
+    user = models.User.query.filter(models.User.id == user_id).one()
+
+    user.admin = True
+
+    return flask.jsonify(success=True)
+
+
+@app.route('/admin/users', methods=['GET'])
+@login_required
+def users():
+
+    if not flask_login.current_user.admin:
+        flask.abort(403)
+
+    users = models.User.query.all()
+
+    response = []
+
+    for user in users:
+
+        d = {'admin': user.admin,
+             'paid': user.paid,
+             'user_id': user.id,
+             'name': user.name}
+
+        response.append(d)
+
+    return users
+
+
+@app.route('/admin/make_champion/<int:team_id>')
+@login_required
+def make_champion(team_id):
+
+    if not flask_login.current_user.admin:
+        flask.abort(403)
+
+    teams = models.Team.query.all()
+
+    for team in teams:
+        if team.id == team_id:
+            team.champion = True
+        else:
+            team.champion = False
+
+    return flask.redirect('scoreboard')

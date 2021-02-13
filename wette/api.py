@@ -374,7 +374,6 @@ def apify_user(user,
          'user_id': user.id,
          'name': user.name,
          'reward': 0,
-         'logged_in': False,
          'visible_superbets': user.supertips}
 
     if include_champion:
