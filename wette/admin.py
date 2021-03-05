@@ -13,7 +13,7 @@ from . import db
 from . import models
 
 
-@app.route('/admin/confirm_payment/<int:user_id>', methods=['POST'])
+@app.route('/api/admin/confirm_payment/<int:user_id>', methods=['POST'])
 @login_required
 def confirm_payment(user_id):
 
@@ -40,7 +40,7 @@ def confirm_payment(user_id):
     return flask.jsonify(success=True)
 
 
-@app.route('/admin/match', methods=['POST'])
+@app.route('/api/admin/match', methods=['POST'])
 @login_required
 def match():
 
@@ -103,7 +103,7 @@ def match():
     return flask.jsonify(success=True)
 
 
-@app.route('/admin/outcome/<int:match_id>', methods=['POST'])
+@app.route('/api/admin/outcome/<int:match_id>', methods=['POST'])
 @login_required
 def outcome(match_id):
 
@@ -139,7 +139,7 @@ def outcome(match_id):
     return flask.jsonify(success=True)
 
 
-@app.route('/admin/make_admin/<int:user_id>')
+@app.route('/api/admin/make_admin/<int:user_id>')
 @login_required
 def make_admin(user_id):
 
@@ -153,7 +153,7 @@ def make_admin(user_id):
     return flask.jsonify(success=True)
 
 
-@app.route('/admin/users', methods=['GET'])
+@app.route('/api/admin/users', methods=['GET'])
 @login_required
 def users():
 
@@ -176,7 +176,7 @@ def users():
     return users
 
 
-@app.route('/admin/make_champion/<int:team_id>')
+@app.route('/api/admin/make_champion/<int:team_id>')
 @login_required
 def make_champion(team_id):
 
