@@ -1,3 +1,5 @@
+import os
+
 import flask
 import flask_cors
 import flask_mail
@@ -32,6 +34,11 @@ app = flask.Flask(__name__)
 app.config.from_pyfile('config.py')
 
 mail = flask_mail.Mail(app)
+
+_env_db_uri = os.environ.get("DB_URI")
+
+if _env_db_uri is not None:
+    app.config['SQLALCHEMY_DATABASE_URI'] = _env_db_uri
 
 # Establish database connection
 engine = sqlalchemy.create_engine(

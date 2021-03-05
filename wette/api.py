@@ -12,7 +12,7 @@ from . import common
 from . import models
 
 
-@app.route('api/register', methods=['POST'])
+@app.route('/api/register', methods=['POST'])
 def register():
     register_schema = {
         'type': 'object',
