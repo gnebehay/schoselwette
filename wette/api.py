@@ -44,7 +44,7 @@ def register():
     user.create_missing_bets()
 
     # TODO: email
-    #flask_app.send_mail_template('welcome.eml', recipients=[user.email], user=user)
+    common.send_mail_template('welcome.eml', recipients=[user.email], user=user)
 
     # TODO: reenable this
     # flask_app.send_mail(flask_mail.Message('Neuer Schoselwetter',
@@ -100,7 +100,6 @@ def logout():
 @app.route('/api/users')
 @login_required
 def users_api():
-
     users = common.query_paying_users()
 
     user_entries = [apify_user(user,
@@ -110,8 +109,6 @@ def users_api():
                     for user in users]
 
     return flask.jsonify(user_entries)
-
-
 
 
 @app.route('/api/matches')
@@ -180,9 +177,9 @@ def challenge_api(challenge_id):
     return flask.jsonify(d)
 
 
-#@app.route('/api/matches/<int:match_id>')
-#@login_required
-#def match_api(match_id):
+# @app.route('/api/matches/<int:match_id>')
+# @login_required
+# def match_api(match_id):
 #    try:
 #        match = models.Match.query \
 #            .options(joinedload(models.Match.bets).joinedload(models.Bet.user)) \
@@ -197,9 +194,9 @@ def challenge_api(challenge_id):
 #    return matches_json
 
 
-#@app.route('/api/users/<int:user_id>')
-#@login_required
-#def user_api(user_id):
+# @app.route('/api/users/<int:user_id>')
+# @login_required
+# def user_api(user_id):
 #    user = models.User.query \
 #        .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team1)) \
 #        .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team2)) \

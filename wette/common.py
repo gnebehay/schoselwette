@@ -1,11 +1,29 @@
 from datetime import datetime
 
 import flask
+import flask_mail
 import jsonschema
 
 from sqlalchemy.orm import joinedload
 
 from . import models
+from . import mail
+
+
+def send_mail_template(tpl, recipients, **kwargs):
+    rendered_mail = flask.render_template('mail/' + tpl, **kwargs)
+    subject = rendered_mail.splitlines()[0]
+    body = '\n'.join(rendered_mail.splitlines()[1:])
+
+    msg = flask_mail.Message(subject=subject, body=body, recipients=recipients)
+
+    try:
+        msg.sender = 'info@schosel.net'
+        mail.send(msg)
+    except:
+        print('Tried to send mail, did not work.')
+        print(msg)
+
 
 def validate(post, schema):
     try:

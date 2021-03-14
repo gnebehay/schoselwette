@@ -8,22 +8,6 @@ import flask_login
 import sqlalchemy
 import logging
 
-def send_mail(msg):
-    try:
-        msg.sender = app.config['MAIN_MAIL']
-        mail.send(msg)
-    except:
-        print('Tried to send mail, did not work.')
-        print(msg)
-
-def send_mail_template(tpl, recipients, **kwargs):
-    rendered_mail = flask.render_template('mail/' + tpl, **kwargs)
-    subject = rendered_mail.splitlines()[0]
-    body = '\n'.join(rendered_mail.splitlines()[1:])
-
-    msg = flask_mail.Message(subject=subject, body=body, recipients=recipients)
-
-    send_mail(msg)
 
 logging.basicConfig()
 
@@ -44,7 +28,7 @@ if _env_db_uri is not None:
 engine = sqlalchemy.create_engine(
     app.config['SQLALCHEMY_DATABASE_URI'],
     convert_unicode=True,
-    pool_recycle=app.config['SQLALCHEMY_POOL_RECYCLE'])
+    pool_recycle=3600)
 
 db = flask_sqlalchemy.SQLAlchemy(app)
 
