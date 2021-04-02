@@ -19,7 +19,7 @@ class Challenge(enum.Enum):
     LOSER = 2
     UNDERDOG = 3
     BALANCED = 4
-    SECRET = 5
+    COMEBACK = 5
 
 
 class Status(enum.Enum):
@@ -60,18 +60,16 @@ class Bet(db.Model):
         if not self.correct:
             return {challenge: 0.0 for challenge in Challenge}
 
-        base_factor = int(1 + self.supertip)
-        points = base_factor * self.match.odds[self.outcome]
+        points = int(1 + self.supertip) * self.match.odds[self.outcome]
 
         is_highest_odds = self.match.odds[self.outcome] == max(self.match.odds.values())
         is_draw = self.outcome == Outcome.DRAW
-        first_goal_scored_different_from_outcome = self.match.first_goal != self.outcome
 
-        return {Challenge.SCHOSEL: points,
-                Challenge.LOSER: base_factor,
-                Challenge.UNDERDOG: base_factor * is_highest_odds,
-                Challenge.BALANCED: base_factor * is_draw,
-                Challenge.SECRET: base_factor * first_goal_scored_different_from_outcome}
+        return {Challenge.SCHOSEL: self.correct * points,
+                Challenge.LOSER: (not self.correct) * points,
+                Challenge.UNDERDOG: (self.correct and is_highest_odds) * points,
+                Challenge.BALANCED: (self.correct and is_draw) * points,
+                Challenge.COMEBACK: (self.correct and self.match.first_goal != self.outcome and not is_draw) * points}
 
 
 class Match(db.Model):
@@ -217,7 +215,7 @@ class User(db.Model):
         Challenge.LOSER: 'oldfashioned_points',
         Challenge.UNDERDOG: 'underdog_points',
         Challenge.BALANCED: 'balanced_points',
-        Challenge.SECRET: 'secret_points',
+        Challenge.COMEBACK: 'secret_points',
     }
 
     def compute_points(self):
@@ -232,7 +230,7 @@ class User(db.Model):
         self.oldfashioned_points = challenge_points[Challenge.LOSER]
         self.underdog_points = challenge_points[Challenge.UNDERDOG]
         self.balanced_points = challenge_points[Challenge.BALANCED]
-        self.secret_points = challenge_points[Challenge.SECRET]
+        self.secret_points = challenge_points[Challenge.COMEBACK]
 
     def points_for_challenge(self, challenge):
         return self.__getattribute__(self.__challenge_to_attribute[challenge])
