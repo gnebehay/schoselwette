@@ -55,6 +55,7 @@ class Bet(db.Model):
     def correct(self):
         return self.valid and self.outcome == self.match.outcome
 
+    # TODO: Unit test
     def points(self):
 
         if not self.correct:
@@ -115,6 +116,7 @@ class Match(db.Model):
             Outcome.TEAM2_WIN: self.odds_team2,
         }
 
+    # TODO: Unit test
     # Sets the odds properties
     def compute_odds(self, num_players):
 
@@ -210,6 +212,7 @@ class User(db.Model):
 
     MAX_SUPERBETS = 8
 
+    # TODO: Update database schema to use new challenge names
     __challenge_to_attribute = {
         Challenge.SCHOSEL: 'kings_game_points',
         Challenge.LOSER: 'oldfashioned_points',
@@ -223,9 +226,12 @@ class User(db.Model):
         # These are all dictionaries
         bets_points = [bet.points() for bet in self.bets]
 
-        challenge_points = {challenge: sum(bet_points[challenge] for bet_points in bets_points)
+        champion_points = self.champion_correct * self.champion.team.odds
+
+        challenge_points = {challenge: sum(bet_points[challenge] for bet_points in bets_points) + champion_points
                             for challenge in Challenge}
 
+        # TODO: Update database schema to use new challenge names
         self.kings_game_points = challenge_points[Challenge.SCHOSEL]
         self.oldfashioned_points = challenge_points[Challenge.LOSER]
         self.underdog_points = challenge_points[Challenge.UNDERDOG]
