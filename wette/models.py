@@ -16,7 +16,7 @@ class Outcome(enum.Enum):
 
 class Challenge(enum.Enum):
     SCHOSEL = 1
-    OLDFASHIONED = 2
+    LOSER = 2
     UNDERDOG = 3
     BALANCED = 4
     SECRET = 5
@@ -68,7 +68,7 @@ class Bet(db.Model):
         first_goal_scored_different_from_outcome = self.match.first_goal != self.outcome
 
         return {Challenge.SCHOSEL: points,
-                Challenge.OLDFASHIONED: base_factor,
+                Challenge.LOSER: base_factor,
                 Challenge.UNDERDOG: base_factor * is_highest_odds,
                 Challenge.BALANCED: base_factor * is_draw,
                 Challenge.SECRET: base_factor * first_goal_scored_different_from_outcome}
@@ -214,7 +214,7 @@ class User(db.Model):
 
     __challenge_to_attribute = {
         Challenge.SCHOSEL: 'kings_game_points',
-        Challenge.OLDFASHIONED: 'oldfashioned_points',
+        Challenge.LOSER: 'oldfashioned_points',
         Challenge.UNDERDOG: 'underdog_points',
         Challenge.BALANCED: 'balanced_points',
         Challenge.SECRET: 'secret_points',
@@ -229,7 +229,7 @@ class User(db.Model):
                             for challenge in Challenge}
 
         self.kings_game_points = challenge_points[Challenge.SCHOSEL]
-        self.oldfashioned_points = challenge_points[Challenge.OLDFASHIONED]
+        self.oldfashioned_points = challenge_points[Challenge.LOSER]
         self.underdog_points = challenge_points[Challenge.UNDERDOG]
         self.balanced_points = challenge_points[Challenge.BALANCED]
         self.secret_points = challenge_points[Challenge.SECRET]
