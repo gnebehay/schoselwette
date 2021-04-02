@@ -35,7 +35,7 @@ def confirm_payment(user_id):
     for match in matches:
         match.compute_odds(num_players)
 
-    #    send_mail_template('payment_confirmed.eml', recipients=[user.email], user=user)
+    common.send_mail_template('payment_confirmed.eml', recipients=[user.email], user=user)
 
     return flask.jsonify(success=True)
 
@@ -119,7 +119,8 @@ def outcome(match_id):
         'type': 'object',
         'properties': {
             'goalsTeam1': {'type': 'int'},
-            'goalsTeam2': {'type': 'int'}
+            'goalsTeam2': {'type': 'int'},
+            'firstGoal': {'type': 'string', 'enum': [outcome.value for outcome in models.Outcome]} # optional
         },
         'required': ['goalsTeam1', 'goalsTeam2']}
 
@@ -131,6 +132,9 @@ def outcome(match_id):
 
     match.goals_team1 = posted_outcome['goalsTeam1']
     match.goals_team2 = posted_outcome['goalsTeam2']
+
+    if 'firstGoal' in posted_outcome:
+        match.firstGoal = posted_outcome['firstGoal']
 
     users = common.query_paying_users()
     for user in users:

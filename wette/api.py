@@ -43,7 +43,6 @@ def register():
 
     user.create_missing_bets()
 
-    # TODO: email
     common.send_mail_template('welcome.eml', recipients=[user.email], user=user)
 
     # TODO: reenable this
