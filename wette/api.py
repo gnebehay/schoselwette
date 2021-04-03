@@ -43,7 +43,6 @@ def register():
 
     user.create_missing_bets()
 
-    # TODO: email
     common.send_mail_template('welcome.eml', recipients=[user.email], user=user)
 
     # TODO: reenable this
@@ -382,7 +381,8 @@ def apify_user(user,
          'user_id': user.id,
          'name': user.name,
          'reward': 0,
-         'visible_supertips': user.supertips}
+         'paid': user.paid,
+         'visible_superbets': user.supertips}
 
     if include_champion:
         d['champion'] = apify_team(user.champion) if user.champion is not None else None

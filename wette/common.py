@@ -23,6 +23,7 @@ def send_mail_template(tpl, recipients, **kwargs):
     except:
         print('Tried to send mail, did not work.')
         print(msg)
+    print('Message sent successfully.')
 
 
 def validate(post, schema):

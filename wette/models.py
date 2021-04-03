@@ -15,11 +15,11 @@ class Outcome(enum.Enum):
 
 
 class Challenge(enum.Enum):
-    KINGS_GAME = 1
-    OLDFASHIONED = 2
+    SCHOSEL = 1
+    LOSER = 2
     UNDERDOG = 3
     BALANCED = 4
-    SECRET = 5
+    COMEBACK = 5
 
 
 class Status(enum.Enum):
@@ -55,23 +55,22 @@ class Bet(db.Model):
     def correct(self):
         return self.valid and self.outcome == self.match.outcome
 
+    # TODO: Unit test
     def points(self):
 
         if not self.correct:
             return {challenge: 0.0 for challenge in Challenge}
 
-        base_factor = int(1 + self.supertip)
-        points = base_factor * self.match.odds[self.outcome]
+        points = int(1 + self.supertip) * self.match.odds[self.outcome]
 
         is_highest_odds = self.match.odds[self.outcome] == max(self.match.odds.values())
         is_draw = self.outcome == Outcome.DRAW
-        first_goal_scored_different_from_outcome = self.match.first_goal != self.outcome
 
-        return {Challenge.KINGS_GAME: points,
-                Challenge.OLDFASHIONED: base_factor,
-                Challenge.UNDERDOG: base_factor * is_highest_odds,
-                Challenge.BALANCED: base_factor * is_draw,
-                Challenge.SECRET: base_factor * first_goal_scored_different_from_outcome}
+        return {Challenge.SCHOSEL: self.correct * points,
+                Challenge.LOSER: (not self.correct) * points,
+                Challenge.UNDERDOG: (self.correct and is_highest_odds) * points,
+                Challenge.BALANCED: (self.correct and is_draw) * points,
+                Challenge.COMEBACK: (self.correct and self.match.first_goal != self.outcome and not is_draw) * points}
 
 
 class Match(db.Model):
@@ -117,6 +116,7 @@ class Match(db.Model):
             Outcome.TEAM2_WIN: self.odds_team2,
         }
 
+    # TODO: Unit test
     # Sets the odds properties
     def compute_odds(self, num_players):
 
@@ -212,12 +212,13 @@ class User(db.Model):
 
     MAX_SUPERTIPS = 8
 
+    # TODO: Update database schema to use new challenge names
     __challenge_to_attribute = {
-        Challenge.KINGS_GAME: 'kings_game_points',
-        Challenge.OLDFASHIONED: 'oldfashioned_points',
+        Challenge.SCHOSEL: 'kings_game_points',
+        Challenge.LOSER: 'oldfashioned_points',
         Challenge.UNDERDOG: 'underdog_points',
         Challenge.BALANCED: 'balanced_points',
-        Challenge.SECRET: 'secret_points',
+        Challenge.COMEBACK: 'secret_points',
     }
 
     def compute_points(self):
@@ -225,14 +226,17 @@ class User(db.Model):
         # These are all dictionaries
         bets_points = [bet.points() for bet in self.bets]
 
-        challenge_points = {challenge: sum(bet_points[challenge] for bet_points in bets_points)
+        champion_points = self.champion_correct * self.champion.team.odds
+
+        challenge_points = {challenge: sum(bet_points[challenge] for bet_points in bets_points) + champion_points
                             for challenge in Challenge}
 
-        self.kings_game_points = challenge_points[Challenge.KINGS_GAME]
-        self.oldfashioned_points = challenge_points[Challenge.OLDFASHIONED]
+        # TODO: Update database schema to use new challenge names
+        self.kings_game_points = challenge_points[Challenge.SCHOSEL]
+        self.oldfashioned_points = challenge_points[Challenge.LOSER]
         self.underdog_points = challenge_points[Challenge.UNDERDOG]
         self.balanced_points = challenge_points[Challenge.BALANCED]
-        self.secret_points = challenge_points[Challenge.SECRET]
+        self.secret_points = challenge_points[Challenge.COMEBACK]
 
     def points_for_challenge(self, challenge):
         return self.__getattribute__(self.__challenge_to_attribute[challenge])
