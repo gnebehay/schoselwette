@@ -210,7 +210,7 @@ class User(db.Model):
     # Backreffed relationships:
     # -bets
 
-    MAX_SUPERBETS = 8
+    MAX_SUPERTIPS = 8
 
     __challenge_to_attribute = {
         Challenge.KINGS_GAME: 'kings_game_points',
