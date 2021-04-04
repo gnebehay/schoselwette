@@ -253,7 +253,7 @@ class User(db.Model):
     # Backreffed relationships:
     # -bets
 
-    MAX_SUPERBETS = 8
+    MAX_SUPERTIPS = 8
 
     # TODO: Update database schema to use new challenge names
     __challenge_to_attribute = {

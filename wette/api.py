@@ -113,6 +113,17 @@ def users_api():
     return flask.jsonify(user_entries)
 
 
+@app.route('/api/teams')
+@login_required
+def teams_api():
+    teams = common.query_teams()
+
+    team_entries = [apify_team(team)
+                    for team in teams]
+
+    return flask.jsonify(team_entries)
+
+
 @app.route('/api/matches')
 @login_required
 def matches_api():
@@ -247,9 +258,9 @@ def bet_api(match_id):
         'type': 'object',
         'properties': {
             'outcome': {'type': 'string', 'enum': [outcome.value for outcome in models.Outcome]},
-            'superbet': {'type': 'boolean'}
+            'supertip': {'type': 'boolean'}
         },
-        'required': ['outcome', 'superbet']}
+        'required': ['outcome', 'supertip']}
 
     posted_bet = flask.request.get_json()
 
@@ -275,12 +286,12 @@ def bet_api(match_id):
     posted_outcome = posted_bet['outcome']
     if posted_outcome:
         bet.outcome = models.Outcome(posted_outcome)
-    bet.superbet = posted_bet['superbet']
+    bet.supertip = posted_bet['supertip']
 
     num_supertips = sum([bet.supertip for bet in current_user.bets])
 
     # Check if supertips are available
-    if num_supertips > models.User.MAX_SUPERBETS:
+    if num_supertips > models.User.MAX_SUPERTIPS:
         # TODO: doesn't abort always cause a rollback?
         db.rollback()
         flask.abort(418)
@@ -397,6 +408,9 @@ def apify_user(user,
 
     if include_private_bets:
         d['private_bets'] = apify_matches_with_bets(user.bets)
+        d['first_name'] = user.first_name
+        d['last_name'] = user.last_name
+        d['email'] = user.email
 
     if include_scores:
 
@@ -448,7 +462,7 @@ def apify_match(match):
 
 def apify_bet(bet):
     d = {'outcome': bet.outcome.value if bet.outcome is not None else None,
-         'superbet': bet.supertip}
+         'supertip': bet.supertip}
 
     points_by_challenge = bet.points()
 

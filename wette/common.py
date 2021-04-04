@@ -48,7 +48,18 @@ def query_paying_users():
     return users
 
 
+def query_teams():
+    teams = models.Team.query \
+        .all()
+    return teams
+
+
 def is_before_tournament_start():
+
+    # TODO: Tom, remove next line
+    # return True
+
+
     first_match = models.Match.query.order_by('date').first()
 
     if first_match is None:
