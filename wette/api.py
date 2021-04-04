@@ -393,6 +393,9 @@ def apify_user(user,
 
     if include_private_bets:
         d['private_bets'] = apify_matches_with_bets(user.bets)
+        d['first_name'] = user.first_name
+        d['last_name'] = user.last_name
+        d['email'] = user.email
 
     # TODO: This should probably not be here
     if include_scores_for_users is not None:
