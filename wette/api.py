@@ -185,61 +185,6 @@ def challenge_api(challenge_id):
 
     return flask.jsonify(d)
 
-
-# @app.route('/api/matches/<int:match_id>')
-# @login_required
-# def match_api(match_id):
-#    try:
-#        match = models.Match.query \
-#            .options(joinedload(models.Match.bets).joinedload(models.Bet.user)) \
-#            .options(joinedload(models.Match.team1)) \
-#            .options(joinedload(models.Match.team2)) \
-#            .filter_by(id=match_id).one()
-#    except sqlalchemy.orm.exc.NoResultFound:
-#        flask.abort(404)
-#
-#    matches_json = flask.jsonify(match.apify(bets=True))
-#
-#    return matches_json
-
-
-# @app.route('/api/users/<int:user_id>')
-# @login_required
-# def user_api(user_id):
-#    user = models.User.query \
-#        .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team1)) \
-#        .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team2)) \
-#        .options(joinedload(models.User.expert_team)) \
-#        .filter_by(id=user_id) \
-#        .one_or_none()
-#
-#    if user is None:
-#        flask.abort(404)
-#
-#    user_json = flask.jsonify(user.apify(bets=True))
-#
-#    return user_json
-
-
-# @app.route('/api/bets')
-# @login_required
-# def bets_api():
-#     current_user = flask_login.current_user
-#
-#     bets = models.Bet.query.filter_by(user_id=current_user.id) \
-#         .options(
-#         joinedload(models.Bet.match).
-#             joinedload(models.Match.team1)) \
-#         .options(
-#         joinedload(models.Bet.match).
-#             joinedload(models.Match.team2)) \
-#         .all()
-#
-#     bets_json = flask.jsonify([bet.apify(match=True) for bet in bets])
-#
-#     return bets_json
-
-
 @app.route('/api/bets/<int:match_id>', methods=['POST'])
 @login_required
 def bet_api(match_id):
