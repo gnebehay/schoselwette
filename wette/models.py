@@ -83,6 +83,7 @@ class Bet(db.Model):
     user_id = sa.Column(sa.Integer, sa.ForeignKey('users.id'))
     match_id = sa.Column(sa.Integer, sa.ForeignKey('matches.id'))
     outcome = sa.Column(sa.Enum(Outcome, values_callable=_get_values))
+    # TODO: Rename to superbet
     supertip = sa.Column(sa.Boolean, default=False, nullable=False)
 
     match = sa.orm.relationship('Match', backref='bets')
@@ -240,9 +241,6 @@ class User(db.Model):
     paid = sa.Column(sa.Boolean, nullable=False, default=False)
     admin = sa.Column(sa.Boolean, nullable=False, default=False)
     champion_id = sa.Column(sa.Integer, sa.ForeignKey('teams.id'), nullable=True)
-    # TODO: This is no longer used
-    points = sa.Column(sa.Float, default=0.0, nullable=False)
-    supertips = sa.Column(sa.Integer, default=0, nullable=False)
     kings_game_points = sa.Column(sa.Float, default=0.0, nullable=False)
     oldfashioned_points = sa.Column(sa.Float, default=0.0, nullable=False)
     underdog_points = sa.Column(sa.Float, default=0.0, nullable=False)

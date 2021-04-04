@@ -286,6 +286,7 @@ def bet_api(match_id):
         flask.abort(418)
 
     # Update supertip count in user
+    # TODO: Consider retrieving this dynamically via a column_property
     current_user.supertips = num_supertips
 
     num_users = models.User.query \
@@ -385,8 +386,7 @@ def apify_user(user,
          'user_id': user.id,
          'name': user.name,
          'paid': user.paid,
-         'reward': sum([scoreboards[challenge][user.id].reward for challenge in models.Challenge]) if user.paid else 0.0,
-         'visible_superbets': user.supertips}
+         'reward': sum([scoreboards[challenge][user.id].reward for challenge in models.Challenge]) if user.paid else 0.0}
 
     if include_champion:
         d['champion'] = apify_team(user.champion) if user.champion is not None else None
@@ -400,6 +400,7 @@ def apify_user(user,
         d['first_name'] = user.first_name
         d['last_name'] = user.last_name
         d['email'] = user.email
+        d['superbets_placed'] = len([bet for bet in user.bets if bet.supertip])
 
     # Ranking only works if the user has paid
     if user.paid and include_scores:
