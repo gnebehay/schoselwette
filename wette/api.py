@@ -423,7 +423,7 @@ def apify_user(user,
             scoreboard_entry = scoreboards[challenge][user.id]
 
             challenge_entry['points'] = scoreboard_entry.points
-            challenge_entry['rank'] = scoreboard_entry.rank
+            challenge_entry['rank'] = scoreboard_entry.rank + 1
             challenge_entry['reward'] = scoreboard_entry.reward
             scores.append(challenge_entry)
 
