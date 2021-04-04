@@ -1,3 +1,5 @@
+import collections
+
 import flask
 import flask_login
 
@@ -10,6 +12,12 @@ from . import app
 from . import db
 from . import common
 from . import models
+
+PRIZE_DISTRIBUTION = collections.defaultdict(
+    lambda: 0.0, {
+        0: 0.5,
+        1: 0.3,
+        2: 0.2})
 
 
 @app.route('/api/register', methods=['POST'])
@@ -149,6 +157,29 @@ def matches_api():
 
     return flask.jsonify(d)
 
+# rank -> grouped reward
+def compute_mean_reward(num_users, ranking, rewards):
+
+    unique_relevant_ranks = list(set([rank for rank in ranking if rank > 2]))
+
+    mean_reward = collections.defaultdict(lambda: 0.0)
+
+    # This can be now only 0, 1, 2
+    for unique_rank in unique_relevant_ranks:
+
+        rank_reward_sum = 0.0
+        rank_occurrences = 0
+        for rank, reward in zip(ranking, rewards):
+            if rank == unique_rank:
+                rank_reward_sum += reward
+                rank_occurrences += 1
+
+        mean_reward = rank_reward_sum / rank_occurrences
+
+        mean_reward[unique_rank] = num_users * 10 / 5 * mean_reward
+
+    return mean_reward
+
 
 @app.route('/api/challenge/<int:challenge_id>')
 @login_required
@@ -162,13 +193,19 @@ def challenge_api(challenge_id):
 
     d = apify_challenge(challenge)
 
-    ranking = sorted([user.points_for_challenge(challenge) for user in users], reverse=True)
+    scoreboard = sorted([user.points_for_challenge(challenge) for user in users], reverse=True)
+    ranking = [scoreboard.index(score) for score in scoreboard]
+    rewards = [PRIZE_DISTRIBUTION[rank] for rank in ranking]
+
+    mean_reward_for_rank = compute_mean_reward(len(users), ranking, rewards)
 
     user_entries = []
     for user in users:
         user_entry = apify_user(user)
         user_entry['score'] = user.points_for_challenge(challenge)
-        user_entry['rank'] = ranking.index(user.points_for_challenge(challenge)) + 1
+        rank = scoreboard.index(user.points_for_challenge(challenge))
+        user_entry['rank'] = rank + 1
+        user_entry['reward'] = mean_reward_for_rank[rank]
         user_entries.append(user_entry)
 
     d['users'] = user_entries
@@ -385,7 +422,7 @@ def apify_user(user,
 
     # TODO: This should probably not be here
     if include_scores_for_users is not None:
-        all_other_users = include_scores_for_users
+        all_users = include_scores_for_users
 
         scores = []
         for challenge in models.Challenge:
@@ -395,7 +432,7 @@ def apify_user(user,
 
             # TODO: If there is an outer loop over all users, we are duplicating work here
             ranking = sorted(
-                [other_user.points_for_challenge(challenge) for other_user in all_other_users],
+                [other_user.points_for_challenge(challenge) for other_user in all_users],
                 reverse=True)
             try:
                 rank = ranking.index(user_points_for_challenge) + 1
