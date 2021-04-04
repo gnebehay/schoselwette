@@ -110,9 +110,10 @@ def users_api():
                                include_scores=True)
                     for user in users]
 
-    return flask.jsonify(user_entries)
+    return flask.jsonify(sorted(user_entries, key=lambda user_entry: (user_entry['reward'], user_entry['name'])))
 
 
+# TODO: Remove this
 @app.route('/api/teams')
 @login_required
 def teams_api():

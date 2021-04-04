@@ -48,6 +48,7 @@ def query_paying_users():
     return users
 
 
+# TODO: Remove this
 def query_teams():
     teams = models.Team.query \
         .all()
