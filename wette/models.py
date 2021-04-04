@@ -32,7 +32,7 @@ class Challenge(enum.Enum):
     # TODO: This function might benefit from receiving the scoreboard_entries
     def compute_final_reward(self, num_users, ranking, preliminary_rewards):
 
-        unique_relevant_ranks = list(set([rank for rank in ranking if rank > 2]))
+        unique_relevant_ranks = list(set([rank for rank in ranking if rank <= 2]))
 
         final_reward = collections.defaultdict(lambda: 0.0)
 
@@ -46,9 +46,9 @@ class Challenge(enum.Enum):
                     rank_reward_sum += reward
                     rank_occurrences += 1
 
-            final_reward = rank_reward_sum / rank_occurrences
+            reward = rank_reward_sum / rank_occurrences
 
-            final_reward[unique_rank] = num_users * 10 / 5 * final_reward
+            final_reward[unique_rank] = num_users * 10 / 5 * reward
 
         return final_reward
 
@@ -57,7 +57,7 @@ class Challenge(enum.Enum):
         sorted_users = sorted(users, key= lambda user: user.points_for_challenge(self), reverse=True)
         sorted_points = [user.points_for_challenge(self) for user in sorted_users]
         ranking = [sorted_points.index(points) for points in sorted_points]
-        preliminary_rewards = [PRIZE_DISTRIBUTION[rank] for rank in ranking]
+        preliminary_rewards = [PRIZE_DISTRIBUTION[idx] for idx in range(len(users))]
         final_reward_for_rank = self.compute_final_reward(len(users), ranking, preliminary_rewards)
 
         return {user.id: ScoreboardEntry(points=points, rank=rank, reward=final_reward_for_rank[rank])
@@ -194,7 +194,6 @@ class Match(db.Model):
         return Status.OVER
 
     # Sorts bets
-    #
     @property
     def bets_sorted(self):
         return sorted(self.bets,
@@ -241,6 +240,7 @@ class User(db.Model):
     paid = sa.Column(sa.Boolean, nullable=False, default=False)
     admin = sa.Column(sa.Boolean, nullable=False, default=False)
     champion_id = sa.Column(sa.Integer, sa.ForeignKey('teams.id'), nullable=True)
+    # TODO: This is no longer used
     points = sa.Column(sa.Float, default=0.0, nullable=False)
     supertips = sa.Column(sa.Integer, default=0, nullable=False)
     kings_game_points = sa.Column(sa.Float, default=0.0, nullable=False)
