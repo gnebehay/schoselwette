@@ -1,5 +1,6 @@
 import flask
 import flask_login
+import flask_mail
 
 import hashlib
 
@@ -45,10 +46,9 @@ def register():
 
     common.send_mail_template('welcome.eml', recipients=[user.email], user=user)
 
-    # TODO: reenable this
-    # flask_app.send_mail(flask_mail.Message('Neuer Schoselwetter',
-    #                             body=str(user),
-    #                             recipients=[app.config['ADMIN_MAIL']]))
+    common.send_mail(flask_mail.Message('Neuer Schoselwetter',
+                                body=str(user),
+                                recipients=app.config['ADMIN_MAILS']))
 
     return flask.jsonify(success=True)
 
