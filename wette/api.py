@@ -1,5 +1,3 @@
-import collections
-
 import flask
 import flask_login
 
@@ -12,12 +10,6 @@ from . import app
 from . import db
 from . import common
 from . import models
-
-PRIZE_DISTRIBUTION = collections.defaultdict(
-    lambda: 0.0, {
-        0: 0.5,
-        1: 0.3,
-        2: 0.2})
 
 
 @app.route('/api/register', methods=['POST'])
@@ -109,10 +101,13 @@ def logout():
 def users_api():
     users = common.query_paying_users()
 
+    scoreboards = {challenge: challenge.calculate_scoreboard(users) for challenge in models.Challenge}
+
     user_entries = [apify_user(user,
+                               scoreboards,
                                include_public_bets=True,
                                include_champion=True,
-                               include_scores_for_users=users)
+                               include_scores=True)
                     for user in users]
 
     return flask.jsonify(user_entries)
@@ -157,28 +152,6 @@ def matches_api():
 
     return flask.jsonify(d)
 
-# rank -> grouped reward
-def compute_mean_reward(num_users, ranking, rewards):
-
-    unique_relevant_ranks = list(set([rank for rank in ranking if rank > 2]))
-
-    mean_reward = collections.defaultdict(lambda: 0.0)
-
-    # This can be now only 0, 1, 2
-    for unique_rank in unique_relevant_ranks:
-
-        rank_reward_sum = 0.0
-        rank_occurrences = 0
-        for rank, reward in zip(ranking, rewards):
-            if rank == unique_rank:
-                rank_reward_sum += reward
-                rank_occurrences += 1
-
-        mean_reward = rank_reward_sum / rank_occurrences
-
-        mean_reward[unique_rank] = num_users * 10 / 5 * mean_reward
-
-    return mean_reward
 
 
 @app.route('/api/challenge/<int:challenge_id>')
@@ -191,21 +164,21 @@ def challenge_api(challenge_id):
 
     users = common.query_paying_users()
 
+    scoreboards = {challenge: challenge.calculate_scoreboard(users) for challenge in models.Challenge}
+
     d = apify_challenge(challenge)
 
-    scoreboard = sorted([user.points_for_challenge(challenge) for user in users], reverse=True)
-    ranking = [scoreboard.index(score) for score in scoreboard]
-    rewards = [PRIZE_DISTRIBUTION[rank] for rank in ranking]
-
-    mean_reward_for_rank = compute_mean_reward(len(users), ranking, rewards)
+    scoreboard = scoreboards[challenge]
 
     user_entries = []
     for user in users:
-        user_entry = apify_user(user)
-        user_entry['score'] = user.points_for_challenge(challenge)
-        rank = scoreboard.index(user.points_for_challenge(challenge))
-        user_entry['rank'] = rank + 1
-        user_entry['reward'] = mean_reward_for_rank[rank]
+        user_entry = apify_user(user, scoreboards)
+
+        scoreboard_entry = scoreboard[user]
+
+        user_entry['score'] = scoreboard_entry.points
+        user_entry['rank'] = scoreboard_entry.rank + 1
+        user_entry['reward'] = scoreboard_entry.reward
         user_entries.append(user_entry)
 
     d['users'] = user_entries
@@ -371,6 +344,8 @@ def status_api():
 
     users = common.query_paying_users()
 
+    scoreboards = {challenge: challenge.calculate_scoreboard(users) for challenge in models.Challenge}
+
     teams = models.Team.query.order_by(models.Team.name)
     groups = sorted(list({team.group for team in teams}))
 
@@ -380,9 +355,10 @@ def status_api():
     s = {'stages': stages,
          'groups': groups,
          'user': apify_user(current_user,
+                            scoreboards,
                             include_private_bets=True,
                             include_champion=True,
-                            include_scores_for_users=users),
+                            include_scores=True),
          'teams': [apify_team(team) for team in teams],
          'champion_editable': common.is_before_tournament_start()}
 
@@ -390,10 +366,12 @@ def status_api():
 
 
 def apify_user(user,
+               scoreboards,
                include_public_bets=False,
                include_private_bets=False,
                include_champion=False,
-               include_scores_for_users=None):
+               include_scores=False):
+
     def apify_matches_with_bets(bets):
         matches_with_bets = []
         for bet in bets:
@@ -406,8 +384,8 @@ def apify_user(user,
          'avatar': 'https://api.hello-avatar.com/adorables/400/' + user.name,
          'user_id': user.id,
          'name': user.name,
-         'reward': 0,
          'paid': user.paid,
+         'reward': sum([scoreboards[challenge][user].reward for challenge in models.Challenge]),
          'visible_superbets': user.supertips}
 
     if include_champion:
@@ -420,29 +398,17 @@ def apify_user(user,
     if include_private_bets:
         d['private_bets'] = apify_matches_with_bets(user.bets)
 
-    # TODO: This should probably not be here
-    if include_scores_for_users is not None:
-        all_users = include_scores_for_users
+    if include_scores:
 
         scores = []
         for challenge in models.Challenge:
             challenge_entry = apify_challenge(challenge)
 
-            user_points_for_challenge = user.points_for_challenge(challenge)
+            scoreboard_entry = scoreboards[challenge][user]
 
-            # TODO: If there is an outer loop over all users, we are duplicating work here
-            ranking = sorted(
-                [other_user.points_for_challenge(challenge) for other_user in all_users],
-                reverse=True)
-            try:
-                rank = ranking.index(user_points_for_challenge) + 1
-            except ValueError:
-                # This happens when there are no paid users at all
-                rank = 1
-
-            challenge_entry['points'] = user_points_for_challenge
-            challenge_entry['rank'] = rank
-
+            challenge_entry['points'] = scoreboard_entry.points
+            challenge_entry['rank'] = scoreboard_entry.rank
+            challenge_entry['reward'] = scoreboard_entry.reward
             scores.append(challenge_entry)
 
         d['scores'] = scores

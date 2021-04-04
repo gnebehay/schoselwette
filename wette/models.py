@@ -8,6 +8,14 @@ import sqlalchemy_utils as sa_utils
 from . import db
 
 
+PRIZE_DISTRIBUTION = collections.defaultdict(
+    lambda: 0.0, {
+        0: 0.5,
+        1: 0.3,
+        2: 0.2})
+
+ScoreboardEntry = collections.namedtuple('ScoreboardEntry', ['points', 'rank', 'reward'])
+
 class Outcome(enum.Enum):
     TEAM1_WIN = '1'
     DRAW = 'X'
@@ -20,6 +28,41 @@ class Challenge(enum.Enum):
     UNDERDOG = 3
     BALANCED = 4
     COMEBACK = 5
+
+    # TODO: This function might benefit from receiving the scoreboard_entries
+    def compute_final_reward(self, num_users, ranking, preliminary_rewards):
+
+        unique_relevant_ranks = list(set([rank for rank in ranking if rank > 2]))
+
+        final_reward = collections.defaultdict(lambda: 0.0)
+
+        # This can be now only 0, 1, 2
+        for unique_rank in unique_relevant_ranks:
+
+            rank_reward_sum = 0.0
+            rank_occurrences = 0
+            for rank, reward in zip(ranking, preliminary_rewards):
+                if rank == unique_rank:
+                    rank_reward_sum += reward
+                    rank_occurrences += 1
+
+            final_reward = rank_reward_sum / rank_occurrences
+
+            final_reward[unique_rank] = num_users * 10 / 5 * final_reward
+
+        return final_reward
+
+    def calculate_scoreboard(self, users):
+
+        sorted_users = sorted(users, key= lambda user: user.points_for_challenge(self), reverse=True)
+        sorted_points = [user.points_for_challenge(self) for user in sorted_users]
+        ranking = [sorted_points.index(points) for points in sorted_points]
+        preliminary_rewards = [PRIZE_DISTRIBUTION[rank] for rank in ranking]
+        final_reward_for_rank = self.compute_final_reward(len(users), ranking, preliminary_rewards)
+
+        return {user: ScoreboardEntry(points=points, rank=rank, reward=final_reward_for_rank[rank])
+                for user, points, rank in zip(sorted_users, sorted_points, ranking)}
+
 
 
 class Status(enum.Enum):

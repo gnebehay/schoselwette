@@ -180,6 +180,7 @@ def users():
     return users
 
 
+# TODO: This is not updated yet
 @app.route('/api/admin/make_champion/<int:team_id>')
 @login_required
 def make_champion(team_id):
@@ -194,5 +195,7 @@ def make_champion(team_id):
             team.champion = True
         else:
             team.champion = False
+
+    # TODO: Update points
 
     return flask.redirect('scoreboard')
