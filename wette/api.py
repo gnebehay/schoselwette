@@ -186,7 +186,7 @@ def challenge_api(challenge_id):
     for user in users:
         user_entry = apify_user(user, scoreboards)
 
-        scoreboard_entry = scoreboard[user]
+        scoreboard_entry = scoreboard[user.id]
 
         user_entry['score'] = scoreboard_entry.points
         user_entry['rank'] = scoreboard_entry.rank + 1
@@ -397,7 +397,7 @@ def apify_user(user,
          'user_id': user.id,
          'name': user.name,
          'paid': user.paid,
-         'reward': sum([scoreboards[challenge][user].reward for challenge in models.Challenge]),
+         'reward': sum([scoreboards[challenge][user.id].reward for challenge in models.Challenge]) if user.paid else 0.0,
          'visible_superbets': user.supertips}
 
     if include_champion:
@@ -413,13 +413,14 @@ def apify_user(user,
         d['last_name'] = user.last_name
         d['email'] = user.email
 
-    if include_scores:
+    # Ranking only works if the user has paid
+    if user.paid and include_scores:
 
         scores = []
         for challenge in models.Challenge:
             challenge_entry = apify_challenge(challenge)
 
-            scoreboard_entry = scoreboards[challenge][user]
+            scoreboard_entry = scoreboards[challenge][user.id]
 
             challenge_entry['points'] = scoreboard_entry.points
             challenge_entry['rank'] = scoreboard_entry.rank

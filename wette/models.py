@@ -60,7 +60,7 @@ class Challenge(enum.Enum):
         preliminary_rewards = [PRIZE_DISTRIBUTION[rank] for rank in ranking]
         final_reward_for_rank = self.compute_final_reward(len(users), ranking, preliminary_rewards)
 
-        return {user: ScoreboardEntry(points=points, rank=rank, reward=final_reward_for_rank[rank])
+        return {user.id: ScoreboardEntry(points=points, rank=rank, reward=final_reward_for_rank[rank])
                 for user, points, rank in zip(sorted_users, sorted_points, ranking)}
 
 
