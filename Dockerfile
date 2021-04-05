@@ -9,6 +9,8 @@ WORKDIR /app
 # Copy the current directory contents into the container at /app
 COPY . /app
 
+ENV PYTHONUNBUFFERED 1
+
 RUN pip install -r requirements.txt
 RUN pip install gunicorn==20.0.*
 
