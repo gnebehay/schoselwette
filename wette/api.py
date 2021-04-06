@@ -327,7 +327,7 @@ def apify_user(user,
         return matches_with_bets
 
     d = {'admin': user.admin,
-         'avatar': 'https://api.hello-avatar.com/adorables/400/' + user.name,
+         'avatar': 'https://schosel.net/adorables/400/' + user.name,
          'user_id': user.id,
          'name': user.name,
          'paid': user.paid,
