@@ -220,19 +220,17 @@ def bet_api(match_id):
     posted_outcome = posted_bet['outcome']
     if posted_outcome:
         bet.outcome = models.Outcome(posted_outcome)
-    bet.superbet = posted_bet['superbet']
+    # TODO: Rename to superbet
+    bet.supertip = posted_bet['superbet']
 
-    num_supertips = sum([bet.supertip for bet in current_user.bets])
+    # TODO: Rename to superbet
+    num_superbets = sum([bet.supertip for bet in current_user.bets])
 
     # Check if supertips are available
-    if num_supertips > models.User.MAX_SUPERBETS:
+    if num_superbets > models.User.MAX_SUPERBETS:
         # TODO: doesn't abort always cause a rollback?
         db.rollback()
         flask.abort(418)
-
-    # Update supertip count in user
-    # TODO: Consider retrieving this dynamically via a column_property
-    current_user.supertips = num_supertips
 
     num_users = models.User.query \
         .filter(models.User.paid) \
