@@ -10,10 +10,7 @@ from . import models
 from . import mail
 
 
-def send_mail_template(tpl, recipients, **kwargs):
-    rendered_mail = flask.render_template('mail/' + tpl, **kwargs)
-    subject = rendered_mail.splitlines()[0]
-    body = '\n'.join(rendered_mail.splitlines()[1:])
+def send_mail(subject, body, recipients):
 
     msg = flask_mail.Message(subject=subject, body=body, recipients=recipients)
 
@@ -24,6 +21,14 @@ def send_mail_template(tpl, recipients, **kwargs):
         print('Tried to send mail, did not work.')
         print(msg)
     print('Message sent successfully.')
+
+
+def send_mail_template(tpl, recipients, **kwargs):
+    rendered_mail = flask.render_template('mail/' + tpl, **kwargs)
+    subject = rendered_mail.splitlines()[0]
+    body = '\n'.join(rendered_mail.splitlines()[1:])
+
+    send_mail(subject=subject, body=body, recipients=recipients)
 
 
 def validate(post, schema):
