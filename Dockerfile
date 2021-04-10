@@ -16,4 +16,4 @@ RUN pip install gunicorn==20.0.*
 # Copy the current directory contents into the container at /app
 COPY . /app
 
-CMD gunicorn -b 0.0.0.0:8000 wette:app
+CMD ./entrypoint.sh

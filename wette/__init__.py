@@ -8,6 +8,7 @@ import flask_login
 import sqlalchemy
 import logging
 
+from flask_migrate import Migrate
 
 logging.basicConfig()
 
@@ -32,8 +33,11 @@ engine = sqlalchemy.create_engine(
 
 db = flask_sqlalchemy.SQLAlchemy(app)
 
-logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+migrate = Migrate(app, db)
 
+# logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+
+# TODO: flask-sqlalchemy does something similar already
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     try:
