@@ -98,7 +98,13 @@ def logout():
 @app.route('/api/users')
 @login_required
 def users_api():
-    users = common.query_paying_users()
+
+    users = models.User.query \
+        .options(joinedload(models.User.champion)) \
+        .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team1)) \
+        .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team2)) \
+        .filter(models.User.paid) \
+        .all()
 
     scoreboards = {challenge: challenge.calculate_scoreboard(users) for challenge in models.Challenge}
 
@@ -285,7 +291,17 @@ def champion_api():
 def status_api():
     current_user = flask_login.current_user
 
-    users = common.query_paying_users()
+    users = models.User.query \
+        .options(joinedload(models.User.champion)) \
+        .filter(models.User.paid) \
+        .all()
+
+    current_user = models.User.query \
+        .options(joinedload(models.User.champion)) \
+        .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team1)) \
+        .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team2)) \
+        .filter_by(id=current_user.id) \
+        .one()
 
     scoreboards = {challenge: challenge.calculate_scoreboard(users) for challenge in models.Challenge}
 
