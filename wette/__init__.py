@@ -10,6 +10,12 @@ import logging
 
 from flask_migrate import Migrate
 
+
+def merge_env_config(config_key):
+    env_config_value  = os.environ.get(config_key)
+    if env_config_value is not None:
+        app.config[config_key] = env_config_value
+
 logging.basicConfig()
 
 # Create flask app
@@ -18,18 +24,17 @@ app = flask.Flask(__name__)
 # Load the config file
 app.config.from_pyfile('config.py')
 
-mail = flask_mail.Mail(app)
-
-_env_db_uri = os.environ.get("DB_URI")
-
-if _env_db_uri is not None:
-    app.config['SQLALCHEMY_DATABASE_URI'] = _env_db_uri
+merge_env_config('SQLALCHEMY_DATABASE_URI')
+merge_env_config('FOOTBALL_API_KEY')
 
 # Establish database connection
 engine = sqlalchemy.create_engine(
     app.config['SQLALCHEMY_DATABASE_URI'],
     convert_unicode=True,
     pool_recycle=3600)
+
+
+mail = flask_mail.Mail(app)
 
 db = flask_sqlalchemy.SQLAlchemy(app)
 
@@ -62,9 +67,7 @@ def load_user(user_id):
 
 from . import api # noqa
 from . import admin # noqa
-
-#
-## TODO: Add some more explanation here what all of this is good for
+from . import sync # noqa
 
 
 # Enable CORS, if requested
@@ -73,6 +76,3 @@ if 'ALLOWED_ORIGINS' in app.config:
    print('CORS support enabled')
 
    flask_cors.CORS(app, origins=app.config['ALLOWED_ORIGINS'], supports_credentials=True)
-
-   # logging.getLogger('flask_cors').level = logging.DEBUG
-

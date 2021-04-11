@@ -6,14 +6,15 @@ EXPOSE 8000
 # Set the working directory to /app
 WORKDIR /app
 
-COPY ./requirements.txt /app/requirements.txt
-
-ENV PYTHONUNBUFFERED 1
-
-RUN pip install -r requirements.txt
 RUN pip install gunicorn==20.0.*
+
+COPY ./requirements.txt /app/requirements.txt
+RUN pip install -r requirements.txt
 
 # Copy the current directory contents into the container at /app
 COPY . /app
 
-CMD ./entrypoint.sh
+ENV PYTHONUNBUFFERED 1
+ENV FLASK_APP wette
+
+CMD gunicorn -b 0.0.0.0:8000 wette:app

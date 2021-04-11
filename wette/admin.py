@@ -63,6 +63,14 @@ def match():
     if validation_result is not None:
         return validation_result
 
+    process_match(posted_match)
+
+    return flask.jsonify(success=True)
+
+
+# TODO: This should probably be in a separate module
+def process_match(posted_match):
+
     # Make sure that we store UTC dates
     try:
         match_datetime = datetime.fromisoformat(posted_match['dateTime'])
@@ -70,20 +78,16 @@ def match():
             match_datetime.replace(tzinfo=timezone.utc)
         match_datetime.astimezone(timezone.utc)
     except ValueError as e:
+        # TODO: This doesn't make sense if we run this as a one-off CLI job
         flask.abort(400, str(e))
-
     team1_db = models.Team.query.filter_by(name=posted_match['team1Name']).one_or_none()
     team2_db = models.Team.query.filter_by(name=posted_match['team2Name']).one_or_none()
-
     if team1_db is None or team2_db is None:
         flask.abort(404, "Team not found.")
-
     posted_stage = posted_match['stage']
-
     match_db = models.Match.query.filter_by(
         team1=team1_db, team2=team2_db, stage=posted_stage) \
         .one_or_none()
-
     if match_db is None:
         match_db = models.Match(team1=team1_db, team2=team2_db, stage=posted_stage, date=match_datetime)
         db.session.add(match_db)
@@ -99,8 +103,6 @@ def match():
         print('Match ' + str(match_db) + ' already in database.')
 
         match_db.date = match_datetime
-
-    return flask.jsonify(success=True)
 
 
 @app.route('/api/admin/outcome/<int:match_id>', methods=['POST'])

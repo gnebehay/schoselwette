@@ -1,6 +1,5 @@
 import flask
 import flask_login
-import flask_mail
 
 import hashlib
 
