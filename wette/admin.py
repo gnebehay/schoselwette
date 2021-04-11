@@ -82,14 +82,33 @@ def process_match(posted_match):
         flask.abort(400, str(e))
     team1_db = models.Team.query.filter_by(name=posted_match['team1Name']).one_or_none()
     team2_db = models.Team.query.filter_by(name=posted_match['team2Name']).one_or_none()
-    if team1_db is None or team2_db is None:
-        flask.abort(404, "Team not found.")
+    if team1_db is None:
+        team1_db = models.Team()
+        team1_db.name = posted_match['team1Name']
+        team1_db.short_name = ''
+        team1_db.group = 'A'
+        team1_db.champion = False
+        team1_db.odds = 0
+
+        db.session.add(team1_db)
+    if team2_db is None:
+        team2_db = models.Team()
+        team2_db.name = posted_match['team2Name']
+        team2_db.short_name = ''
+        team2_db.group = 'A'
+        team2_db.champion = False
+        team2_db.odds = 0
+
+        db.session.add(team2_db)
+
     posted_stage = posted_match['stage']
     match_db = models.Match.query.filter_by(
         team1=team1_db, team2=team2_db, stage=posted_stage) \
         .one_or_none()
     if match_db is None:
         match_db = models.Match(team1=team1_db, team2=team2_db, stage=posted_stage, date=match_datetime)
+        if 'fixture_id' in posted_match:
+            match_db.fixture_id = posted_match['fixture_id']
         db.session.add(match_db)
         print('Insert: ' + str(match_db))
 
@@ -99,10 +118,15 @@ def process_match(posted_match):
             print('Creating missing bets for ' + str(user))
             user.create_missing_bets()
 
+        # TODO: Send email to admins here
+
     else:
         print('Match ' + str(match_db) + ' already in database.')
 
         match_db.date = match_datetime
+
+        if 'fixture_id' in posted_match:
+            match_db.fixture_id = posted_match['fixture_id']
 
 
 @app.route('/api/admin/outcome/<int:match_id>', methods=['POST'])
@@ -122,7 +146,8 @@ def outcome(match_id):
         'properties': {
             'goalsTeam1': {'type': 'int'},
             'goalsTeam2': {'type': 'int'},
-            'firstGoal': {'type': 'string', 'enum': [outcome.value for outcome in models.Outcome]} # optional
+            'firstGoal': {'type': 'string', 'enum': [outcome.value for outcome in models.Outcome]}, # optional
+            'over': {'type': 'boolean'},
         },
         'required': ['goalsTeam1', 'goalsTeam2']}
 
@@ -137,6 +162,9 @@ def outcome(match_id):
 
     if 'firstGoal' in posted_outcome:
         match.firstGoal = posted_outcome['firstGoal']
+
+    if 'over' in posted_outcome:
+        match.over = posted_outcome['over']
 
     users = common.query_paying_users()
     for user in users:

@@ -138,7 +138,6 @@ def matches_api():
 
     user_bets_by_match_id = {user_bet.match_id: user_bet for user_bet in user_bets}
 
-    # TODO: This is not sufficient
     matches = models.Match.query \
         .options(joinedload(models.Match.team1)) \
         .options(joinedload(models.Match.team2)) \

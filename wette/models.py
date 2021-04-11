@@ -132,6 +132,7 @@ class Match(db.Model):
     odds_team1 = sa.Column(sa.Float, default=0.0, nullable=False)
     odds_draw = sa.Column(sa.Float, default=0.0, nullable=False)
     odds_team2 = sa.Column(sa.Float, default=0.0, nullable=False)
+    fixture_id = sa.Column(sa.Integer, nullable=True)
 
     team1 = sa.orm.relationship('Team', foreign_keys=[team1_id])
     team2 = sa.orm.relationship('Team', foreign_keys=[team2_id])
@@ -208,7 +209,7 @@ class Team(db.Model):
 
     id = sa.Column(sa.Integer, primary_key=True)
     name = sa.Column(sa.String(128), nullable=False, unique=True)
-    short_name = sa.Column(sa.String(3), nullable=False, unique=True)
+    short_name = sa.Column(sa.String(3), nullable=False)
     group = sa.Column(sa.String(1), nullable=False)
     champion = sa.Column(sa.Boolean, default=False, nullable=False)
     odds = sa.Column(sa.Float, nullable=False)
