@@ -207,7 +207,7 @@ def users():
 
         response.append(d)
 
-    return users
+    return flask.jsonify(response)
 
 
 # TODO: This is not updated yet
