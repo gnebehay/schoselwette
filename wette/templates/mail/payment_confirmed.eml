@@ -2,8 +2,8 @@ Zahlung erfolgreich / Payment confirmed
 Liebe(r) {{ user.name }},
 
 deine Zahlung ist hiermit bestätigt.
-Um immer auf dem neuesten Stand zu sein, empfehlen wir dir noch unserer Signalgruppe beizutreten:
-https://signal.group/#CjQKIBu5vIgiQ1gRWM37XcmvnF3u58nUjTWcF-Wk7BAMC3EFEhBlTjGNRYK8_AnVt8FngBgc
+Um immer auf dem neuesten Stand zu bleiben, empfehlen wir dir noch unserer Signalgruppe beizutreten:
+https://bit.ly/3aigIWv
 
 Viel Spass beim Tippen!
 
@@ -13,6 +13,6 @@ Dear {{ user.name }},
 
 your payment has been confirmed.
 To stay up to date, we recommend joining our Signal group:
-https://signal.group/#CjQKIBu5vIgiQ1gRWM37XcmvnF3u58nUjTWcF-Wk7BAMC3EFEhBlTjGNRYK8_AnVt8FngBgc
+https://bit.ly/3aigIWv
 
 Happy betting!
