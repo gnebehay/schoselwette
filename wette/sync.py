@@ -11,6 +11,8 @@ from sqlalchemy.orm import joinedload
 @app.cli.command("sync_matches")
 def sync_matches():
 
+    print('Syncing matches')
+
     fixtures = request_fixtures()
 
     for fixture in fixtures:
@@ -22,10 +24,13 @@ def sync_matches():
             'fixture_id': fixture['fixture_id']}
 
         admin.process_match(match)
+    print('Syncing matches done')
 
 
 @app.cli.command("sync_outcomes")
 def sync_outcomes():
+
+    print('Syncing outcomes')
 
     matches = models.Match.query \
         .options(joinedload(models.Match.team1)) \
@@ -36,7 +41,10 @@ def sync_outcomes():
 
     # We only continue if there is a match ongoing so that we do not waste API calls.
     if not live_matches:
+        print('No live matches, stopping.')
         return
+
+    print('Requesting fixtures from football api.')
 
     fixtures = request_fixtures()
 
@@ -65,8 +73,9 @@ def sync_outcomes():
                 pass
 
                 # TODO In this case we don't know anything and should ask admins for help
+                # But watch out that we only send this once
 
-
+    print('Syncing outcomes done')
 
 
 

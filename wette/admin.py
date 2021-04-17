@@ -203,11 +203,12 @@ def users():
         d = {'admin': user.admin,
              'paid': user.paid,
              'user_id': user.id,
+             'email': user.email,
              'name': user.name}
 
         response.append(d)
 
-    return users
+    return flask.jsonify(response)
 
 
 # TODO: This is not updated yet
