@@ -1,7 +1,9 @@
+import hashlib
+import random
+import string
+
 import flask
 import flask_login
-
-import hashlib
 
 from flask_login import login_required
 from sqlalchemy.orm import joinedload
@@ -321,6 +323,14 @@ def status_api():
 
     return flask.jsonify(s)
 
+@app.route('/api/avatar', methods=['POST'])
+@login_required
+def randomize_avatar():
+    avatar_salt = ''.join(random.choice(string.ascii_lowercase) for x in range(8))
+    current_user = flask_login.current_user
+    current_user.avatar_salt = avatar_salt
+
+    return flask.jsonify(success=True)
 
 def apify_user(user,
                scoreboards,
@@ -338,7 +348,7 @@ def apify_user(user,
         return matches_with_bets
 
     d = {'admin': user.admin,
-         'avatar': 'https://schosel.net/adorables/400/' + user.name,
+         'avatar': 'https://schosel.net/adorables/400/' + user.name + user.avatar_salt,
          'user_id': user.id,
          'name': user.name,
          'paid': user.paid,

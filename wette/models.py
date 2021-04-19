@@ -239,6 +239,7 @@ class User(db.Model):
     email_hash = sa.Column(sa.String(320), nullable=False, unique=True)
     first_name = sa.Column(sa.String(64), nullable=False)
     last_name = sa.Column(sa.String(64), nullable=False)
+    avatar_salt = sa.Column(sa.String(64), nullable=False, default='')
     password = sa.Column(sa.String(64), nullable=False)
     paid = sa.Column(sa.Boolean, nullable=False, default=False)
     admin = sa.Column(sa.Boolean, nullable=False, default=False)
