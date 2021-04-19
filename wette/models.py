@@ -29,6 +29,7 @@ class Challenge(enum.Enum):
     BALANCED = 4
     COMEBACK = 5
 
+    # TODO: This function gives currently incorrect results if num_users == 1 or num_users == 2
     # TODO: This function might benefit from receiving the scoreboard_entries
     def compute_final_reward(self, num_users, ranking, preliminary_rewards):
 

@@ -1,5 +1,5 @@
 Zahlung erfolgreich / Payment confirmed
-Liebe(r) {{ user.name }},
+Hey {{ user.name }},
 
 deine Zahlung ist hiermit bestätigt.
 Um immer auf dem neuesten Stand zu bleiben, empfehlen wir dir noch unserer Signalgruppe beizutreten:
@@ -9,7 +9,7 @@ Viel Spass beim Tippen!
 
 ------
 
-Dear {{ user.name }},
+Hey {{ user.name }},
 
 your payment has been confirmed.
 To stay up to date, we recommend joining our Signal group:

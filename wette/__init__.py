@@ -26,6 +26,7 @@ app.config.from_pyfile('config.py')
 
 merge_env_config('SQLALCHEMY_DATABASE_URI')
 merge_env_config('FOOTBALL_API_KEY')
+merge_env_config('FOOTBALL_API_LEAGUE')
 
 # Establish database connection
 engine = sqlalchemy.create_engine(

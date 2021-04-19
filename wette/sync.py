@@ -57,6 +57,10 @@ def sync_outcomes():
         live_match.goals_team1 = fixture['goalsHomeTeam']
         live_match.goals_team2 = fixture['goalsAwayTeam']
 
+        # It can happen that the match has started, but the api does not have any score yet
+        if live_match.goals_team1 is None or live_match.goals_team2 is None:
+            continue
+
         if fixture['status'] == 'Match Finished':
             live_match.over = True
 
