@@ -270,7 +270,10 @@ class User(db.Model):
         # These are all dictionaries
         bets_points = [bet.points() for bet in self.bets]
 
-        champion_points = self.champion_correct * self.champion.team.odds
+        if self.champion is not None:
+            champion_points = self.champion_correct * self.champion.team.odds
+        else:
+            champion_points = 0
 
         challenge_points = {challenge: sum(bet_points[challenge] for bet_points in bets_points) + champion_points
                             for challenge in Challenge}

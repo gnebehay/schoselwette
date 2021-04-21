@@ -323,6 +323,7 @@ def status_api():
 
     return flask.jsonify(s)
 
+
 @app.route('/api/avatar', methods=['POST'])
 @login_required
 def randomize_avatar():
@@ -331,6 +332,7 @@ def randomize_avatar():
     current_user.avatar_salt = avatar_salt
 
     return flask.jsonify(success=True)
+
 
 def apify_user(user,
                scoreboards,
