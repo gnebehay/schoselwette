@@ -103,6 +103,9 @@ class Bet(db.Model):
     # TODO: Unit test
     def points(self):
 
+        if not self.valid:
+            return {challenge: 0.0 for challenge in Challenge}
+
         points = int(1 + self.supertip) * self.match.odds[self.outcome]
 
         is_highest_odds = self.match.odds[self.outcome] == max(self.match.odds.values())
