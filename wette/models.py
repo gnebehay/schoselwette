@@ -175,6 +175,13 @@ class Match(db.Model):
         for o in counter.keys():
             counter[o] = num_players / counter[o]  # num_players is always greater than counter
 
+        if Outcome.TEAM1_WIN not in counter.keys():
+            counter[Outcome.TEAM1_WIN] = 1.0
+        if Outcome.DRAW not in counter.keys():
+            counter[Outcome.DRAW] = 1.0
+        if Outcome.TEAM2_WIN not in counter.keys():
+            counter[Outcome.TEAM2_WIN] = 1.0
+
         self.odds_team1 = counter[Outcome.TEAM1_WIN]
         self.odds_draw = counter[Outcome.DRAW]
         self.odds_team2 = counter[Outcome.TEAM2_WIN]
