@@ -271,7 +271,7 @@ class User(db.Model):
         bets_points = [bet.points() for bet in self.bets]
 
         if self.champion is not None:
-            champion_points = self.champion_correct * self.champion.team.odds
+            champion_points = self.champion_correct * self.champion.odds
         else:
             champion_points = 0
 
