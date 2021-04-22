@@ -80,9 +80,9 @@ def sync_outcomes():
                 # TODO In this case we don't know anything and should ask admins for help
                 # But watch out that we only send this once
 
-        users = common.query_paying_users()
-        for user in users:
-            user.compute_points()
+    users = common.query_paying_users()
+    for user in users:
+        user.compute_points()
 
     print('Syncing outcomes done')
 

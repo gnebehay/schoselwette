@@ -144,8 +144,8 @@ def outcome(match_id):
     outcome_schema = {
         'type': 'object',
         'properties': {
-            'goalsTeam1': {'type': 'int'},
-            'goalsTeam2': {'type': 'int'},
+            'goalsTeam1': {'type': 'integer'},
+            'goalsTeam2': {'type': 'integer'},
             'firstGoal': {'type': 'string', 'enum': [outcome.value for outcome in models.Outcome]}, # optional
             'over': {'type': 'boolean'},
         },

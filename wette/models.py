@@ -103,9 +103,6 @@ class Bet(db.Model):
     # TODO: Unit test
     def points(self):
 
-        if not self.correct:
-            return {challenge: 0.0 for challenge in Challenge}
-
         points = int(1 + self.supertip) * self.match.odds[self.outcome]
 
         is_highest_odds = self.match.odds[self.outcome] == max(self.match.odds.values())
@@ -168,6 +165,8 @@ class Match(db.Model):
 
         # Retrieve all valid outcomes for this match
         valid_outcomes = [bet.outcome for bet in self.bets if bet.valid]
+
+        # TODO: We should assign a value also to outcomes that noone has better for.
 
         # Count individual outcomes
         counter = collections.Counter(valid_outcomes)
