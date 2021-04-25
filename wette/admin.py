@@ -230,3 +230,23 @@ def make_champion(team_id):
     # TODO: Update points
 
     return flask.redirect('scoreboard')
+
+
+@app.route('/api/admin/recompute', methods=['POST'])
+def recompute():
+
+    if not flask_login.current_user.admin:
+        flask.abort(403)
+
+    users = common.query_paying_users()
+    matches = models.Match.query.all()
+
+    num_players = len(users)
+
+    for match in matches:
+        match.compute_odds(num_players)
+
+    for user in users:
+        user.compute_points()
+
+    return flask.jsonify(success=True)
