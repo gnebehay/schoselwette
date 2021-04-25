@@ -134,6 +134,7 @@ class Match(db.Model):
     odds_draw = sa.Column(sa.Float, default=0.0, nullable=False)
     odds_team2 = sa.Column(sa.Float, default=0.0, nullable=False)
     fixture_id = sa.Column(sa.Integer, nullable=True)
+    api_data = sa.Column(sa.JSON, nullable=True)
 
     team1 = sa.orm.relationship('Team', foreign_keys=[team1_id])
     team2 = sa.orm.relationship('Team', foreign_keys=[team2_id])
@@ -179,11 +180,11 @@ class Match(db.Model):
             counter[o] = num_players / counter[o]  # num_players is always greater than counter
 
         if Outcome.TEAM1_WIN not in counter.keys():
-            counter[Outcome.TEAM1_WIN] = 1.0
+            counter[Outcome.TEAM1_WIN] = num_players
         if Outcome.DRAW not in counter.keys():
-            counter[Outcome.DRAW] = 1.0
+            counter[Outcome.DRAW] = num_players
         if Outcome.TEAM2_WIN not in counter.keys():
-            counter[Outcome.TEAM2_WIN] = 1.0
+            counter[Outcome.TEAM2_WIN] = num_players
 
         self.odds_team1 = counter[Outcome.TEAM1_WIN]
         self.odds_draw = counter[Outcome.DRAW]

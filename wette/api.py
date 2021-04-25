@@ -409,7 +409,9 @@ def apify_match(match):
          'team2_name': match.team2.name,
          'team2_iso': match.team2.short_name,
          'team2_goals': match.goals_team2,
-         'stage': match.stage}
+         'stage': match.stage,
+         'api_data': match.api_data
+         }
 
     if not match.editable:
         d['odds'] = {models.Outcome.TEAM1_WIN.value: match.odds[models.Outcome.TEAM1_WIN],

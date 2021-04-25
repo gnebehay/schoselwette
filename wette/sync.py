@@ -24,7 +24,7 @@ def sync_matches():
             'dateTime': fixture['event_date'],
             'fixture_id': fixture['fixture_id']}
 
-        admin.process_match(match)
+        admin.process_match(match, fixture)
     print('Syncing matches done')
 
 
@@ -55,8 +55,11 @@ def sync_outcomes():
 
         fixture = fixtures[live_match.fixture_id]
 
+        live_match.api_data = fixture
+
         live_match.goals_team1 = fixture['goalsHomeTeam']
         live_match.goals_team2 = fixture['goalsAwayTeam']
+
 
         # It can happen that the match has started, but the api does not have any score yet
         if live_match.goals_team1 is None or live_match.goals_team2 is None:

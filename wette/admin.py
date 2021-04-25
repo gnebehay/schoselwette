@@ -69,7 +69,7 @@ def match():
 
 
 # TODO: This should probably be in a separate module
-def process_match(posted_match):
+def process_match(posted_match, fixture=None):
 
     # Make sure that we store UTC dates
     try:
@@ -109,6 +109,8 @@ def process_match(posted_match):
         match_db = models.Match(team1=team1_db, team2=team2_db, stage=posted_stage, date=match_datetime)
         if 'fixture_id' in posted_match:
             match_db.fixture_id = posted_match['fixture_id']
+        if fixture is not None:
+            match_db.api_data = fixture
         db.session.add(match_db)
         print('Insert: ' + str(match_db))
 
@@ -127,6 +129,8 @@ def process_match(posted_match):
 
         if 'fixture_id' in posted_match:
             match_db.fixture_id = posted_match['fixture_id']
+        if fixture is not None:
+            match_db.api_data = fixture
 
 
 @app.route('/api/admin/outcome/<int:match_id>', methods=['POST'])
