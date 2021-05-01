@@ -17,12 +17,12 @@ depends_on = None
 
 
 def upgrade():
-    op.alter_column('users', 'kings_game_points', 'schosel_points')
-    op.alter_column('users', 'oldfashioned_points', 'loser_points')
-    op.alter_column('users', 'secret_points', 'comeback_points')
+    op.alter_column('users', 'kings_game_points', new_column_name='schosel_points', existing_type=sa.Float, existing_nullable=False)
+    op.alter_column('users', 'oldfashioned_points', new_column_name='loser_points', existing_type=sa.Float, existing_nullable=False)
+    op.alter_column('users', 'secret_points', new_column_name='comeback_points', existing_type=sa.Float, existing_nullable=False)
 
 
 def downgrade():
-    op.alter_column('users', 'schosel_points', 'kings_game_points')
-    op.alter_column('users', 'loser_points', 'oldfashioned_points')
-    op.alter_column('users', 'comeback_points', 'secret_points')
+    op.alter_column('users', 'schosel_points', new_column_name='kings_game_points', existing_type=sa.Float, existing_nullable=False)
+    op.alter_column('users', 'loser_points', new_column_name='oldfashioned_points', existing_type=sa.Float, existing_nullable=False)
+    op.alter_column('users', 'comeback_points', new_column_name='secret_points', existing_type=sa.Float, existing_nullable=False)
