@@ -103,7 +103,7 @@ class Bet(db.Model):
     # TODO: Unit test
     def points(self):
 
-        if not self.valid:
+        if not self.valid or self.match.editable:
             return {challenge: 0.0 for challenge in Challenge}
 
         points = int(1 + self.supertip) * self.match.odds[self.outcome]
@@ -254,8 +254,8 @@ class User(db.Model):
     paid = sa.Column(sa.Boolean, nullable=False, default=False)
     admin = sa.Column(sa.Boolean, nullable=False, default=False)
     champion_id = sa.Column(sa.Integer, sa.ForeignKey('teams.id'), nullable=True)
-    kings_game_points = sa.Column(sa.Float, default=0.0, nullable=False)
-    oldfashioned_points = sa.Column(sa.Float, default=0.0, nullable=False)
+    schosel_points = sa.Column(sa.Float, default=0.0, nullable=False)
+    loser_points = sa.Column(sa.Float, default=0.0, nullable=False)
     underdog_points = sa.Column(sa.Float, default=0.0, nullable=False)
     balanced_points = sa.Column(sa.Float, default=0.0, nullable=False)
     secret_points = sa.Column(sa.Float, default=0.0, nullable=False)
@@ -268,11 +268,11 @@ class User(db.Model):
 
     # TODO: Update database schema to use new challenge names
     __challenge_to_attribute = {
-        Challenge.SCHOSEL: 'kings_game_points',
-        Challenge.LOSER: 'oldfashioned_points',
+        Challenge.SCHOSEL: 'schosel_points',
+        Challenge.LOSER: 'loser_points',
         Challenge.UNDERDOG: 'underdog_points',
         Challenge.BALANCED: 'balanced_points',
-        Challenge.COMEBACK: 'secret_points',
+        Challenge.COMEBACK: 'comeback_points',
     }
 
     def compute_points(self):
