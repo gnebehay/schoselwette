@@ -258,8 +258,9 @@ class User(db.Model):
     loser_points = sa.Column(sa.Float, default=0.0, nullable=False)
     underdog_points = sa.Column(sa.Float, default=0.0, nullable=False)
     balanced_points = sa.Column(sa.Float, default=0.0, nullable=False)
-    secret_points = sa.Column(sa.Float, default=0.0, nullable=False)
+    comeback_points = sa.Column(sa.Float, default=0.0, nullable=False)
     champion = sa.orm.relationship('Team', foreign_keys=champion_id, backref='users')
+    reset_token = sa.Column(sa.String(64), nullable=True)
 
     # Backreffed relationships:
     # -bets
@@ -288,12 +289,11 @@ class User(db.Model):
         challenge_points = {challenge: sum(bet_points[challenge] for bet_points in bets_points) + champion_points
                             for challenge in Challenge}
 
-        # TODO: Update database schema to use new challenge names
-        self.kings_game_points = challenge_points[Challenge.SCHOSEL]
-        self.oldfashioned_points = challenge_points[Challenge.LOSER]
+        self.schosel_points = challenge_points[Challenge.SCHOSEL]
+        self.loser_points = challenge_points[Challenge.LOSER]
         self.underdog_points = challenge_points[Challenge.UNDERDOG]
         self.balanced_points = challenge_points[Challenge.BALANCED]
-        self.secret_points = challenge_points[Challenge.COMEBACK]
+        self.comeback_points = challenge_points[Challenge.COMEBACK]
 
     def points_for_challenge(self, challenge):
         return self.__getattribute__(self.__challenge_to_attribute[challenge])

@@ -1,9 +1,11 @@
 from datetime import datetime
 from datetime import timezone
 
+import random
+import string
+
 import flask
 import flask_login
-
 
 from flask_login import login_required
 
@@ -236,6 +238,7 @@ def make_champion(team_id):
     return flask.redirect('scoreboard')
 
 
+@login_required
 @app.route('/api/admin/recompute', methods=['POST'])
 def recompute():
 
@@ -252,5 +255,21 @@ def recompute():
 
     for user in users:
         user.compute_points()
+
+    return flask.jsonify(success=True)
+
+
+@login_required
+@app.route('/api/admin/trigger_password_reset/<int:user_id>', methods=['POST'])
+def trigger_reset_password(user_id):
+
+    if not flask_login.current_user.admin:
+        flask.abort(403)
+
+    user = models.User.query.filter_by(id=user_id).one()
+    # Reset token is set irrespective of previous value
+    user.reset_token = ''.join(random.choice(string.ascii_lowercase) for _ in range(8))
+
+    common.send_mail_template('reset_password.eml', recipients=[user.email], user=user)
 
     return flask.jsonify(success=True)

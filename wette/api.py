@@ -96,6 +96,41 @@ def logout():
     return flask.jsonify(success=True)
 
 
+@app.route('/api/reset_password', methods=['POST'])
+def reset_password():
+
+    reset_password_schema = {
+        'type': 'object',
+        'properties': {
+            'user_id': {'type': 'integer'},
+            'reset_token': {'type': 'string'},
+            'new_password': {'type': 'string', 'minLength': 8}
+        },
+        'required': ['user_id', 'reset_token', 'new_password']}
+
+    posted_json = flask.request.get_json()
+
+    validation_result = common.validate(posted_json, reset_password_schema)
+    if validation_result is not None:
+        return validation_result
+
+    user_id = posted_json['user_id']
+    posted_reset_token = posted_json['reset_token']
+    new_password = posted_json['new_password']
+
+    user = models.User.query.filter_by(id=user_id).one()
+
+    if user.reset_token is None or user.reset_token != posted_reset_token:
+        flask.abort(403)
+
+    salted_password = bytes(app.config['PASSWORD_SALT'] + new_password, 'utf-8')
+    user.password = hashlib.md5(salted_password).hexdigest()
+
+    user.reset_token = None
+
+    return flask.jsonify(success=True)
+
+
 @app.route('/api/users')
 @login_required
 def users_api():
@@ -442,3 +477,4 @@ def apify_bet(bet):
 def apify_challenge(challenge):
     return {'challenge_id': challenge.value,
             'name': challenge.name}
+
