@@ -4,6 +4,7 @@ import string
 
 import flask
 import flask_login
+import sqlalchemy
 
 from flask_login import login_required
 from sqlalchemy.orm import joinedload
@@ -93,6 +94,37 @@ def login():
 @app.route('/api/logout', methods=['POST'])
 def logout():
     flask_login.logout_user()
+    return flask.jsonify(success=True)
+
+
+@app.route('/api/trigger_password_reset', methods=['POST'])
+def trigger_reset_password_user():
+
+    trigger_reset_password_schema = {
+        'type': 'object',
+        'properties': {
+            'email': {'type': 'string'}
+        },
+        'required': ['email']}
+
+    posted_data = flask.request.get_json()
+
+    validation_result = common.validate(posted_data, trigger_reset_password_schema)
+    if validation_result is not None:
+        return validation_result
+
+    email = posted_data['email']
+
+    try:
+        user = models.User.query.filter_by(email=email).one()
+    except sqlalchemy.orm.exc.NoResultFound:
+        flask.abort(404)
+
+    # Reset token is set irrespective of previous value
+    user.reset_token = ''.join(random.choice(string.ascii_lowercase) for _ in range(8))
+
+    common.send_mail_template('reset_password.eml', recipients=[user.email], user=user)
+
     return flask.jsonify(success=True)
 
 

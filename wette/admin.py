@@ -22,8 +22,8 @@ def confirm_payment(user_id):
     if not flask_login.current_user.admin:
         flask.abort(403)
 
-    # if not common.is_before_tournament_start():
-    #     flask.abort(403)
+    if not common.is_before_tournament_start():
+        flask.abort(403)
 
     user = models.User.query.filter_by(id=user_id).one()
 
