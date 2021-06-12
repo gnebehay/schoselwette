@@ -24,6 +24,7 @@ def sync_matches():
             'dateTime': fixture['event_date'],
             'fixture_id': fixture['fixture_id']}
 
+        # This is broken, we should just sync by fixture id
         admin.process_match(match, fixture)
     print('Syncing matches done')
 
