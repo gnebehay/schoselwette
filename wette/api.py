@@ -30,7 +30,11 @@ def register():
     posted_login = flask.request.get_json()
 
     validation_result = common.validate(posted_login, register_schema)
-    if validation_result is not None: return validation_result
+    if validation_result is not None:
+        return validation_result
+
+    if models.User.query.filter_by(email=posted_login['email']).one_or_none() is not None:
+        return {'error': 'Email address is already in use.'}, 400
 
     user = models.User()
     user.email = posted_login['email']
@@ -51,7 +55,7 @@ def register():
     body = '{} {}, {}'.format(user.first_name, user.last_name, user.email)
     common.send_mail(subject='Neuer Schoselwetter', body=body, recipients=app.config['ADMIN_MAILS'])
 
-    return flask.jsonify(success=True)
+    return {'success': True}
 
 
 @app.route('/api/login', methods=['POST'])
