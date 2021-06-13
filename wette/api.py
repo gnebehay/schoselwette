@@ -179,7 +179,7 @@ def users_api():
     user_entries = [apify_user(user,
                                scoreboards,
                                include_public_bets=True,
-                               include_champion=True,
+                               include_champion=not common.is_before_tournament_start(),
                                include_scores=True)
                     for user in users]
 
