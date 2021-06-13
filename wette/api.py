@@ -180,10 +180,12 @@ def users_api():
 
     scoreboards = {challenge: challenge.calculate_scoreboard(users) for challenge in models.Challenge}
 
+    include_champion = not common.is_before_tournament_start()
+
     user_entries = [apify_user(user,
                                scoreboards,
                                include_public_bets=True,
-                               include_champion=not common.is_before_tournament_start(),
+                               include_champion=include_champion,
                                include_scores=True)
                     for user in users]
 
