@@ -210,7 +210,7 @@ def users():
              'paid': user.paid,
              'user_id': user.id,
              'email': user.email,
-             'name': user.name}
+             'name': user.first_name + " " + user.last_name}
 
         response.append(d)
 
