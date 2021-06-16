@@ -108,12 +108,15 @@ class Bet(db.Model):
 
         points = int(1 + self.supertip) * self.match.odds[self.outcome]
 
-        is_highest_odds = self.match.odds[self.outcome] == max(self.match.odds.values())
+        is_highest_odds_without_draw = self.match.odds[self.outcome] == max(
+            self.match.odds[Outcome.TEAM1_WIN],
+            self.match.odds[Outcome.TEAM2_WIN])
+
         is_draw = self.outcome == Outcome.DRAW
 
         return {Challenge.SCHOSEL: self.correct * points,
                 Challenge.LOSER: (not self.correct) * points,
-                Challenge.UNDERDOG: (self.correct and is_highest_odds and not is_draw) * points,
+                Challenge.UNDERDOG: (self.correct and not is_draw and is_highest_odds_without_draw) * points,
                 Challenge.BALANCED: (self.correct and is_draw) * points,
                 Challenge.COMEBACK: (self.correct and self.match.first_goal != self.outcome and not is_draw) * points}
 
