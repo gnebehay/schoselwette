@@ -270,7 +270,6 @@ class User(db.Model):
 
     MAX_SUPERBETS = 8
 
-    # TODO: Update database schema to use new challenge names
     __challenge_to_attribute = {
         Challenge.SCHOSEL: 'schosel_points',
         Challenge.LOSER: 'loser_points',

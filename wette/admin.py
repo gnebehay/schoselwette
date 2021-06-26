@@ -217,25 +217,40 @@ def users():
     return flask.jsonify(response)
 
 
-# TODO: This is not updated yet
-@app.route('/api/admin/make_champion/<int:team_id>')
+@app.route('/api/admin/make_champion', methods=['POST'])
 @login_required
-def make_champion(team_id):
+def make_champion():
 
     if not flask_login.current_user.admin:
         flask.abort(403)
 
+    schema = {
+        'type': 'object',
+        'properties': {
+            'champion_id': {'type': 'integer'},
+        },
+        'required': ['champion_id']}
+
+    posted_data = flask.request.get_json()
+
+    validation_result = common.validate(posted_data, schema)
+    if validation_result is not None:
+        return validation_result
+
+    champion_id = posted_data['champion_id']
+
     teams = models.Team.query.all()
 
     for team in teams:
-        if team.id == team_id:
+        if team.id == champion_id:
             team.champion = True
         else:
             team.champion = False
 
-    # TODO: Update points
+    for user in common.query_paying_users():
+        user.compute_points()
 
-    return flask.redirect('scoreboard')
+    return {'success': True}
 
 
 @login_required
