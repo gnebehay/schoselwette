@@ -4,9 +4,10 @@ import string
 
 import flask
 import flask_login
-import sqlalchemy
+import sqlalchemy as sa
 
 from flask_login import login_required
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 
 from . import app
@@ -33,7 +34,9 @@ def register():
     if validation_result is not None:
         return validation_result
 
-    if models.User.query.filter_by(email=posted_login['email']).one_or_none() is not None:
+    if db.session.execute(
+        sa.select(models.User).filter_by(email=posted_login['email'])
+    ).scalar_one_or_none() is not None:
         return {'error': 'Email address is already in use.'}, 400
 
     user = models.User()
@@ -77,9 +80,9 @@ def login():
     salted_password = bytes(app.config['PASSWORD_SALT'] + posted_login['password'], 'utf-8')
     password_hash = hashlib.md5(salted_password).hexdigest()
 
-    q = models.User.query.filter_by(email=posted_login['email'], password=password_hash)
-
-    user = q.first()
+    user = db.session.execute(
+        sa.select(models.User).filter_by(email=posted_login['email'], password=password_hash)
+    ).scalar()
 
     if user is not None:
 
@@ -120,8 +123,10 @@ def trigger_reset_password_user():
     email = posted_data['email']
 
     try:
-        user = models.User.query.filter_by(email=email).one()
-    except sqlalchemy.orm.exc.NoResultFound:
+        user = db.session.execute(
+            sa.select(models.User).filter_by(email=email)
+        ).scalar_one()
+    except NoResultFound:
         flask.abort(404)
 
     # Reset token is set irrespective of previous value
@@ -154,7 +159,9 @@ def reset_password():
     posted_reset_token = posted_json['reset_token']
     new_password = posted_json['new_password']
 
-    user = models.User.query.filter_by(id=user_id).one()
+    user = db.session.execute(
+        sa.select(models.User).filter_by(id=user_id)
+    ).scalar_one()
 
     if user.reset_token is None or user.reset_token != posted_reset_token:
         flask.abort(403)
@@ -171,12 +178,13 @@ def reset_password():
 @login_required
 def users_api():
 
-    users = models.User.query \
-        .options(joinedload(models.User.champion)) \
-        .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team1)) \
-        .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team2)) \
-        .filter(models.User.paid) \
-        .all()
+    users = db.session.execute(
+        sa.select(models.User)
+        .options(joinedload(models.User.champion))
+        .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team1))
+        .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team2))
+        .where(models.User.paid)
+    ).scalars().unique().all()
 
     scoreboards = {challenge: challenge.calculate_scoreboard(users) for challenge in models.Challenge}
 
@@ -213,10 +221,11 @@ def matches_api():
 
     user_bets_by_match_id = {user_bet.match_id: user_bet for user_bet in user_bets}
 
-    matches = models.Match.query \
-        .options(joinedload(models.Match.team1)) \
-        .options(joinedload(models.Match.team2)) \
-        .all()
+    matches = db.session.execute(
+        sa.select(models.Match)
+        .options(joinedload(models.Match.team1))
+        .options(joinedload(models.Match.team2))
+    ).scalars().unique().all()
 
     live_matches = [match for match in matches if match.status == models.Status.LIVE]
     live_matches_entries = apify_matches(live_matches, user_bets_by_match_id)
@@ -283,9 +292,9 @@ def bet_api(match_id):
     current_user = flask_login.current_user
 
     # TODO: joinedload match
-    bet = models.Bet.query \
-        .filter_by(user_id=current_user.id, match_id=match_id) \
-        .one_or_none()
+    bet = db.session.execute(
+        sa.select(models.Bet).filter_by(user_id=current_user.id, match_id=match_id)
+    ).scalar_one_or_none()
 
     if bet is None:
         flask.abort(404)
@@ -307,12 +316,12 @@ def bet_api(match_id):
     # Check if supertips are available
     if num_superbets > models.User.MAX_SUPERBETS:
         # TODO: doesn't abort always cause a rollback?
-        db.rollback()
+        db.session.rollback()
         flask.abort(418)
 
-    num_users = models.User.query \
-        .filter(models.User.paid) \
-        .count()
+    num_users = db.session.execute(
+        sa.select(sa.func.count()).select_from(models.User).where(models.User.paid)
+    ).scalar()
 
     bet.match.compute_odds(num_users)
 
@@ -342,7 +351,9 @@ def champion_api():
 
     champion_id = posted_champion['champion_id']
 
-    teams = models.Team.query.options(joinedload(models.Team.users)).all()
+    teams = db.session.execute(
+        sa.select(models.Team).options(joinedload(models.Team.users))
+    ).scalars().unique().all()
 
     try:
         current_user.champion = next(team for team in teams if team.id == champion_id)
@@ -363,25 +374,30 @@ def champion_api():
 @login_required
 def status_api():
     current_user = flask_login.current_user
+    current_user_id = current_user.id
 
-    users = models.User.query \
-        .options(joinedload(models.User.champion)) \
-        .filter(models.User.paid) \
-        .all()
+    users = db.session.execute(
+        sa.select(models.User)
+        .options(joinedload(models.User.champion))
+        .where(models.User.paid)
+    ).scalars().all()
 
-    current_user = models.User.query \
-        .options(joinedload(models.User.champion)) \
-        .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team1)) \
-        .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team2)) \
-        .filter_by(id=current_user.id) \
-        .one()
+    current_user = db.session.execute(
+        sa.select(models.User)
+        .options(joinedload(models.User.champion))
+        .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team1))
+        .options(joinedload(models.User.bets).joinedload(models.Bet.match).joinedload(models.Match.team2))
+        .filter_by(id=current_user_id)
+    ).unique().scalar_one()
 
     scoreboards = {challenge: challenge.calculate_scoreboard(users) for challenge in models.Challenge}
 
-    teams = models.Team.query.order_by(models.Team.name)
+    teams = db.session.execute(
+        sa.select(models.Team).order_by(models.Team.name)
+    ).scalars().all()
     groups = sorted(list({team.group for team in teams}))
 
-    matches = models.Match.query
+    matches = db.session.execute(sa.select(models.Match)).scalars().all()
     stages = sorted(list({match.stage for match in matches}))
 
     s = {'stages': stages,
@@ -515,4 +531,3 @@ def apify_bet(bet):
 def apify_challenge(challenge):
     return {'challenge_id': challenge.value,
             'name': challenge.name}
-

@@ -1,13 +1,15 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 import flask
 import flask_mail
 import jsonschema
+import sqlalchemy as sa
 
 from sqlalchemy.orm import joinedload
 
-from . import models
+from . import db
 from . import mail
+from . import models
 
 
 def send_mail(subject, body, recipients):
@@ -17,7 +19,7 @@ def send_mail(subject, body, recipients):
     try:
         msg.sender = 'info@schosel.net'
         mail.send(msg)
-    except:
+    except Exception:
         print('Tried to send mail, did not work.')
         print(msg)
     print('Message sent successfully.')
@@ -46,19 +48,20 @@ def validate(post, schema):
 
 
 def query_paying_users():
-    users = models.User.query \
-        .options(joinedload(models.User.champion)) \
-        .filter(models.User.paid) \
-        .all()
+    users = db.session.execute(
+        sa.select(models.User)
+        .options(joinedload(models.User.champion))
+        .where(models.User.paid)
+    ).scalars().all()
     return users
 
 
 def is_before_tournament_start():
-    first_match = models.Match.query.order_by('date').first()
+    first_match = db.session.execute(
+        sa.select(models.Match).order_by(models.Match.date)
+    ).scalar()
 
     if first_match is None:
         return True
 
-    return first_match.date > datetime.utcnow()
-
-
+    return first_match.date > datetime.now(timezone.utc).replace(tzinfo=None)

@@ -1,12 +1,12 @@
 # Use an official Python runtime as a parent image
-FROM python:3.8-slim
+FROM python:3.13-slim
 
 EXPOSE 8000
 
 # Set the working directory to /app
 WORKDIR /app
 
-RUN pip install gunicorn==20.0.*
+RUN pip install "gunicorn>=23.0"
 
 COPY ./requirements.txt /app/requirements.txt
 RUN pip install -r requirements.txt

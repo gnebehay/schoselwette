@@ -6,6 +6,7 @@ import string
 
 import flask
 import flask_login
+import sqlalchemy as sa
 
 from flask_login import login_required
 
@@ -25,14 +26,18 @@ def confirm_payment(user_id):
     if not common.is_before_tournament_start():
         flask.abort(403)
 
-    user = models.User.query.filter_by(id=user_id).one()
+    user = db.session.execute(
+        sa.select(models.User).filter_by(id=user_id)
+    ).scalar_one()
 
     user.paid = True
 
     # Now all odds have to be recomputed
     # But not the points of the players, because we don't allow registration after the first match starts
-    num_players = models.User.query.filter(models.User.paid).count()
-    matches = models.Match.query.all()
+    num_players = db.session.execute(
+        sa.select(sa.func.count()).select_from(models.User).where(models.User.paid)
+    ).scalar()
+    matches = db.session.execute(sa.select(models.Match)).scalars().all()
 
     for match in matches:
         match.compute_odds(num_players)
@@ -82,8 +87,12 @@ def process_match(posted_match, fixture=None):
     except ValueError as e:
         # TODO: This doesn't make sense if we run this as a one-off CLI job
         flask.abort(400, str(e))
-    team1_db = models.Team.query.filter_by(name=posted_match['team1Name']).one_or_none()
-    team2_db = models.Team.query.filter_by(name=posted_match['team2Name']).one_or_none()
+    team1_db = db.session.execute(
+        sa.select(models.Team).filter_by(name=posted_match['team1Name'])
+    ).scalar_one_or_none()
+    team2_db = db.session.execute(
+        sa.select(models.Team).filter_by(name=posted_match['team2Name'])
+    ).scalar_one_or_none()
     if team1_db is None:
         team1_db = models.Team()
         team1_db.name = posted_match['team1Name']
@@ -104,9 +113,13 @@ def process_match(posted_match, fixture=None):
         db.session.add(team2_db)
 
     posted_stage = posted_match['stage']
-    match_db = models.Match.query.filter_by(
-        team1=team1_db, team2=team2_db, stage=posted_stage) \
-        .one_or_none()
+    match_db = db.session.execute(
+        sa.select(models.Match).where(
+            models.Match.team1_id == team1_db.id,
+            models.Match.team2_id == team2_db.id,
+            models.Match.stage == posted_stage
+        )
+    ).scalar_one_or_none()
     if match_db is None:
         match_db = models.Match(team1=team1_db, team2=team2_db, stage=posted_stage, date=match_datetime)
         if 'fixture_id' in posted_match:
@@ -116,7 +129,7 @@ def process_match(posted_match, fixture=None):
         db.session.add(match_db)
         print('Insert: ' + str(match_db))
 
-        all_users = models.User.query.all()
+        all_users = db.session.execute(sa.select(models.User)).scalars().all()
 
         for user in all_users:
             print('Creating missing bets for ' + str(user))
@@ -142,7 +155,9 @@ def outcome(match_id):
     if not flask_login.current_user.admin:
         flask.abort(403)
 
-    match = models.Match.query.filter_by(id=match_id).one_or_none()
+    match = db.session.execute(
+        sa.select(models.Match).filter_by(id=match_id)
+    ).scalar_one_or_none()
 
     if match is None:
         flask.abort(404)
@@ -186,7 +201,9 @@ def make_admin(user_id):
     if not flask_login.current_user.admin:
         flask.abort(403)
 
-    user = models.User.query.filter(models.User.id == user_id).one()
+    user = db.session.execute(
+        sa.select(models.User).where(models.User.id == user_id)
+    ).scalar_one()
 
     user.admin = True
 
@@ -200,11 +217,11 @@ def users():
     if not flask_login.current_user.admin:
         flask.abort(403)
 
-    users = models.User.query.all()
+    all_users = db.session.execute(sa.select(models.User)).scalars().all()
 
     response = []
 
-    for user in users:
+    for user in all_users:
 
         d = {'admin': user.admin,
              'paid': user.paid,
@@ -239,7 +256,7 @@ def make_champion():
 
     champion_id = posted_data['champion_id']
 
-    teams = models.Team.query.all()
+    teams = db.session.execute(sa.select(models.Team)).scalars().all()
 
     for team in teams:
         if team.id == champion_id:
@@ -261,7 +278,7 @@ def recompute():
         flask.abort(403)
 
     users = common.query_paying_users()
-    matches = models.Match.query.all()
+    matches = db.session.execute(sa.select(models.Match)).scalars().all()
 
     num_players = len(users)
 
@@ -281,7 +298,9 @@ def trigger_reset_password(user_id):
     if not flask_login.current_user.admin:
         flask.abort(403)
 
-    user = models.User.query.filter_by(id=user_id).one()
+    user = db.session.execute(
+        sa.select(models.User).filter_by(id=user_id)
+    ).scalar_one()
     # Reset token is set irrespective of previous value
     user.reset_token = ''.join(random.choice(string.ascii_lowercase) for _ in range(8))
 

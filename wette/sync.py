@@ -1,12 +1,15 @@
-import requests
 import json
+
+import requests
+import sqlalchemy as sa
+
+from sqlalchemy.orm import joinedload
 
 from . import app
 from . import admin
 from . import common
+from . import db
 from . import models
-
-from sqlalchemy.orm import joinedload
 
 
 @app.cli.command("sync_matches")
@@ -34,10 +37,11 @@ def sync_outcomes():
 
     print('Syncing outcomes')
 
-    matches = models.Match.query \
-        .options(joinedload(models.Match.team1)) \
-        .options(joinedload(models.Match.team2)) \
-        .all()
+    matches = db.session.execute(
+        sa.select(models.Match)
+        .options(joinedload(models.Match.team1))
+        .options(joinedload(models.Match.team2))
+    ).scalars().all()
 
     live_matches = [match for match in matches if match.status == models.Status.LIVE and match.fixture_id is not None]
 

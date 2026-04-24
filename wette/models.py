@@ -197,7 +197,7 @@ class Match(db.Model):
     def status(self):
 
         # If the begin time is later than the current time, return SCHEDULED
-        if self.date > datetime.datetime.utcnow():
+        if self.date > datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None):
             return Status.SCHEDULED
 
         # Otherwise, the game has at least started
@@ -311,7 +311,7 @@ class User(db.Model):
 
     def create_missing_bets(self):
 
-        all_matches = Match.query.all()
+        all_matches = db.session.execute(sa.select(Match)).scalars().all()
 
         matches_of_existing_bets = [bet.match for bet in self.bets]
 
