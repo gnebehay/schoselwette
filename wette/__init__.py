@@ -32,7 +32,7 @@ mail = flask_mail.Mail(app)
 
 db = flask_sqlalchemy.SQLAlchemy(app)
 
-migrate = Migrate(app, db)
+migrate = Migrate(app, db, render_as_batch=True)
 
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 

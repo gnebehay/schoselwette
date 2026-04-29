@@ -2,38 +2,44 @@
 
 1) Go to code directory
 ```
-cd code
+cd schoselwette
 ```
 
-2) Copy `wette/config-<sqlite||mysql>-sample.py` to config.py
+2) Copy `wette/config-sqlite-sample.py` to `wette/config.py`
 ```
-cp wette/config-<sqlite||mysql>-sample.py wette/config.py
+cp wette/config-sqlite-sample.py wette/config.py
 ```
 
-3) Edit `wette/config.py` file and replace `<values>` (only first time after cloning repo)
+3) Edit `wette/config.py` and replace placeholder values (only first time after cloning)
 
 4) Create a virtual environment
 ```
 python3 -m venv venv
+source venv/bin/activate
 ```
 
 5) Install dependencies
 ```
-./setup.sh
-
+pip install -r requirements.txt
 ```
 
-6) Active virtual environment
+6) Create/migrate the database
 ```
-./venv/bin/activate
-```
-
-7) Create database
-```
-wette/db_create.py
+flask --app wette db upgrade
 ```
 
-8) Start app
+7) Start the app
 ```
-./run.py
+./run.sh
+```
+
+# How to run with Docker (production)
+
+```
+docker build -t schoselwette .
+docker run -p 8000:8000 \
+  -e SQLALCHEMY_DATABASE_URI="mysql+pymysql://user:pass@host/db" \
+  -e SECRET_KEY="..." \
+  -e PASSWORD_SALT="..." \
+  schoselwette
 ```
