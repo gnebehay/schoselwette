@@ -26,6 +26,8 @@ services:
   schosel-backend:
     image: gnebehay/schoselwette:latest
     restart: unless-stopped
+    volumes:
+      - /home/georg/data:/app/data
     labels:
       traefik.enable: "true"
       traefik.http.routers.schosel-backend_insecure.rule: "Host(\"schosel.net\") || Host(\"www.schosel.net\") && PathPrefix(`/api`)"
@@ -36,7 +38,7 @@ services:
       traefik.http.routers.schosel-backend.tls.certresolver: myresolver
       traefik.http.services.schosel-backend.loadbalancer.server.port: "8000"
     environment:
-      SQLALCHEMY_DATABASE_URI: "sqlite:////home/georg/app.db"
+      SQLALCHEMY_DATABASE_URI: "sqlite:////app/data/app.db"
       FOOTBALL_API_KEY: ${FOOTBALL_API_KEY}
     networks:
       - traefik-network
