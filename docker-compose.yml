@@ -19,7 +19,6 @@ services:
     restart: unless-stopped
     volumes:
       - ${SCHOSEL_HTML:-/home/georg/deploy/schosel-frontend}:/usr/share/nginx/html:ro
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
     labels:
       traefik.http.routers.schosel-frontend_insecure.rule: "Host(`schosel.net`, `www.schosel.net`)"
       traefik.http.routers.schosel-frontend_insecure.middlewares: redirect-to-https
