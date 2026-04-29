@@ -1,17 +1,45 @@
 services:
 
+  traefik:
+    image: traefik:latest
+    restart: unless-stopped
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.email=${ACME_EMAIL:-gnebehay@gmail.com}"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./letsencrypt:/letsencrypt
+    networks:
+      - traefik-network
+
   schosel-backend:
     image: gnebehay/schoselwette:latest
     restart: unless-stopped
     labels:
+      traefik.enable: "true"
       traefik.http.routers.schosel-backend_insecure.rule: "Host(`schosel.net`, `www.schosel.net`) && PathPrefix(`/api`)"
       traefik.http.routers.schosel-backend_insecure.middlewares: redirect-to-https
+      traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: https
       traefik.http.routers.schosel-backend.rule: "Host(`schosel.net`, `www.schosel.net`) && PathPrefix(`/api`)"
       traefik.http.routers.schosel-backend.tls: "true"
       traefik.http.routers.schosel-backend.tls.certresolver: myresolver
+      traefik.http.services.schosel-backend.loadbalancer.server.port: "8000"
     environment:
       SQLALCHEMY_DATABASE_URI: "sqlite:////home/georg/app.db"
       FOOTBALL_API_KEY: ${FOOTBALL_API_KEY}
+    networks:
+      - traefik-network
     build: .
 
   schosel-frontend:
@@ -20,11 +48,16 @@ services:
     volumes:
       - ${SCHOSEL_HTML:-/home/georg/deploy/schosel-frontend}:/usr/share/nginx/html:ro
     labels:
+      traefik.enable: "true"
       traefik.http.routers.schosel-frontend_insecure.rule: "Host(`schosel.net`, `www.schosel.net`)"
       traefik.http.routers.schosel-frontend_insecure.middlewares: redirect-to-https
+      traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: https
       traefik.http.routers.schosel-frontend.rule: "Host(`schosel.net`, `www.schosel.net`)"
       traefik.http.routers.schosel-frontend.tls: "true"
       traefik.http.routers.schosel-frontend.tls.certresolver: myresolver
+      traefik.http.services.schosel-frontend.loadbalancer.server.port: "80"
+    networks:
+      - traefik-network
 
   postfix:
     image: juanluisbaptiste/postfix
@@ -36,3 +69,9 @@ services:
       SMTP_USERNAME: ${SMTP_USERNAME}
       SMTP_PASSWORD: ${SMTP_PASSWORD}
       SERVER_HOSTNAME: schosel.net
+    networks:
+      - traefik-network
+
+networks:
+  traefik-network:
+    driver: bridge
