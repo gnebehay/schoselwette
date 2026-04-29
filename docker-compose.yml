@@ -46,7 +46,7 @@ services:
     image: nginx:stable
     restart: unless-stopped
     volumes:
-      - ${SCHOSEL_HTML:-/home/georg/deploy/schosel-frontend}:/usr/share/nginx/html:ro
+      - ${SCHOSEL_HTML:-/home/georg/deploy/schosel-frontend/dist}:/usr/share/nginx/html:ro
     labels:
       traefik.enable: "true"
       traefik.http.routers.schosel-frontend_insecure.rule: "Host(\"schosel.net\") || Host(\"www.schosel.net\")"
