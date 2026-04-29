@@ -1,40 +1,39 @@
-version: '3.3'
 services:
 
-    schosel-frontend:
-        image: nginx:stable
-        restart: unless-stopped
-        volumes:
-            - ${SCHOSEL_HTML:-/home/xonic/schosel-frontend}:/usr/share/nginx/html:ro
-            - ./nginx.conf:/etc/nginx/nginx.conf:ro
-        labels:
-            - traefik.http.routers.schosel-frontend_insecure.rule=Host(`schosel.net`, `www.schosel.net`)
-            - traefik.http.routers.schosel-frontend_insecure.middlewares=redirect-to-https
-            - traefik.http.routers.schosel-frontend.rule=Host(`schosel.net`, `www.schosel.net`)
-            - traefik.http.routers.schosel-frontend.tls=true
-            - traefik.http.routers.schosel-frontend.tls.certresolver=myresolver
+  schosel-backend:
+    image: gnebehay/schoselwette:latest
+    restart: unless-stopped
+    labels:
+      traefik.http.routers.schosel-backend_insecure.rule: "Host(`schosel.net`, `www.schosel.net`) && PathPrefix(`/api`)"
+      traefik.http.routers.schosel-backend_insecure.middlewares: redirect-to-https
+      traefik.http.routers.schosel-backend.rule: "Host(`schosel.net`, `www.schosel.net`) && PathPrefix(`/api`)"
+      traefik.http.routers.schosel-backend.tls: "true"
+      traefik.http.routers.schosel-backend.tls.certresolver: myresolver
+    environment:
+      SQLALCHEMY_DATABASE_URI: "sqlite:////home/georg/app.db"
+      FOOTBALL_API_KEY: ${FOOTBALL_API_KEY}
+    build: .
 
-    schosel-backend:
-        image: gnebehay/schoselwette:latest
-        restart: unless-stopped
-        labels:
-            - traefik.http.routers.schosel-backend_insecure.rule=Host(`schosel.net`, `www.schosel.net`) && PathPrefix(`/api`)
-            - traefik.http.routers.schosel-backend_insecure.middlewares=redirect-to-https
-            - traefik.http.routers.schosel-backend.rule=Host(`schosel.net`, `www.schosel.net`) && PathPrefix(`/api`)
-            - traefik.http.routers.schosel-backend.tls=true
-            - traefik.http.routers.schosel-backend.tls.certresolver=myresolver
-        environment:
-            - SQLALCHEMY_DATABASE_URI = 'sqlite:///home/georg/db/app.db'
-            - FOOTBALL_API_KEY=${FOOTBALL_API_KEY}
-        build: .
+  schosel-frontend:
+    image: nginx:stable
+    restart: unless-stopped
+    volumes:
+      - ${SCHOSEL_HTML:-/home/georg/deploy/schosel-frontend}:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    labels:
+      traefik.http.routers.schosel-frontend_insecure.rule: "Host(`schosel.net`, `www.schosel.net`)"
+      traefik.http.routers.schosel-frontend_insecure.middlewares: redirect-to-https
+      traefik.http.routers.schosel-frontend.rule: "Host(`schosel.net`, `www.schosel.net`)"
+      traefik.http.routers.schosel-frontend.tls: "true"
+      traefik.http.routers.schosel-frontend.tls.certresolver: myresolver
 
-    postfix:
-        image: juanluisbaptiste/postfix
-        restart: unless-stopped
-        ports:
-            - 127.0.0.1:25:25
-        environment:
-           - SMTP_SERVER=smtp.sendgrid.net
-           - SMTP_USERNAME = ${SMTP_USERNAME}
-           - SMTP_PASSWORD= ${SMTP_PASSWORD}
-           - SERVER_HOSTNAME=schosel.net
+  postfix:
+    image: juanluisbaptiste/postfix
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1:25:25
+    environment:
+      SMTP_SERVER: smtp.sendgrid.net
+      SMTP_USERNAME: ${SMTP_USERNAME}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SERVER_HOSTNAME: schosel.net
