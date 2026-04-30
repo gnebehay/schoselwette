@@ -19,10 +19,10 @@ def send_mail(subject, body, recipients):
     try:
         msg.sender = 'info@schosel.net'
         mail.send(msg)
+        print('Message sent successfully.')
     except Exception:
         print('Tried to send mail, did not work.')
         print(msg)
-    print('Message sent successfully.')
 
 
 def send_mail_template(tpl, recipients, **kwargs):

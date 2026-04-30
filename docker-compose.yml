@@ -61,19 +61,6 @@ services:
     networks:
       - traefik-network
 
-  postfix:
-    image: juanluisbaptiste/postfix
-    restart: unless-stopped
-    ports:
-      - 127.0.0.1:25:25
-    environment:
-      SMTP_SERVER: smtp.sendgrid.net
-      SMTP_USERNAME: ${SMTP_USERNAME}
-      SMTP_PASSWORD: ${SMTP_PASSWORD}
-      SERVER_HOSTNAME: schosel.net
-    networks:
-      - traefik-network
-
 networks:
   traefik-network:
     driver: bridge
