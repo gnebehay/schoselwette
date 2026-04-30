@@ -1,34 +1,37 @@
 services:
 
   traefik:
-    image: traefik:3.1
+    image: traefik:latest
     restart: unless-stopped
     command:
+      - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
-      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-      - "--certificatesresolvers.myresolver.acme.email=gnebehay@gmail.com"
+      - "--certificatesresolvers.myresolver.acme.email=${ACME_EMAIL:-gnebehay@gmail.com}"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
       - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
       - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
     ports:
       - "80:80"
       - "443:443"
+      - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./letsencrypt:/letsencrypt
 
   schosel-backend:
+    image: gnebehay/schosel-backend:latest
     restart: unless-stopped
     volumes:
       - /home/georg/data:/app/data
     labels:
       traefik.enable: "true"
+      traefik.http.routers.schosel-backend_insecure.rule: "(Host(\"schosel.net\") || Host(\"www.schosel.net\")) && PathPrefix(`/api`)"
+      traefik.http.routers.schosel-backend_insecure.middlewares: redirect-to-https
+      traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: https
       traefik.http.routers.schosel-backend.rule: "(Host(\"schosel.net\") || Host(\"www.schosel.net\")) && PathPrefix(`/api`)"
-      traefik.http.routers.schosel-backend.entrypoints: websecure
       traefik.http.routers.schosel-backend.tls: "true"
       traefik.http.routers.schosel-backend.tls.certresolver: myresolver
       traefik.http.services.schosel-backend.loadbalancer.server.port: "8000"
@@ -38,11 +41,14 @@ services:
     build: .
 
   schosel-frontend:
+    image: gnebehay/schosel-frontend:stable
     restart: unless-stopped
     labels:
       traefik.enable: "true"
+      traefik.http.routers.schosel-frontend_insecure.rule: "Host(\"schosel.net\") || Host(\"www.schosel.net\")"
+      traefik.http.routers.schosel-frontend_insecure.middlewares: redirect-to-https
+      traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: https
       traefik.http.routers.schosel-frontend.rule: "Host(\"schosel.net\") || Host(\"www.schosel.net\")"
-      traefik.http.routers.schosel-frontend.entrypoints: websecure
       traefik.http.routers.schosel-frontend.tls: "true"
       traefik.http.routers.schosel-frontend.tls.certresolver: myresolver
       traefik.http.services.schosel-frontend.loadbalancer.server.port: "80"
