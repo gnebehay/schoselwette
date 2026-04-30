@@ -52,3 +52,4 @@ services:
       traefik.http.routers.schosel-frontend.tls: "true"
       traefik.http.routers.schosel-frontend.tls.certresolver: myresolver
       traefik.http.services.schosel-frontend.loadbalancer.server.port: "80"
+    build: ../schosel-frontend
