@@ -41,7 +41,7 @@ services:
     build: .
 
   schosel-frontend:
-    image: gnebehay/schosel-frontend:stable
+    image: gnebehay/schosel-frontend:latest
     restart: unless-stopped
     labels:
       traefik.enable: "true"
