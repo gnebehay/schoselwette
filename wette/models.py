@@ -322,6 +322,7 @@ class User(db.Model):
             bet = Bet()
             bet.user = self
             bet.match = match
+            db.session.add(bet)
 
     @property
     def name(self):

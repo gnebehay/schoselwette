@@ -129,9 +129,6 @@ def process_match(posted_match, fixture=None):
         db.session.add(match_db)
         print('Insert: ' + str(match_db))
 
-        all_users = db.session.execute(sa.select(models.User)).scalars().all()
-
-
     else:
         print('Match ' + str(match_db) + ' already in database.')
 
@@ -142,6 +139,7 @@ def process_match(posted_match, fixture=None):
         if fixture is not None:
             match_db.api_data = fixture
 
+    all_users = db.session.execute(sa.select(models.User)).scalars().all()
     for user in all_users:
         print('Creating missing bets for ' + str(user))
         user.create_missing_bets()
