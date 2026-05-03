@@ -131,11 +131,6 @@ def process_match(posted_match, fixture=None):
 
         all_users = db.session.execute(sa.select(models.User)).scalars().all()
 
-        for user in all_users:
-            print('Creating missing bets for ' + str(user))
-            user.create_missing_bets()
-
-        # TODO: Send email to admins here
 
     else:
         print('Match ' + str(match_db) + ' already in database.')
@@ -146,6 +141,12 @@ def process_match(posted_match, fixture=None):
             match_db.fixture_id = posted_match['fixture_id']
         if fixture is not None:
             match_db.api_data = fixture
+
+    for user in all_users:
+        print('Creating missing bets for ' + str(user))
+        user.create_missing_bets()
+
+        # TODO: Send email to admins here
 
 
 @app.route('/api/admin/outcome/<int:match_id>', methods=['POST'])
