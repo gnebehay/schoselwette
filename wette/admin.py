@@ -143,7 +143,6 @@ def process_match(posted_match, fixture=None):
 
     all_users = db.session.execute(sa.select(models.User)).scalars().all()
     for user in all_users:
-        print('Creating missing bets for ' + str(user))
         user.create_missing_bets()
 
     return new_match_created

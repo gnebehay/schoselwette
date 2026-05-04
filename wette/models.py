@@ -319,6 +319,7 @@ class User(db.Model):
                                 if match not in matches_of_existing_bets]
 
         for match in matches_without_bets:
+            print('Creating missing bets for ' + str(self))
             bet = Bet()
             bet.user = self
             bet.match = match
