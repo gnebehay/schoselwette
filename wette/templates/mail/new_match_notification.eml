@@ -1,0 +1,14 @@
+Neue Spiele / Neew matches
+Hey {{ user.name }},
+
+es gibt neue Spiele, auf die du tippen kannst!
+
+Viel Spass beim Tippen!
+
+------
+
+Hey {{ user.name }},
+
+new matches have been added!
+
+Happy betting!

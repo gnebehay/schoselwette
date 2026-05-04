@@ -78,6 +78,8 @@ def match():
 # TODO: This should probably be in a separate module
 def process_match(posted_match, fixture=None):
 
+    new_match_created = False
+
     # Make sure that we store UTC dates
     try:
         match_datetime = datetime.fromisoformat(posted_match['dateTime'])
@@ -144,7 +146,8 @@ def process_match(posted_match, fixture=None):
         print('Creating missing bets for ' + str(user))
         user.create_missing_bets()
 
-        # TODO: Send email to admins here
+    return new_match_created
+
 
 
 @app.route('/api/admin/outcome/<int:match_id>', methods=['POST'])

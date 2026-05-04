@@ -19,6 +19,8 @@ def sync_matches():
 
     fixtures = request_fixtures()
 
+    new_matches_created = False
+
     for fixture in fixtures:
         match = {
             'team1Name': fixture['home_team'],
@@ -31,9 +33,20 @@ def sync_matches():
             print(f'Warning: skipping fixture {fixture["id"]} because team names are missing.')
             continue
 
-        admin.process_match(match, fixture)
+        new_match_created = admin.process_match(match, fixture)
+
+        new_matches_created = new_matches_created or new_match_created
 
     print('Syncing matches done')
+
+    if new_matches_created:
+
+        all_users = db.session.execute(sa.select(models.User)).scalars().all()
+
+        for user in all_users:
+            common.send_mail_template('new_match_notification.txt', recipients=[user.email], user=user)
+
+
 
 
 @app.cli.command("sync_outcomes")
