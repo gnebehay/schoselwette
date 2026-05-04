@@ -44,7 +44,7 @@ def sync_matches():
         all_users = db.session.execute(sa.select(models.User)).scalars().all()
 
         for user in all_users:
-            common.send_mail_template('new_match_notification.txt', recipients=[user.email], user=user)
+            common.send_mail_template('new_match_notification.eml', recipients=[user.email], user=user)
 
 
 

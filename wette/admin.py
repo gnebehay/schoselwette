@@ -131,6 +131,8 @@ def process_match(posted_match, fixture=None):
         db.session.add(match_db)
         print('Insert: ' + str(match_db))
 
+        new_match_created = True
+
     else:
         print('Match ' + str(match_db) + ' already in database.')
 
