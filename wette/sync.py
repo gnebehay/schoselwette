@@ -65,9 +65,9 @@ def sync_outcomes():
         print('No live matches, stopping.')
         return
 
-    print('Requesting fixtures from football api.')
+    print('Requesting fixtures from WC2026 API.')
 
-    fixtures = request_fixtures()
+    fixtures = request_fixtures(status='live,completed')
     fixtures_by_id = {fixture['id']: fixture for fixture in fixtures}
 
     for live_match in live_matches:
@@ -111,10 +111,14 @@ def normalize_datetime(datetime_string):
     return datetime_string
 
 
-def request_fixtures():
+def request_fixtures(status=None):
     api_key = app.config.get('WC2026_API_KEY')
     if not api_key:
         raise RuntimeError('WC2026_API_KEY is required to fetch WC2026 fixtures')
+
+    params = {}
+    if status:
+        params['status'] = status
 
     response = requests.get(
         url=f"{WC2026_API_BASE_URL}/matches",
@@ -122,6 +126,7 @@ def request_fixtures():
             'Authorization': f"Bearer {api_key}",
             'Accept': 'application/json'
         },
+        params=params,
         timeout=10,
     )
     response.raise_for_status()
