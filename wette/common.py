@@ -69,3 +69,7 @@ def is_before_tournament_start():
         return True
 
     return first_match.date > datetime.now(timezone.utc).replace(tzinfo=None)
+
+
+def dict_to_log_string(d):
+    return " ".join(f"{k}={v!r}" for k, v in d.items())

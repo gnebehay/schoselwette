@@ -22,6 +22,8 @@ def sync_matches():
 
     fixtures = request_fixtures()
 
+    logger.info('Fetched %d fixtures from API', len(fixtures))
+
     new_matches_created = False
 
     for fixture in fixtures:
@@ -63,6 +65,8 @@ def sync_outcomes():
     ).scalars().all()
 
     live_matches = [match for match in matches if match.status == models.Status.LIVE and match.fixture_id is not None]
+
+    logger.info('Processing %d live matches', len(live_matches))
 
     if not live_matches:
         logger.info('No live matches, stopping.')

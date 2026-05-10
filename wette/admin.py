@@ -34,6 +34,8 @@ def confirm_payment(user_id):
 
     user.paid = True
 
+    logger.info('Payment confirmed for user %s', user.email)
+
     # Now all odds have to be recomputed
     # But not the points of the players, because we don't allow registration after the first match starts
     num_players = db.session.execute(

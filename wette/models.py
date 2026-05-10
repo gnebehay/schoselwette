@@ -285,6 +285,8 @@ class User(db.Model):
 
     def compute_points(self):
 
+        logger.debug('Computing points for user %s', self.id)
+
         # These are all dictionaries
         bets_points = [bet.points() for bet in self.bets]
 

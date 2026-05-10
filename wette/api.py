@@ -35,6 +35,14 @@ def register():
 
     validation_result = common.validate(posted_login, register_schema)
     if validation_result is not None:
+
+        redacted_login = posted_login.copy()
+
+        if 'password' in redacted_login:
+            redacted_login['password'] = '*' * len(redacted_login['password']) 
+
+        logger.warning('Invalid registration attempt: %s', common.dict_to_log_string(redacted_login))
+
         return validation_result
 
     if db.session.execute(
@@ -60,6 +68,8 @@ def register():
 
     body = '{} {}, {}'.format(user.first_name, user.last_name, user.email)
     common.send_mail(subject='Neuer Schoselwetter', body=body, recipients=app.config['ADMIN_MAILS'])
+
+    logger.info('User registered: %s, %s, %s', user.first_name, user.last_name, user.email)
 
     return {'success': True}
 
@@ -95,6 +105,8 @@ def login():
             remember = False
 
         flask_login.login_user(user, remember=remember)
+
+        logger.info('User logged in: %s', user.email)
 
         return flask.jsonify(success=True)
 
@@ -137,6 +149,8 @@ def trigger_reset_password_user():
 
     common.send_mail_template('reset_password.eml', recipients=[user.email], user=user)
 
+    logger.info('Password reset triggered for user: %s', user.email)
+
     return flask.jsonify(success=True)
 
 
@@ -173,6 +187,8 @@ def reset_password():
     user.password = hashlib.md5(salted_password).hexdigest()
 
     user.reset_token = None
+
+    logger.info('Password reset for user: %s', user.id)
 
     return flask.jsonify(success=True)
 
@@ -328,6 +344,8 @@ def bet_api(match_id):
 
     bet.match.compute_odds(num_users)
 
+    logger.info('Bet placed by user %s for match %s: %s', current_user.id, match_id, bet.outcome.value if bet.outcome else None)
+
     return flask.jsonify(success=True)
 
 
@@ -362,6 +380,8 @@ def champion_api():
         current_user.champion = next(team for team in teams if team.id == champion_id)
     except StopIteration:
         flask.abort(404)
+
+    logger.info('Champion set by user %s to team %s', current_user.id, champion_id)
 
     users = common.query_paying_users()
 
@@ -422,6 +442,8 @@ def randomize_avatar():
     avatar_salt = ''.join(random.choice(string.ascii_lowercase) for x in range(8))
     current_user = flask_login.current_user
     current_user.avatar_salt = avatar_salt
+
+    logger.info('Avatar randomized for user %s', current_user.id)
 
     return flask.jsonify(success=True)
 
