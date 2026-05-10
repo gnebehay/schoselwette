@@ -72,7 +72,7 @@ def match():
 
     validation_result = common.validate(posted_match, match_schema)
     if validation_result is not None:
-        return flask.jsonify(errors=validation_result), 400
+        return validation_result
 
     process_match(posted_match)
 
@@ -183,7 +183,7 @@ def outcome(match_id):
 
     validation_result = common.validate(posted_outcome, outcome_schema)
     if validation_result is not None:
-        return flask.jsonify(errors=validation_result), 400
+        return validation_result
 
     match.goals_team1 = posted_outcome['goalsTeam1']
     match.goals_team2 = posted_outcome['goalsTeam2']
@@ -259,7 +259,7 @@ def make_champion():
 
     validation_result = common.validate(posted_data, schema)
     if validation_result is not None:
-        return flask.jsonify(errors=validation_result), 400
+        return validation_result
 
     champion_id = posted_data['champion_id']
 
