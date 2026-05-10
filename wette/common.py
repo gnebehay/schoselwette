@@ -46,7 +46,7 @@ def validate(post, schema):
 
         errors = [e.message for e in errors]
 
-        return flask.jsonify(errors=errors), 400
+        return errors
 
     return None
 

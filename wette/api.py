@@ -43,7 +43,7 @@ def register():
 
         logger.warning('Invalid registration attempt: %s', common.dict_to_log_string(redacted_login))
 
-        return validation_result
+        return flask.jsonify(errors=validation_result), 400
 
     if db.session.execute(
         sa.select(models.User).filter_by(email=posted_login['email'])
@@ -88,7 +88,8 @@ def login():
     posted_login = flask.request.get_json()
 
     validation_result = common.validate(posted_login, login_schema)
-    if validation_result is not None: return validation_result
+    if validation_result is not None:
+        return flask.jsonify(errors=validation_result), 400
 
     salted_password = bytes(app.config['PASSWORD_SALT'] + posted_login['password'], 'utf-8')
     password_hash = hashlib.md5(salted_password).hexdigest()
@@ -133,7 +134,7 @@ def trigger_reset_password_user():
 
     validation_result = common.validate(posted_data, trigger_reset_password_schema)
     if validation_result is not None:
-        return validation_result
+        return flask.jsonify(errors=validation_result), 400
 
     email = posted_data['email']
 
@@ -170,7 +171,7 @@ def reset_password():
 
     validation_result = common.validate(posted_json, reset_password_schema)
     if validation_result is not None:
-        return validation_result
+        return flask.jsonify(errors=validation_result), 400
 
     user_id = posted_json['user_id']
     posted_reset_token = posted_json['reset_token']
@@ -306,7 +307,7 @@ def bet_api(match_id):
 
     validation_result = common.validate(posted_bet, bet_schema)
     if validation_result is not None:
-        return validation_result
+        return flask.jsonify(errors=validation_result), 400
 
     current_user = flask_login.current_user
 
@@ -363,7 +364,7 @@ def champion_api():
 
     validation_result = common.validate(posted_champion, champion_schema)
     if validation_result is not None:
-        return validation_result
+        return flask.jsonify(errors=validation_result), 400
 
     current_user = flask_login.current_user
 
