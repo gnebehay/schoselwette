@@ -22,7 +22,6 @@ services:
       - ./letsencrypt:/letsencrypt
 
   schosel-backend:
-    image: gnebehay/schosel-backend:latest
     restart: unless-stopped
     volumes:
       - /home/georg/data:/app/data
@@ -41,7 +40,6 @@ services:
     build: .
 
   schosel-frontend:
-    image: gnebehay/schosel-frontend:stable
     restart: unless-stopped
     labels:
       traefik.enable: "true"
