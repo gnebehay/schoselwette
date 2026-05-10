@@ -2,10 +2,15 @@ import collections
 import datetime
 import enum
 
+import logging
+
 import sqlalchemy as sa
 import sqlalchemy_utils as sa_utils
 
 from . import db
+
+
+logger = logging.getLogger(__name__)
 
 
 PRIZE_DISTRIBUTION = collections.defaultdict(
@@ -319,7 +324,7 @@ class User(db.Model):
                                 if match not in matches_of_existing_bets]
 
         for match in matches_without_bets:
-            print('Creating missing bets for ' + str(self))
+            logger.info('Creating missing bets for %s', self)
             bet = Bet()
             bet.user = self
             bet.match = match

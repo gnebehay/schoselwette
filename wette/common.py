@@ -1,5 +1,7 @@
 from datetime import datetime, timezone
 
+import logging
+
 import flask
 import flask_mail
 import jsonschema
@@ -8,9 +10,12 @@ import sqlalchemy as sa
 from sqlalchemy.orm import joinedload
 
 from . import db
+from . import logger
 from . import mail
 from . import models
 
+
+logger = logging.getLogger(__name__)
 
 def send_mail(subject, body, recipients):
 
@@ -19,10 +24,10 @@ def send_mail(subject, body, recipients):
     try:
         msg.sender = 'info@schosel.net'
         mail.send(msg)
-        print('Message sent successfully.')
+        logger.info('Message sent successfully.')
     except Exception:
-        print('Tried to send mail, did not work.')
-        print(msg)
+        logger.exception('Tried to send mail, did not work.')
+        logger.debug(msg)
 
 
 def send_mail_template(tpl, recipients, **kwargs):

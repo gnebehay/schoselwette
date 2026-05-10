@@ -1,4 +1,5 @@
 import hashlib
+import logging
 import random
 import string
 
@@ -15,6 +16,8 @@ from . import db
 from . import common
 from . import models
 
+
+logger = logging.getLogger(__name__)
 
 @app.route('/api/register', methods=['POST'])
 def register():

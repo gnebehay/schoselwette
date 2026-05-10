@@ -1,3 +1,4 @@
+import logging
 import requests
 import sqlalchemy as sa
 
@@ -10,12 +11,14 @@ from . import db
 from . import models
 
 
+logger = logging.getLogger(__name__)
+
 WC2026_API_BASE_URL = "https://api.wc2026api.com"
 
 
 @app.cli.command("sync_matches")
 def sync_matches():
-    print('Syncing matches')
+    logger.info('Syncing matches')
 
     fixtures = request_fixtures()
 
@@ -30,14 +33,14 @@ def sync_matches():
             'fixture_id': fixture['id']}
 
         if match['team1Name'] is None or match['team2Name'] is None:
-            print(f'Warning: skipping fixture {fixture["id"]} because team names are missing.')
+            logger.warning(f'Warning: skipping fixture {fixture["id"]} because team names are missing.')
             continue
 
         new_match_created = admin.process_match(match, fixture)
 
         new_matches_created = new_matches_created or new_match_created
 
-    print('Syncing matches done')
+    logger.info('Syncing matches done')
 
     if new_matches_created:
 
@@ -51,7 +54,7 @@ def sync_matches():
 
 @app.cli.command("sync_outcomes")
 def sync_outcomes():
-    print('Syncing outcomes')
+    logger.info('Syncing outcomes')
 
     matches = db.session.execute(
         sa.select(models.Match)
@@ -62,10 +65,10 @@ def sync_outcomes():
     live_matches = [match for match in matches if match.status == models.Status.LIVE and match.fixture_id is not None]
 
     if not live_matches:
-        print('No live matches, stopping.')
+        logger.info('No live matches, stopping.')
         return
 
-    print('Requesting fixtures from WC2026 API.')
+    logger.info('Requesting fixtures from WC2026 API.')
 
     fixtures = request_fixtures(status='live,completed')
     fixtures_by_id = {fixture['id']: fixture for fixture in fixtures}
@@ -73,7 +76,7 @@ def sync_outcomes():
     for live_match in live_matches:
         fixture = fixtures_by_id.get(live_match.fixture_id)
         if fixture is None:
-            print(f'Warning: fixture {live_match.fixture_id} not found in API response.')
+            logger.warning(f'Warning: fixture {live_match.fixture_id} not found in API response.')
             continue
 
         live_match.api_data = fixture
@@ -100,7 +103,7 @@ def sync_outcomes():
     for user in users:
         user.compute_points()
 
-    print('Syncing outcomes done')
+    logger.info('Syncing outcomes done')
 
 
 def normalize_datetime(datetime_string):

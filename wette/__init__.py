@@ -1,5 +1,7 @@
 import logging
+import re
 import os
+import sys
 
 import flask
 import flask_cors
@@ -7,6 +9,7 @@ import flask_login
 import flask_mail
 import flask_sqlalchemy
 
+from logging.handlers import RotatingFileHandler
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
 from flask_migrate import Migrate
@@ -28,6 +31,56 @@ app.config.from_pyfile('config.py')
 
 merge_env_config('SQLALCHEMY_DATABASE_URI')
 merge_env_config('WC2026_API_KEY')
+
+#
+# Logging setup
+#
+
+# Ensure log directory exists
+os.makedirs("logs", exist_ok=True)
+
+
+ANSI_ESCAPE = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
+
+class StripAnsiFormatter(logging.Formatter):
+    def format(self, record):
+        message = super().format(record)
+        return ANSI_ESCAPE.sub("", message)
+
+
+root_logger = logging.getLogger()
+root_logger.setLevel(logging.INFO)
+
+root_logger.handlers.clear()
+
+# stdout handler
+stdout_handler = logging.StreamHandler(sys.stdout)
+stdout_handler.setFormatter(
+    logging.Formatter(
+        "%(asctime)s %(levelname)s %(name)s: %(message)s"
+    )
+)
+root_logger.addHandler(stdout_handler)
+
+# rotating file handler
+file_handler = RotatingFileHandler(
+    "logs/app.log",
+    maxBytes=10_000_000,
+    backupCount=5,
+)
+
+file_handler.setFormatter(
+    StripAnsiFormatter(
+        "%(asctime)s %(levelname)s %(name)s: %(message)s"
+    )
+)
+
+root_logger.addHandler(file_handler)
+
+logger = logging.getLogger(__name__)
+
+logger.info("Application startup")
+
 
 mail = flask_mail.Mail(app)
 
@@ -72,5 +125,5 @@ from . import sync  # noqa
 
 # Enable CORS, if requested
 if 'ALLOWED_ORIGINS' in app.config:
-    print('CORS support enabled')
+    logger.info('CORS support enabled')
     flask_cors.CORS(app, origins=app.config['ALLOWED_ORIGINS'], supports_credentials=True)

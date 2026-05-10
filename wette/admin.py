@@ -1,6 +1,4 @@
-from datetime import datetime
-from datetime import timezone
-
+import logging
 import random
 import string
 
@@ -8,6 +6,8 @@ import flask
 import flask_login
 import sqlalchemy as sa
 
+from datetime import datetime
+from datetime import timezone
 from flask_login import login_required
 
 from . import app
@@ -15,6 +15,8 @@ from . import common
 from . import db
 from . import models
 
+
+logger = logging.getLogger(__name__)
 
 @app.route('/api/admin/confirm_payment/<int:user_id>', methods=['POST'])
 @login_required
@@ -129,12 +131,12 @@ def process_match(posted_match, fixture=None):
         if fixture is not None:
             match_db.api_data = fixture
         db.session.add(match_db)
-        print('Insert: ' + str(match_db))
+        logger.info('Insert: %s', match_db)
 
         new_match_created = True
 
     else:
-        print('Match ' + str(match_db) + ' already in database.')
+        logger.info('Match %s already in database.', match_db)
 
         match_db.date = match_datetime
 
