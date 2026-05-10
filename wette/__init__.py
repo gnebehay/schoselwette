@@ -79,7 +79,6 @@ root_logger.addHandler(file_handler)
 
 logger = logging.getLogger(__name__)
 
-logger.info("Application startup")
 
 
 mail = flask_mail.Mail(app)
@@ -122,8 +121,9 @@ from . import api  # noqa
 from . import admin  # noqa
 from . import sync  # noqa
 
-
 # Enable CORS, if requested
 if 'ALLOWED_ORIGINS' in app.config:
     logger.info('CORS support enabled')
     flask_cors.CORS(app, origins=app.config['ALLOWED_ORIGINS'], supports_credentials=True)
+
+logger.info("Application started with arguments %s", sys.argv)
