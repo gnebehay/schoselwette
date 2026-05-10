@@ -7,6 +7,8 @@ import flask_login
 import flask_mail
 import flask_sqlalchemy
 
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
 from flask_migrate import Migrate
 
 
@@ -34,6 +36,12 @@ db = flask_sqlalchemy.SQLAlchemy(app)
 migrate = Migrate(app, db, render_as_batch=True)
 
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+
+@event.listens_for(Engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
