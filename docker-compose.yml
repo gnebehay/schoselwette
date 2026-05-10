@@ -25,6 +25,7 @@ services:
     restart: unless-stopped
     volumes:
       - /home/georg/data:/app/data
+      - /home/georg/logs/backend:/app/logs
     labels:
       traefik.enable: "true"
       traefik.http.routers.schosel-backend_insecure.rule: "(Host(\"schosel.net\") || Host(\"www.schosel.net\")) && PathPrefix(`/api`)"

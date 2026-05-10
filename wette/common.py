@@ -10,7 +10,6 @@ import sqlalchemy as sa
 from sqlalchemy.orm import joinedload
 
 from . import db
-from . import logger
 from . import mail
 from . import models
 
