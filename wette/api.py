@@ -10,6 +10,7 @@ import sqlalchemy as sa
 from flask_login import login_required
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
+from urllib.parse import quote
 
 from . import app
 from . import db
@@ -47,6 +48,8 @@ def register():
     user.first_name = posted_login['firstName']
     user.last_name = posted_login['lastName']
     user.paid = False
+    # TODO: Duplicate code with randomize_avatar
+    user.avatar_salt = ''.join(random.choice(string.ascii_lowercase) for x in range(8))
 
     salted_password = bytes(app.config['PASSWORD_SALT'] + posted_login['password'], 'utf-8')
     user.password = hashlib.md5(salted_password).hexdigest()
@@ -455,7 +458,7 @@ def apify_user(user,
         return matches_with_bets
 
     d = {'admin': user.admin,
-         'avatar': 'https://schosel.net/adorables/400/' + user.name + user.avatar_salt,
+         'avatar': 'https://schosel.net/adorables/400/' + quote(user.avatar_salt),
          'user_id': user.id,
          'name': user.name,
          'paid': user.paid,
