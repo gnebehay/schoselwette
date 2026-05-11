@@ -17,4 +17,9 @@ COPY . /app
 ENV PYTHONUNBUFFERED 1
 ENV FLASK_APP wette
 
-CMD gunicorn -b 0.0.0.0:8000 wette:app
+CMD gunicorn \
+    -b 0.0.0.0:8000 \
+    --access-logfile /app/logs/access.log \
+    --error-logfile /app/logs/error.log \
+    wette:app
+
