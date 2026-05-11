@@ -34,16 +34,7 @@ def register():
     posted_login = flask.request.get_json()
 
     validation_result = common.validate(posted_login, register_schema)
-    if validation_result is not None:
-
-        redacted_login = posted_login.copy()
-
-        if 'password' in redacted_login:
-            redacted_login['password'] = '*' * len(redacted_login['password']) 
-
-        logger.warning('Invalid registration attempt: %s', common.dict_to_log_string(redacted_login))
-
-        return validation_result
+    if validation_result is not None: return validation_result
 
     if db.session.execute(
         sa.select(models.User).filter_by(email=posted_login['email'])

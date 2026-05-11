@@ -44,9 +44,13 @@ def validate(post, schema):
 
         errors = list(jsonschema.Draft7Validator(schema).iter_errors(post))
 
-        errors = [e.message for e in errors]
+        for e in errors:
+            field = ".".join(str(x) for x in e.path) or "<root>"
+            logger.info(f'Validation errors: "field={field} rule={e.validator}"')
 
-        return flask.jsonify(errors=errors), 400
+        error_messages = [e.message for e in errors]
+
+        return flask.jsonify(errors=error_messages), 400
 
     return None
 
@@ -69,7 +73,3 @@ def is_before_tournament_start():
         return True
 
     return first_match.date > datetime.now(timezone.utc).replace(tzinfo=None)
-
-
-def dict_to_log_string(d):
-    return " ".join(f"{k}={v!r}" for k, v in d.items())
