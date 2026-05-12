@@ -192,7 +192,7 @@ def get_avatar(seed):
     Fetch or return cached avatar from DiceBear API.
     Avatars are cached in the cache/avatars directory.
     """
-    cache_dir = os.path.join(os.path.dirname(__file__), '..', 'cache', 'avatars')
+    cache_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'cache', 'avatars')
 
     seed_hash = hashlib.sha256(seed.encode('utf-8')).hexdigest()
 
