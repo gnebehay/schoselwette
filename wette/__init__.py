@@ -39,6 +39,9 @@ merge_env_config('WC2026_API_KEY')
 # Ensure log directory exists
 os.makedirs("logs", exist_ok=True)
 
+# Ensure cache directory exists
+os.makedirs("cache/avatars", exist_ok=True)
+
 
 ANSI_ESCAPE = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
 

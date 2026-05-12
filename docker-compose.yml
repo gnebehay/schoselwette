@@ -26,6 +26,7 @@ services:
     volumes:
       - /home/georg/data:/app/data
       - /home/georg/logs/backend:/app/logs
+      - /home/georg/cache/avatars:/app/cache/avatars
     labels:
       traefik.enable: "true"
       traefik.http.routers.schosel-backend_insecure.rule: "(Host(\"schosel.net\") || Host(\"www.schosel.net\")) && PathPrefix(`/api`)"
@@ -42,8 +43,6 @@ services:
 
   schosel-frontend:
     restart: unless-stopped
-    volumes:
-      - /home/georg/cache/avatars:/var/cache/nginx/avatars
     labels:
       traefik.enable: "true"
       traefik.http.routers.schosel-frontend_insecure.rule: "Host(\"schosel.net\") || Host(\"www.schosel.net\")"

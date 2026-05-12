@@ -1,10 +1,12 @@
 import hashlib
 import logging
+import os
 import random
 import string
 
 import flask
 import flask_login
+import requests
 import sqlalchemy as sa
 
 from flask_login import login_required
@@ -428,7 +430,7 @@ def status_api():
     return flask.jsonify(s)
 
 
-@app.route('/api/avatar', methods=['POST'])
+@app.route('/api/new_avatar_salt', methods=['POST'])
 @login_required
 def randomize_avatar():
     avatar_salt = ''.join(random.choice(string.ascii_lowercase) for x in range(8))
@@ -548,3 +550,40 @@ def apify_bet(bet):
 def apify_challenge(challenge):
     return {'challenge_id': challenge.value,
             'name': challenge.name}
+
+
+@app.route('/api/avatar/<seed>')
+def get_avatar(seed):
+    """
+    Fetch or return cached avatar from DiceBear API.
+    Avatars are cached in the cache/avatars directory.
+    """
+    cache_dir = os.path.join(os.path.dirname(__file__), '..', 'cache', 'avatars')
+    cache_file = os.path.join(cache_dir, f'{seed}.svg')
+
+    # Return cached avatar if it exists
+    if os.path.exists(cache_file):
+        with open(cache_file, 'r') as f:
+            svg_content = f.read()
+        return flask.Response(svg_content, mimetype='image/svg+xml')
+
+    # Fetch from DiceBear API
+    dicebear_url = f'https://api.dicebear.com/9.x/bottts-neutral/svg?seed={seed}'
+    try:
+        response = requests.get(dicebear_url, timeout=10)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        logger.error(f'Failed to fetch avatar from DiceBear: {e}')
+        return {'error': 'Failed to fetch avatar'}, 500
+
+    svg_content = response.text
+
+    # Cache the avatar
+    try:
+        with open(cache_file, 'w') as f:
+            f.write(svg_content)
+    except IOError as e:
+        logger.error(f'Failed to cache avatar: {e}')
+        # Still return the avatar even if caching fails
+
+    return flask.Response(svg_content, mimetype='image/svg+xml')
