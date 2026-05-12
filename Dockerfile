@@ -21,5 +21,6 @@ CMD gunicorn \
     -b 0.0.0.0:8000 \
     --access-logfile /app/logs/access.log \
     --error-logfile /app/logs/error.log \
+    --access-logformat '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(D)sus' \
     wette:app
 
