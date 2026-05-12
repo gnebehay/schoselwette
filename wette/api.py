@@ -559,7 +559,10 @@ def get_avatar(seed):
     Avatars are cached in the cache/avatars directory.
     """
     cache_dir = os.path.join(os.path.dirname(__file__), '..', 'cache', 'avatars')
-    cache_file = os.path.join(cache_dir, f'{seed}.svg')
+
+    seed_hash = hashlib.sha256(seed.encode('utf-8')).hexdigest()
+
+    cache_file = os.path.join(cache_dir, f'{seed_hash}.svg')
 
     # Return cached avatar if it exists
     if os.path.exists(cache_file):
