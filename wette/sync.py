@@ -29,7 +29,10 @@ def sync_matches():
     for fixture in fixtures:
         match = {
             'team1Name': fixture['home_team'],
+            'team1Code': fixture['home_team_code'],
             'team2Name': fixture['away_team'],
+            'team2Code': fixture['away_team_code'],
+            'group': fixture['group_name'],
             'stage': fixture['round'],
             'dateTime': normalize_datetime(fixture['kickoff_utc']),
             'fixture_id': fixture['id']}

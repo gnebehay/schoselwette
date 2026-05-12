@@ -102,8 +102,8 @@ def process_match(posted_match, fixture=None):
     if team1_db is None:
         team1_db = models.Team()
         team1_db.name = posted_match['team1Name']
-        team1_db.short_name = ''
-        team1_db.group = 'A'
+        team1_db.short_name = posted_match['team1Code']
+        team1_db.group = posted_match['group']
         team1_db.champion = False
         team1_db.odds = 0
 
@@ -111,8 +111,8 @@ def process_match(posted_match, fixture=None):
     if team2_db is None:
         team2_db = models.Team()
         team2_db.name = posted_match['team2Name']
-        team2_db.short_name = ''
-        team2_db.group = 'A'
+        team2_db.short_name = posted_match['team2Code']
+        team2_db.group = posted_match['group']
         team2_db.champion = False
         team2_db.odds = 0
 
