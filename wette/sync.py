@@ -5,7 +5,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm import joinedload
 
 from . import app
-from . import admin
+from .api import admin
 from . import common
 from . import db
 from . import models

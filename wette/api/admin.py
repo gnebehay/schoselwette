@@ -10,10 +10,10 @@ from datetime import datetime
 from datetime import timezone
 from flask_login import login_required
 
-from . import app
-from . import common
-from . import db
-from . import models
+from .. import app
+from .. import common
+from .. import db
+from .. import models
 
 
 logger = logging.getLogger(__name__)

@@ -32,16 +32,11 @@ app.config.from_pyfile('config.py')
 merge_env_config('SQLALCHEMY_DATABASE_URI')
 merge_env_config('WC2026_API_KEY')
 
-#
-# Logging setup
-#
-
-# Ensure log directory exists
+# Ensure log, cache directories exists
 os.makedirs("logs", exist_ok=True)
-
-# Ensure cache directory exists
 os.makedirs("cache/avatars", exist_ok=True)
 
+# Logging setup
 
 ANSI_ESCAPE = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
 
@@ -49,7 +44,6 @@ class StripAnsiFormatter(logging.Formatter):
     def format(self, record):
         message = super().format(record)
         return ANSI_ESCAPE.sub("", message)
-
 
 root_logger = logging.getLogger()
 root_logger.setLevel(logging.INFO)
@@ -120,8 +114,10 @@ def load_user(user_id):
     return db.session.get(models.User, int(user_id))
 
 
-from . import api  # noqa
-from . import admin  # noqa
+from .api import admin  # noqa
+from .api import auth  # noqa
+from .api import betting  # noqa
+from .api import views  # noqa
 from . import sync  # noqa
 
 # Enable CORS, if requested
