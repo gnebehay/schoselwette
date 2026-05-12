@@ -103,12 +103,17 @@ def login():
 
         return flask.jsonify(success=True)
 
+    logger.info('User login failed.')
+
     return flask.jsonify(errors=["Oops, wrong login data."]), 401
 
 
 @app.route('/api/logout', methods=['POST'])
 def logout():
     flask_login.logout_user()
+
+    logger.info('User logged out.')
+
     return flask.jsonify(success=True)
 
 
@@ -219,8 +224,10 @@ def get_avatar(seed):
     try:
         with open(cache_file, 'w') as f:
             f.write(svg_content)
+
+        logger.info(f'Avatar cached for seed: {seed}, hash: {seed_hash}')
     except IOError as e:
-        logger.error(f'Failed to cache avatar: {e}')
+        logger.exception(f'Failed to cache avatar: {e}')
         # Still return the avatar even if caching fails
 
     return flask.Response(svg_content, mimetype='image/svg+xml')
@@ -233,6 +240,6 @@ def randomize_avatar():
     current_user = flask_login.current_user
     current_user.avatar_salt = avatar_salt
 
-    logger.info('Avatar randomized for user %s', current_user.id)
+    logger.info('Avatar salt recreated for user %s', current_user.id)
 
     return flask.jsonify(success=True)

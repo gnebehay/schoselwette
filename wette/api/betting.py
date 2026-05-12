@@ -66,7 +66,7 @@ def bet_api(match_id):
 
     bet.match.compute_odds(num_users)
 
-    logger.info('Bet placed by user %s for match %s: %s', current_user.id, match_id, bet.outcome.value if bet.outcome else None)
+    logger.info('Bet placed by user %s for match %s.', current_user.id, match_id)
 
     return flask.jsonify(success=True)
 
@@ -103,13 +103,13 @@ def champion_api():
     except StopIteration:
         flask.abort(404)
 
-    logger.info('Champion set by user %s to team %s', current_user.id, champion_id)
-
     users = common.query_paying_users()
 
     num_players = len(users)
 
     for team in teams:
         team.compute_odds(num_players)
+
+    logger.info('Champion set by user %s', current_user.id)
 
     return flask.jsonify(success=True)

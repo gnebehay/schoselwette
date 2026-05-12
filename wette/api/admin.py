@@ -76,6 +76,8 @@ def match():
 
     process_match(posted_match)
 
+    logger.info('Match updated by admin %s: %s vs %s', flask_login.current_user.id, posted_match['team1Name'], posted_match['team2Name'])
+
     return flask.jsonify(success=True)
 
 
@@ -133,13 +135,12 @@ def process_match(posted_match, fixture=None):
         if fixture is not None:
             match_db.api_data = fixture
         db.session.add(match_db)
-        logger.info('Insert: %s', match_db)
+        logger.info('New match created: %s vs %s at %s', match_db.team1.name, match_db.team2.name, match_db.date)
+
 
         new_match_created = True
 
     else:
-        logger.info('Match %s already in database.', match_db)
-
         match_db.date = match_datetime
 
         if 'fixture_id' in posted_match:
@@ -198,6 +199,8 @@ def outcome(match_id):
     for user in users:
         user.compute_points()
 
+    logger.info('Outcome set by admin %s for match %s vs %s: %d-%d', flask_login.current_user.id, match.team1.name, match.team2.name, match.goals_team1, match.goals_team2) 
+
     return flask.jsonify(success=True)
 
 
@@ -213,6 +216,8 @@ def make_admin(user_id):
     ).scalar_one()
 
     user.admin = True
+
+    logger.info('User %s made admin by user %s', user.email, flask_login.current_user.id)
 
     return flask.jsonify(success=True)
 
@@ -274,6 +279,8 @@ def make_champion():
     for user in common.query_paying_users():
         user.compute_points()
 
+    logger.info('Champion set by admin %s to team %s', flask_login.current_user.id, champion_id)
+
     return {'success': True}
 
 
@@ -295,6 +302,8 @@ def recompute():
     for user in users:
         user.compute_points()
 
+    logger.info('Recompute triggered by admin %s', flask_login.current_user.id)
+
     return flask.jsonify(success=True)
 
 
@@ -312,5 +321,7 @@ def trigger_reset_password(user_id):
     user.reset_token = ''.join(random.choice(string.ascii_lowercase) for _ in range(8))
 
     common.send_mail_template('reset_password.eml', recipients=[user.email], user=user)
+
+    logger.info('Password reset triggered for user %s by admin %s', user.email, flask_login.current_user.id)
 
     return flask.jsonify(success=True)

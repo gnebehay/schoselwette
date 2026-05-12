@@ -326,7 +326,6 @@ class User(db.Model):
                                 if match not in matches_of_existing_bets]
 
         for match in matches_without_bets:
-            logger.info('Creating missing bets for %s', self)
             bet = Bet()
             bet.user = self
             bet.match = match
