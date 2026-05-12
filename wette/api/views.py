@@ -177,7 +177,7 @@ def apify_user(user,
         return matches_with_bets
 
     d = {'admin': user.admin,
-         'avatar': 'https://schosel.net/api/avatars/' + quote(user.name + user.avatar_salt),
+         'avatar': 'https://schosel.net/api/avatar/' + quote(user.name + user.avatar_salt),
          'user_id': user.id,
          'name': user.name,
          'paid': user.paid,
