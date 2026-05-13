@@ -174,5 +174,50 @@ class ChallengeScoreboardTest(unittest.TestCase):
         self.assertAlmostEqual(scoreboard[3].reward, 1.2)
 
 
+class TeamAndUserModelTest(unittest.TestCase):
+    def test_team_compute_odds_with_no_bets_sets_zero(self):
+        from wette.models import Team
+
+        team = Team()
+        team.users = []
+
+        team.compute_odds(num_players=10)
+
+        self.assertEqual(team.odds, 0)
+
+    def test_user_name_returns_first_and_last_initial(self):
+        from wette.models import User
+
+        user = User()
+        user.first_name = "Alice"
+        user.last_name = "Smith"
+
+        self.assertEqual(user.name, "Alice S.")
+
+    def test_user_compute_points_includes_champion(self):
+        from wette.models import User, Team
+
+        team = Team()
+        team.champion = True
+        team.odds = 2.0
+
+        user = User()
+        user.bets = []
+        user.champion = team
+        user.schosel_points = 0.0
+        user.loser_points = 0.0
+        user.underdog_points = 0.0
+        user.balanced_points = 0.0
+        user.comeback_points = 0.0
+
+        user.compute_points()
+
+        self.assertEqual(user.schosel_points, 2.0)
+        self.assertEqual(user.loser_points, 2.0)
+        self.assertEqual(user.underdog_points, 2.0)
+        self.assertEqual(user.balanced_points, 2.0)
+        self.assertEqual(user.comeback_points, 2.0)
+
+
 if __name__ == "__main__":
     unittest.main()
