@@ -1,24 +1,19 @@
 import logging
 import random
 import string
+from datetime import datetime, timezone
 
 import flask
 import flask_login
 import sqlalchemy as sa
-
-from datetime import datetime
-from datetime import timezone
 from flask_login import login_required
 
-from .. import app
-from .. import common
-from .. import db
-from .. import models
-
+from .. import app, common, db, models
 
 logger = logging.getLogger(__name__)
 
-@app.route('/api/admin/confirm_payment/<int:user_id>', methods=['POST'])
+
+@app.route("/api/admin/confirm_payment/<int:user_id>", methods=["POST"])
 @login_required
 def confirm_payment(user_id):
 
@@ -28,13 +23,11 @@ def confirm_payment(user_id):
     if not common.is_before_tournament_start():
         flask.abort(403)
 
-    user = db.session.execute(
-        sa.select(models.User).filter_by(id=user_id)
-    ).scalar_one()
+    user = db.session.execute(sa.select(models.User).filter_by(id=user_id)).scalar_one()
 
     user.paid = True
 
-    logger.info('Payment confirmed for user %s', user.email)
+    logger.info("Payment confirmed for user %s", user.email)
 
     # Now all odds have to be recomputed
     # But not the points of the players, because we don't allow registration after the first match starts
@@ -46,12 +39,14 @@ def confirm_payment(user_id):
     for match in matches:
         match.compute_odds(num_players)
 
-    common.send_mail_template('payment_confirmed.eml', recipients=[user.email], user=user)
+    common.send_mail_template(
+        "payment_confirmed.eml", recipients=[user.email], user=user
+    )
 
     return flask.jsonify(success=True)
 
 
-@app.route('/api/admin/match', methods=['POST'])
+@app.route("/api/admin/match", methods=["POST"])
 @login_required
 def match():
 
@@ -59,14 +54,15 @@ def match():
         flask.abort(403)
 
     match_schema = {
-        'type': 'object',
-        'properties': {
-            'team1Name': {'type': 'string'},
-            'team2Name': {'type': 'string'},
-            'dateTime': {'type': 'string'},
-            'stage': {'type': 'string'},
+        "type": "object",
+        "properties": {
+            "team1Name": {"type": "string"},
+            "team2Name": {"type": "string"},
+            "dateTime": {"type": "string"},
+            "stage": {"type": "string"},
         },
-        'required': ['team1Name', 'team2Name', 'dateTime', 'stage']}
+        "required": ["team1Name", "team2Name", "dateTime", "stage"],
+    }
 
     posted_match = flask.request.get_json()
 
@@ -76,7 +72,12 @@ def match():
 
     process_match(posted_match)
 
-    logger.info('Match updated by admin %s: %s vs %s', flask_login.current_user.id, posted_match['team1Name'], posted_match['team2Name'])
+    logger.info(
+        "Match updated by admin %s: %s vs %s",
+        flask_login.current_user.id,
+        posted_match["team1Name"],
+        posted_match["team2Name"],
+    )
 
     return flask.jsonify(success=True)
 
@@ -88,7 +89,7 @@ def process_match(posted_match, fixture=None):
 
     # Make sure that we store UTC dates
     try:
-        match_datetime = datetime.fromisoformat(posted_match['dateTime'])
+        match_datetime = datetime.fromisoformat(posted_match["dateTime"])
         if match_datetime.tzinfo is None:
             match_datetime.replace(tzinfo=timezone.utc)
         match_datetime.astimezone(timezone.utc)
@@ -96,55 +97,61 @@ def process_match(posted_match, fixture=None):
         # TODO: This doesn't make sense if we run this as a one-off CLI job
         flask.abort(400, str(e))
     team1_db = db.session.execute(
-        sa.select(models.Team).filter_by(name=posted_match['team1Name'])
+        sa.select(models.Team).filter_by(name=posted_match["team1Name"])
     ).scalar_one_or_none()
     team2_db = db.session.execute(
-        sa.select(models.Team).filter_by(name=posted_match['team2Name'])
+        sa.select(models.Team).filter_by(name=posted_match["team2Name"])
     ).scalar_one_or_none()
     if team1_db is None:
         team1_db = models.Team()
-        team1_db.name = posted_match['team1Name']
-        team1_db.short_name = posted_match['team1Code']
-        team1_db.group = posted_match['group']
+        team1_db.name = posted_match["team1Name"]
+        team1_db.short_name = posted_match["team1Code"]
+        team1_db.group = posted_match["group"]
         team1_db.champion = False
         team1_db.odds = 0
 
         db.session.add(team1_db)
     if team2_db is None:
         team2_db = models.Team()
-        team2_db.name = posted_match['team2Name']
-        team2_db.short_name = posted_match['team2Code']
-        team2_db.group = posted_match['group']
+        team2_db.name = posted_match["team2Name"]
+        team2_db.short_name = posted_match["team2Code"]
+        team2_db.group = posted_match["group"]
         team2_db.champion = False
         team2_db.odds = 0
 
         db.session.add(team2_db)
 
-    posted_stage = posted_match['stage']
+    posted_stage = posted_match["stage"]
     match_db = db.session.execute(
         sa.select(models.Match).where(
             models.Match.team1_id == team1_db.id,
             models.Match.team2_id == team2_db.id,
-            models.Match.stage == posted_stage
+            models.Match.stage == posted_stage,
         )
     ).scalar_one_or_none()
     if match_db is None:
-        match_db = models.Match(team1=team1_db, team2=team2_db, stage=posted_stage, date=match_datetime)
-        if 'fixture_id' in posted_match:
-            match_db.fixture_id = posted_match['fixture_id']
+        match_db = models.Match(
+            team1=team1_db, team2=team2_db, stage=posted_stage, date=match_datetime
+        )
+        if "fixture_id" in posted_match:
+            match_db.fixture_id = posted_match["fixture_id"]
         if fixture is not None:
             match_db.api_data = fixture
         db.session.add(match_db)
-        logger.info('New match created: %s vs %s at %s', match_db.team1.name, match_db.team2.name, match_db.date)
-
+        logger.info(
+            "New match created: %s vs %s at %s",
+            match_db.team1.name,
+            match_db.team2.name,
+            match_db.date,
+        )
 
         new_match_created = True
 
     else:
         match_db.date = match_datetime
 
-        if 'fixture_id' in posted_match:
-            match_db.fixture_id = posted_match['fixture_id']
+        if "fixture_id" in posted_match:
+            match_db.fixture_id = posted_match["fixture_id"]
         if fixture is not None:
             match_db.api_data = fixture
 
@@ -155,8 +162,7 @@ def process_match(posted_match, fixture=None):
     return new_match_created
 
 
-
-@app.route('/api/admin/outcome/<int:match_id>', methods=['POST'])
+@app.route("/api/admin/outcome/<int:match_id>", methods=["POST"])
 @login_required
 def outcome(match_id):
 
@@ -171,14 +177,18 @@ def outcome(match_id):
         flask.abort(404)
 
     outcome_schema = {
-        'type': 'object',
-        'properties': {
-            'goalsTeam1': {'type': 'integer'},
-            'goalsTeam2': {'type': 'integer'},
-            'firstGoal': {'type': 'string', 'enum': [outcome.value for outcome in models.Outcome]}, # optional
-            'over': {'type': 'boolean'},
+        "type": "object",
+        "properties": {
+            "goalsTeam1": {"type": "integer"},
+            "goalsTeam2": {"type": "integer"},
+            "firstGoal": {
+                "type": "string",
+                "enum": [outcome.value for outcome in models.Outcome],
+            },  # optional
+            "over": {"type": "boolean"},
         },
-        'required': ['goalsTeam1', 'goalsTeam2']}
+        "required": ["goalsTeam1", "goalsTeam2"],
+    }
 
     posted_outcome = flask.request.get_json()
 
@@ -186,25 +196,32 @@ def outcome(match_id):
     if validation_result is not None:
         return validation_result
 
-    match.goals_team1 = posted_outcome['goalsTeam1']
-    match.goals_team2 = posted_outcome['goalsTeam2']
+    match.goals_team1 = posted_outcome["goalsTeam1"]
+    match.goals_team2 = posted_outcome["goalsTeam2"]
 
-    if 'firstGoal' in posted_outcome:
-        match.firstGoal = posted_outcome['firstGoal']
+    if "firstGoal" in posted_outcome:
+        match.firstGoal = posted_outcome["firstGoal"]
 
-    if 'over' in posted_outcome:
-        match.over = posted_outcome['over']
+    if "over" in posted_outcome:
+        match.over = posted_outcome["over"]
 
     users = common.query_paying_users()
     for user in users:
         user.compute_points()
 
-    logger.info('Outcome set by admin %s for match %s vs %s: %d-%d', flask_login.current_user.id, match.team1.name, match.team2.name, match.goals_team1, match.goals_team2) 
+    logger.info(
+        "Outcome set by admin %s for match %s vs %s: %d-%d",
+        flask_login.current_user.id,
+        match.team1.name,
+        match.team2.name,
+        match.goals_team1,
+        match.goals_team2,
+    )
 
     return flask.jsonify(success=True)
 
 
-@app.route('/api/admin/make_admin/<int:user_id>')
+@app.route("/api/admin/make_admin/<int:user_id>")
 @login_required
 def make_admin(user_id):
 
@@ -217,12 +234,14 @@ def make_admin(user_id):
 
     user.admin = True
 
-    logger.info('User %s made admin by user %s', user.email, flask_login.current_user.id)
+    logger.info(
+        "User %s made admin by user %s", user.email, flask_login.current_user.id
+    )
 
     return flask.jsonify(success=True)
 
 
-@app.route('/api/admin/users', methods=['GET'])
+@app.route("/api/admin/users", methods=["GET"])
 @login_required
 def users():
 
@@ -234,19 +253,20 @@ def users():
     response = []
 
     for user in all_users:
-
-        d = {'admin': user.admin,
-             'paid': user.paid,
-             'user_id': user.id,
-             'email': user.email,
-             'name': user.first_name + " " + user.last_name}
+        d = {
+            "admin": user.admin,
+            "paid": user.paid,
+            "user_id": user.id,
+            "email": user.email,
+            "name": user.first_name + " " + user.last_name,
+        }
 
         response.append(d)
 
     return flask.jsonify(response)
 
 
-@app.route('/api/admin/make_champion', methods=['POST'])
+@app.route("/api/admin/make_champion", methods=["POST"])
 @login_required
 def make_champion():
 
@@ -254,11 +274,12 @@ def make_champion():
         flask.abort(403)
 
     schema = {
-        'type': 'object',
-        'properties': {
-            'champion_id': {'type': 'integer'},
+        "type": "object",
+        "properties": {
+            "champion_id": {"type": "integer"},
         },
-        'required': ['champion_id']}
+        "required": ["champion_id"],
+    }
 
     posted_data = flask.request.get_json()
 
@@ -266,7 +287,7 @@ def make_champion():
     if validation_result is not None:
         return validation_result
 
-    champion_id = posted_data['champion_id']
+    champion_id = posted_data["champion_id"]
 
     teams = db.session.execute(sa.select(models.Team)).scalars().all()
 
@@ -279,13 +300,15 @@ def make_champion():
     for user in common.query_paying_users():
         user.compute_points()
 
-    logger.info('Champion set by admin %s to team %s', flask_login.current_user.id, champion_id)
+    logger.info(
+        "Champion set by admin %s to team %s", flask_login.current_user.id, champion_id
+    )
 
-    return {'success': True}
+    return {"success": True}
 
 
 @login_required
-@app.route('/api/admin/recompute', methods=['POST'])
+@app.route("/api/admin/recompute", methods=["POST"])
 def recompute():
 
     if not flask_login.current_user.admin:
@@ -302,26 +325,28 @@ def recompute():
     for user in users:
         user.compute_points()
 
-    logger.info('Recompute triggered by admin %s', flask_login.current_user.id)
+    logger.info("Recompute triggered by admin %s", flask_login.current_user.id)
 
     return flask.jsonify(success=True)
 
 
 @login_required
-@app.route('/api/admin/trigger_password_reset/<int:user_id>', methods=['POST'])
+@app.route("/api/admin/trigger_password_reset/<int:user_id>", methods=["POST"])
 def trigger_reset_password(user_id):
 
     if not flask_login.current_user.admin:
         flask.abort(403)
 
-    user = db.session.execute(
-        sa.select(models.User).filter_by(id=user_id)
-    ).scalar_one()
+    user = db.session.execute(sa.select(models.User).filter_by(id=user_id)).scalar_one()
     # Reset token is set irrespective of previous value
-    user.reset_token = ''.join(random.choice(string.ascii_lowercase) for _ in range(8))
+    user.reset_token = "".join(random.choice(string.ascii_lowercase) for _ in range(8))
 
-    common.send_mail_template('reset_password.eml', recipients=[user.email], user=user)
+    common.send_mail_template("reset_password.eml", recipients=[user.email], user=user)
 
-    logger.info('Password reset triggered for user %s by admin %s', user.email, flask_login.current_user.id)
+    logger.info(
+        "Password reset triggered for user %s by admin %s",
+        user.email,
+        flask_login.current_user.id,
+    )
 
     return flask.jsonify(success=True)

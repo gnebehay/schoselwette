@@ -1,38 +1,34 @@
-from datetime import datetime, timezone
-
 import logging
+from datetime import datetime, timezone
 
 import flask
 import flask_mail
 import jsonschema
 import sqlalchemy as sa
-
 from sqlalchemy.orm import joinedload
 
-from . import db
-from . import mail
-from . import models
-
+from . import db, mail, models
 
 logger = logging.getLogger(__name__)
+
 
 def send_mail(subject, body, recipients):
 
     msg = flask_mail.Message(subject=subject, body=body, recipients=recipients)
 
     try:
-        msg.sender = 'info@schosel.net'
+        msg.sender = "info@schosel.net"
         mail.send(msg)
-        logger.info('Message sent successfully.')
+        logger.info("Message sent successfully.")
     except Exception:
-        logger.exception('Tried to send mail, did not work.')
+        logger.exception("Tried to send mail, did not work.")
         logger.debug(msg)
 
 
 def send_mail_template(tpl, recipients, **kwargs):
-    rendered_mail = flask.render_template('mail/' + tpl, **kwargs)
+    rendered_mail = flask.render_template("mail/" + tpl, **kwargs)
     subject = rendered_mail.splitlines()[0]
-    body = '\n'.join(rendered_mail.splitlines()[1:])
+    body = "\n".join(rendered_mail.splitlines()[1:])
 
     send_mail(subject=subject, body=body, recipients=recipients)
 
@@ -40,8 +36,7 @@ def send_mail_template(tpl, recipients, **kwargs):
 def validate(post, schema):
     try:
         jsonschema.validate(post, schema=schema)
-    except (jsonschema.ValidationError, jsonschema.SchemaError) as e:
-
+    except (jsonschema.ValidationError, jsonschema.SchemaError):
         errors = list(jsonschema.Draft7Validator(schema).iter_errors(post))
 
         for e in errors:
@@ -56,11 +51,15 @@ def validate(post, schema):
 
 
 def query_paying_users():
-    users = db.session.execute(
-        sa.select(models.User)
-        .options(joinedload(models.User.champion))
-        .where(models.User.paid)
-    ).scalars().all()
+    users = (
+        db.session.execute(
+            sa.select(models.User)
+            .options(joinedload(models.User.champion))
+            .where(models.User.paid)
+        )
+        .scalars()
+        .all()
+    )
     return users
 
 
