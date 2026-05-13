@@ -1,7 +1,7 @@
 import unittest
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 
-from wette.models import Bet, Match, Outcome, Challenge, Status
+from wette.models import Bet, Challenge, Match, Outcome, Status
 
 
 class FakeUser:
@@ -115,7 +115,7 @@ class MatchStatusTest(unittest.TestCase):
         match.over = False
 
         self.assertEqual(match.status, Status.SCHEDULED)
-        self.assertEqual(match.status.value, 'scheduled')
+        self.assertEqual(match.status.value, "scheduled")
 
     def test_match_status_live(self):
         match = Match()
@@ -174,5 +174,5 @@ class ChallengeScoreboardTest(unittest.TestCase):
         self.assertAlmostEqual(scoreboard[3].reward, 1.2)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
