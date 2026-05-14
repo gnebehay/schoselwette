@@ -4,8 +4,7 @@ Hallo, {{ user.name }}, willkommen zum Schosel Tippspiel!
 
 Wir freuen uns, dass du dabei bist.
 Um deine Registrierung vollständig abzuschließen, musst du noch die Teilnahmegebühr an eines der untenstehenden Bankkonten überweisen.
-Europäer überweisen bitte 10€ auf das österreichische Bankkonto, Schweizer hingegen 11CHF auf das schweizerische Bankkonto.
-Oder schick das Geld via PayPal an gnebehay@gmail.com!
+Europäer überweisen bitte 15€ auf das österreichische Bankkonto, Schweizer hingegen 14CHF auf das schweizerische Bankkonto. TWINT funktioniert auch für die Schweiz.
 Bitte vergiss auch nicht, deine Email-Adresse als Zahlungsreferenz hinzuzufügen.
 
 Sobald deine Zahlung eingegangen ist, siehst du dies auf der Website bestätigt.
@@ -13,15 +12,27 @@ Sobald deine Zahlung eingegangen ist, siehst du dies auf der Website bestätigt.
 Hals und Beinbruch!
 Herr Schosel
 
+Österreichisches Bankkonto (15€)
+IBAN: AT831420020014007670
+BIC: BAWAATWW
+
+------
+
+Schweizer Bankkonto (14CHF)
+IBAN: CH8609000000898417060
+BIC: POFICHBEXXX
+
+oder TWINT an +41765256926
+
 ------
 
 Hey, {{ user.name }}, welcome to Schosel betting!
 
 We're glad to have you with us!
 To activate your account you'll need to send the participation fee to one of the following bank accounts.
-If you live in a European country, please transfer 10€ to the Austrian bank account.
-If you live in Switzerland, please transfer 11CHF to the Swiss bank account.
-Alternatively you can also send the money via PayPal to gnebehay@gmail.com.
+If you live in a European country, please transfer 15€ to the Austrian bank account.
+If you live in Switzerland, please transfer 14CHF to the Swiss bank account.
+TWINT also works for Swiss payments.
 Either way, please include your email address as a reference for the payment.
 
 As soon as we received your payment you'll see it confirmed on the website.
@@ -31,12 +42,14 @@ Mr. Schosel
 
 ------
 
-Austrian Bank Account (10€)
+Austrian Bank Account (15€)
 IBAN: AT831420020014007670
 BIC: BAWAATWW
 
 ------
 
-Swiss Bank Account (11CHF)
+Swiss Bank Account (14CHF)
 IBAN: CH8609000000898417060
 BIC: POFICHBEXXX
+
+or TWINT to +41765256926
