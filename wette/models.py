@@ -47,8 +47,9 @@ class Challenge(enum.Enum):
 
             reward = rank_reward_sum / rank_occurrences
 
-            # TODO: Schosel challenge should get 70% and Loser 30%
-            final_reward[unique_rank] = num_users * 15 / 5 * reward
+            # Schosel challenge gets 70% and Loser gets 30%
+            challenge_split = 0.7 if self == Challenge.SCHOSEL else 0.3
+            final_reward[unique_rank] = num_users * 15 * reward * challenge_split
 
         return final_reward
 

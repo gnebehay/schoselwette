@@ -113,15 +113,15 @@ class ChallengeScoreboardTest(unittest.TestCase):
 
         self.assertEqual(scoreboard[2].points, 20)
         self.assertEqual(scoreboard[2].rank, 0)
-        self.assertAlmostEqual(scoreboard[2].reward, 4.5)
+        self.assertAlmostEqual(scoreboard[2].reward, 15.75)
 
         self.assertEqual(scoreboard[1].points, 10)
         self.assertEqual(scoreboard[1].rank, 1)
-        self.assertAlmostEqual(scoreboard[1].reward, 2.7)
+        self.assertAlmostEqual(scoreboard[1].reward, 9.45)
 
         self.assertEqual(scoreboard[3].points, 5)
         self.assertEqual(scoreboard[3].rank, 2)
-        self.assertAlmostEqual(scoreboard[3].reward, 1.8)
+        self.assertAlmostEqual(scoreboard[3].reward, 6.3)
 
 
 class TeamAndUserModelTest(unittest.TestCase):
