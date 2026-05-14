@@ -154,7 +154,7 @@ class ApiHelpersTest(unittest.TestCase):
         self.assertEqual(result["superbets_placed"], 0)
         self.assertIn("private_bets", result)
         self.assertIn("public_bets", result)
-        self.assertEqual(result["reward"], 5.0)
+        self.assertEqual(result["reward"], 2.0)
 
 
 if __name__ == "__main__":

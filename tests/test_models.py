@@ -27,56 +27,9 @@ class BetPointsTest(unittest.TestCase):
         bet.outcome = Outcome.TEAM1_WIN
         bet.supertip = False
 
-        self.assertEqual(bet.points(), {challenge: 0.0 for challenge in Challenge})
-
-    def test_points_for_correct_underdog_and_comeback(self):
-        match = Match()
-        match.date = datetime.utcnow() - timedelta(hours=1)
-        match.over = False
-        match.goals_team1 = 1
-        match.goals_team2 = 2
-        match.odds_team1 = 2.0
-        match.odds_draw = 1.5
-        match.odds_team2 = 3.0
-        match.first_goal = Outcome.TEAM2_WIN
-
-        bet = Bet()
-        bet.match = match
-        bet.outcome = Outcome.TEAM2_WIN
-        bet.supertip = False
-
         expected = {
-            Challenge.SCHOSEL: 3.0,
+            Challenge.SCHOSEL: 0.0,
             Challenge.LOSER: 0.0,
-            Challenge.UNDERDOG: 3.0,
-            Challenge.BALANCED: 0.0,
-            Challenge.COMEBACK: 0.0,
-        }
-
-        self.assertEqual(bet.points(), expected)
-
-    def test_points_for_correct_comeback(self):
-        match = Match()
-        match.date = datetime.utcnow() - timedelta(hours=1)
-        match.over = False
-        match.goals_team1 = 0
-        match.goals_team2 = 2
-        match.odds_team1 = 2.0
-        match.odds_draw = 1.5
-        match.odds_team2 = 3.0
-        match.first_goal = Outcome.TEAM1_WIN
-
-        bet = Bet()
-        bet.match = match
-        bet.outcome = Outcome.TEAM2_WIN
-        bet.supertip = False
-
-        expected = {
-            Challenge.SCHOSEL: 3.0,
-            Challenge.LOSER: 0.0,
-            Challenge.UNDERDOG: 3.0,
-            Challenge.BALANCED: 0.0,
-            Challenge.COMEBACK: 3.0,
         }
 
         self.assertEqual(bet.points(), expected)
@@ -100,9 +53,6 @@ class BetPointsTest(unittest.TestCase):
         expected = {
             Challenge.SCHOSEL: 0.0,
             Challenge.LOSER: 4.0,
-            Challenge.UNDERDOG: 0.0,
-            Challenge.BALANCED: 0.0,
-            Challenge.COMEBACK: 0.0,
         }
 
         self.assertEqual(bet.points(), expected)
@@ -163,15 +113,15 @@ class ChallengeScoreboardTest(unittest.TestCase):
 
         self.assertEqual(scoreboard[2].points, 20)
         self.assertEqual(scoreboard[2].rank, 0)
-        self.assertAlmostEqual(scoreboard[2].reward, 3.0)
+        self.assertAlmostEqual(scoreboard[2].reward, 4.5)
 
         self.assertEqual(scoreboard[1].points, 10)
         self.assertEqual(scoreboard[1].rank, 1)
-        self.assertAlmostEqual(scoreboard[1].reward, 1.8)
+        self.assertAlmostEqual(scoreboard[1].reward, 2.7)
 
         self.assertEqual(scoreboard[3].points, 5)
         self.assertEqual(scoreboard[3].rank, 2)
-        self.assertAlmostEqual(scoreboard[3].reward, 1.2)
+        self.assertAlmostEqual(scoreboard[3].reward, 1.8)
 
 
 class TeamAndUserModelTest(unittest.TestCase):
@@ -206,17 +156,11 @@ class TeamAndUserModelTest(unittest.TestCase):
         user.champion = team
         user.schosel_points = 0.0
         user.loser_points = 0.0
-        user.underdog_points = 0.0
-        user.balanced_points = 0.0
-        user.comeback_points = 0.0
 
         user.compute_points()
 
         self.assertEqual(user.schosel_points, 2.0)
         self.assertEqual(user.loser_points, 2.0)
-        self.assertEqual(user.underdog_points, 2.0)
-        self.assertEqual(user.balanced_points, 2.0)
-        self.assertEqual(user.comeback_points, 2.0)
 
 
 if __name__ == "__main__":

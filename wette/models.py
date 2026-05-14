@@ -27,9 +27,6 @@ class Outcome(enum.Enum):
 class Challenge(enum.Enum):
     SCHOSEL = 1
     LOSER = 2
-    UNDERDOG = 3
-    BALANCED = 4
-    COMEBACK = 5
 
     # TODO: This function gives currently incorrect results if num_users == 1 or num_users == 2
     # TODO: This function might benefit from receiving the scoreboard_entries
@@ -50,7 +47,8 @@ class Challenge(enum.Enum):
 
             reward = rank_reward_sum / rank_occurrences
 
-            final_reward[unique_rank] = num_users * 10 / 5 * reward
+            # TODO: Schosel challenge should get 70% and Loser 30%
+            final_reward[unique_rank] = num_users * 15 / 5 * reward
 
         return final_reward
 
@@ -125,15 +123,6 @@ class Bet(db.Model):
         return {
             Challenge.SCHOSEL: self.correct * points,
             Challenge.LOSER: (not self.correct) * points,
-            Challenge.UNDERDOG: (
-                self.correct and not is_draw and is_highest_odds_without_draw
-            )
-            * points,
-            Challenge.BALANCED: (self.correct and is_draw) * points,
-            Challenge.COMEBACK: (
-                self.correct and self.match.first_goal != self.outcome and not is_draw
-            )
-            * points,
         }
 
 
@@ -284,9 +273,6 @@ class User(db.Model):
     champion_id = sa.Column(sa.Integer, sa.ForeignKey("teams.id"), nullable=True)
     schosel_points = sa.Column(sa.Float, default=0.0, nullable=False)
     loser_points = sa.Column(sa.Float, default=0.0, nullable=False)
-    underdog_points = sa.Column(sa.Float, default=0.0, nullable=False)
-    balanced_points = sa.Column(sa.Float, default=0.0, nullable=False)
-    comeback_points = sa.Column(sa.Float, default=0.0, nullable=False)
     champion = sa.orm.relationship("Team", foreign_keys=champion_id, backref="users")
     reset_token = sa.Column(sa.String(64), nullable=True)
 
@@ -298,9 +284,6 @@ class User(db.Model):
     __challenge_to_attribute = {
         Challenge.SCHOSEL: "schosel_points",
         Challenge.LOSER: "loser_points",
-        Challenge.UNDERDOG: "underdog_points",
-        Challenge.BALANCED: "balanced_points",
-        Challenge.COMEBACK: "comeback_points",
     }
 
     def compute_points(self):
@@ -323,9 +306,6 @@ class User(db.Model):
 
         self.schosel_points = challenge_points[Challenge.SCHOSEL]
         self.loser_points = challenge_points[Challenge.LOSER]
-        self.underdog_points = challenge_points[Challenge.UNDERDOG]
-        self.balanced_points = challenge_points[Challenge.BALANCED]
-        self.comeback_points = challenge_points[Challenge.COMEBACK]
 
     def points_for_challenge(self, challenge):
         return self.__getattribute__(self.__challenge_to_attribute[challenge])
