@@ -260,7 +260,7 @@ def apify_user(
         d["first_name"] = user.first_name
         d["last_name"] = user.last_name
         d["email"] = user.email
-        d["superbets_placed"] = len([bet for bet in user.bets if bet.supertip])
+        d["superbets_placed"] = len([bet for bet in user.bets if bet.superbet])
 
     # Ranking only works if the user has paid
     if user.paid and include_scores:
@@ -320,7 +320,7 @@ def apify_match(match):
 def apify_bet(bet):
     d = {
         "outcome": bet.outcome.value if bet.outcome is not None else None,
-        "superbet": bet.supertip,
+        "superbet": bet.superbet,
     }
 
     points_by_challenge = bet.points()

@@ -24,9 +24,9 @@ class DummyMatch:
 
 
 class DummyBet:
-    def __init__(self, outcome, supertip, points, match=None):
+    def __init__(self, outcome, superbet, points, match=None):
         self.outcome = outcome
-        self.supertip = supertip
+        self.superbet = superbet
         self._points = points
         self.match = match
 
@@ -84,7 +84,7 @@ class ApiHelpersTest(unittest.TestCase):
     def test_apify_bet_builds_points_list(self):
         bet = DummyBet(
             outcome=Outcome.TEAM2_WIN,
-            supertip=True,
+            superbet=True,
             points={Challenge.SCHOSEL: 1.0, Challenge.LOSER: 0.0},
         )
         result = apify_bet(bet)
@@ -114,7 +114,7 @@ class ApiHelpersTest(unittest.TestCase):
         )
         bet = DummyBet(
             outcome=Outcome.TEAM1_WIN,
-            supertip=False,
+            superbet=False,
             points={Challenge.SCHOSEL: 2.0, Challenge.LOSER: 0.0},
             match=match,
         )

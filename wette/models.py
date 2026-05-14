@@ -91,8 +91,7 @@ class Bet(db.Model):
     user_id = sa.Column(sa.Integer, sa.ForeignKey("users.id"))
     match_id = sa.Column(sa.Integer, sa.ForeignKey("matches.id"))
     outcome = sa.Column(sa.Enum(Outcome, values_callable=_get_values))
-    # TODO: Rename to superbet
-    supertip = sa.Column(sa.Boolean, default=False, nullable=False)
+    superbet = sa.Column(sa.Boolean, default=False, nullable=False)
 
     match = sa.orm.relationship("Match", backref="bets")
     user = sa.orm.relationship("User", backref="bets")
@@ -107,19 +106,12 @@ class Bet(db.Model):
     def correct(self):
         return self.valid and self.outcome == self.match.outcome
 
-    # TODO: Unit test
     def points(self):
 
         if not self.valid or self.match.editable:
             return {challenge: 0.0 for challenge in Challenge}
 
-        points = int(1 + self.supertip) * self.match.odds[self.outcome]
-
-        is_highest_odds_without_draw = self.match.odds[self.outcome] == max(
-            self.match.odds[Outcome.TEAM1_WIN], self.match.odds[Outcome.TEAM2_WIN]
-        )
-
-        is_draw = self.outcome == Outcome.DRAW
+        points = int(1 + self.superbet) * self.match.odds[self.outcome]
 
         return {
             Challenge.SCHOSEL: self.correct * points,
@@ -174,7 +166,6 @@ class Match(db.Model):
             Outcome.TEAM2_WIN: self.odds_team2,
         }
 
-    # TODO: Unit test
     # Sets the odds properties
     def compute_odds(self, num_players):
 
@@ -227,7 +218,7 @@ class Match(db.Model):
         return sorted(
             self.bets,
             key=lambda x: (
-                (x.points, x.outcome) if x.outcome is not None else ("1", x.supertip)
+                (x.points, x.outcome) if x.outcome is not None else ("1", x.superbet)
             ),
             reverse=True,
         )

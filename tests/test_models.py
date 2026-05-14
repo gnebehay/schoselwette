@@ -25,7 +25,7 @@ class BetPointsTest(unittest.TestCase):
 
         bet.match = match
         bet.outcome = Outcome.TEAM1_WIN
-        bet.supertip = False
+        bet.superbet = False
 
         expected = {
             Challenge.SCHOSEL: 0.0,
@@ -48,7 +48,7 @@ class BetPointsTest(unittest.TestCase):
         bet = Bet()
         bet.match = match
         bet.outcome = Outcome.TEAM1_WIN
-        bet.supertip = True
+        bet.superbet = True
 
         expected = {
             Challenge.SCHOSEL: 0.0,

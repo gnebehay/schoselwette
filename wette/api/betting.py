@@ -51,12 +51,12 @@ def bet_api(match_id):
     if posted_outcome:
         bet.outcome = models.Outcome(posted_outcome)
     # TODO: Rename to superbet
-    bet.supertip = posted_bet["superbet"]
+    bet.superbet = posted_bet["superbet"]
 
     # TODO: Rename to superbet
-    num_superbets = sum([bet.supertip for bet in current_user.bets])
+    num_superbets = sum([bet.superbet for bet in current_user.bets])
 
-    # Check if supertips are available
+    # Check if superbets are available
     if num_superbets > models.User.MAX_SUPERBETS:
         # TODO: doesn't abort always cause a rollback?
         db.session.rollback()
