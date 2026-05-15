@@ -2,6 +2,7 @@ import logging
 import os
 import re
 import sys
+import time
 from logging.handlers import RotatingFileHandler
 
 import flask
@@ -9,6 +10,7 @@ import flask_cors
 import flask_login
 import flask_mail
 import flask_sqlalchemy
+from flask import g, request
 from flask_migrate import Migrate
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
@@ -102,6 +104,32 @@ def shutdown_session(exception=None):
 
 
 from . import models  # noqa
+from . import metrics  # noqa
+
+
+@app.before_request
+def start_timer():
+    g.start_time = time.perf_counter()
+
+
+@app.after_request
+def record_metrics(response):
+
+    duration_ms = (time.perf_counter() - g.start_time) * 1000
+
+    route = request.url_rule.rule if request.url_rule else request.path
+
+    metric = metrics.RequestMetric(
+        route=route,
+        method=request.method,
+        status_code=response.status_code,
+        duration_ms=round(duration_ms, 2),
+    )
+
+    db.session.add(metric)
+
+    return response
+
 
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
