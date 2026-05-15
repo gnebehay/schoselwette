@@ -6,7 +6,7 @@ import sqlalchemy as sa
 from flask_login import login_required
 from sqlalchemy.orm import joinedload
 
-from .. import app, common, db, models
+from .. import app, common, db, metrics, models
 
 logger = logging.getLogger(__name__)
 
@@ -50,10 +50,8 @@ def bet_api(match_id):
     posted_outcome = posted_bet["outcome"]
     if posted_outcome:
         bet.outcome = models.Outcome(posted_outcome)
-    # TODO: Rename to superbet
     bet.superbet = posted_bet["superbet"]
 
-    # TODO: Rename to superbet
     num_superbets = sum([bet.superbet for bet in current_user.bets])
 
     # Check if superbets are available
@@ -61,6 +59,13 @@ def bet_api(match_id):
         # TODO: doesn't abort always cause a rollback?
         db.session.rollback()
         flask.abort(418)
+
+    bet_metric = metrics.BetMetric(
+        user_id=current_user.id,
+        match_id=match_id,
+        outcome=bet.outcome,
+    )
+    db.session.add(bet_metric)
 
     num_users = db.session.execute(
         sa.select(sa.func.count()).select_from(models.User).where(models.User.paid)
