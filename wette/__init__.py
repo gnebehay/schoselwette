@@ -146,6 +146,12 @@ from .api import betting  # noqa
 from .api import views  # noqa
 from . import sync  # noqa
 
+
+@app.route("/api/health")
+def health():
+    return {"status": "ok"}, 200
+
+
 # Enable CORS, if requested
 if "ALLOWED_ORIGINS" in app.config:
     logger.info("CORS support enabled")
