@@ -5,7 +5,7 @@ Hallo, {{ user.name }}, willkommen zum Schosel Tippspiel!
 Wir freuen uns, dass du dabei bist.
 Um deine Registrierung vollständig abzuschließen, musst du noch die Teilnahmegebühr an eines der untenstehenden Bankkonten überweisen.
 Europäer überweisen bitte 15€ auf das österreichische Bankkonto, Schweizer hingegen 14CHF auf das schweizerische Bankkonto. TWINT funktioniert auch für die Schweiz.
-Bitte vergiss auch nicht, deine Email-Adresse als Zahlungsreferenz hinzuzufügen.
+Bitte vergiss auch nicht, deine Email-Adresse als Verwendungszweck hinzuzufügen.
 
 Sobald deine Zahlung eingegangen ist, siehst du dies auf der Website bestätigt.
 
