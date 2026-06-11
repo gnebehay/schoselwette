@@ -83,7 +83,7 @@ def sync_outcomes():
 
     logger.info("Requesting fixtures from WC2026 API.")
 
-    fixtures = request_fixtures(status="live,completed")
+    fixtures = request_fixtures(status=["live", "completed"])
     fixtures_by_id = {fixture["id"]: fixture for fixture in fixtures}
 
     for live_match in live_matches:
@@ -135,8 +135,8 @@ def request_fixtures(status=None):
         raise RuntimeError("WC2026_API_KEY is required to fetch WC2026 fixtures")
 
     params = {}
-    if status:
-        params["status"] = status
+    # if status:
+    #    params["status"] = status
 
     response = requests.get(
         url=f"{WC2026_API_BASE_URL}/matches",
