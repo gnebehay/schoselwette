@@ -38,3 +38,23 @@ class BetMetric(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     match_id = db.Column(db.Integer, db.ForeignKey("matches.id"), nullable=False)
     outcome = db.Column(db.Enum(Outcome, values_callable=_get_values), nullable=False)
+
+
+class SyncMetric(db.Model):
+    __tablename__ = "sync_metrics"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    timestamp = db.Column(
+        db.DateTime,
+        default=datetime.utcnow,
+        nullable=False,
+    )
+
+    endpoint = db.Column(db.String(255), nullable=False)
+
+    method = db.Column(db.String(10), nullable=False)
+
+    status_code = db.Column(db.Integer, nullable=True)
+
+    duration_ms = db.Column(db.Float, nullable=False)

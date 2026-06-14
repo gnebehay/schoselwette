@@ -1,10 +1,11 @@
 import logging
+import time
 
 import requests
 import sqlalchemy as sa
 from sqlalchemy.orm import joinedload
 
-from . import app, common, db, models
+from . import app, common, db, metrics, models
 from .api import admin
 
 logger = logging.getLogger(__name__)
@@ -154,27 +155,42 @@ def request_fixtures(status=None):
     # if status:
     #    params["status"] = status
 
-    response = requests.get(
-        url=f"{WC2026_API_BASE_URL}/matches",
-        headers={"Authorization": f"Bearer {api_key}", "Accept": "application/json"},
-        params=params,
-        timeout=10,
-    )
-    if response.status_code == 401:
-        logger.error(
-            "WC2026 API token rejected with 401 Unauthorized. "
-            "Please verify WC2026_API_KEY and ensure the token is accepted by the API."
+    start = time.perf_counter()
+    response = None
+    try:
+        response = requests.get(
+            url=f"{WC2026_API_BASE_URL}/matches",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Accept": "application/json",
+            },
+            params=params,
+            timeout=10,
         )
-    response.raise_for_status()
+        if response.status_code == 401:
+            logger.error(
+                "WC2026 API token rejected with 401 Unauthorized. "
+                "Please verify WC2026_API_KEY and ensure the token is accepted by the API."
+            )
+        response.raise_for_status()
 
-    fixtures = response.json()
-    if not isinstance(fixtures, list):
-        raise RuntimeError(
-            "Unexpected response from WC2026 API: expected a list of matches"
-        )
+        fixtures = response.json()
+        if not isinstance(fixtures, list):
+            raise RuntimeError(
+                "Unexpected response from WC2026 API: expected a list of matches"
+            )
 
-    # excluded_round = app.config.get('FOOTBALL_API_EXCLUDED_ROUNDS')
-    # if excluded_round:
-    #    fixtures = [fixture for fixture in fixtures if excluded_round not in fixture.get('round', '')]
-
-    return fixtures
+        return fixtures
+    finally:
+        duration_ms = (time.perf_counter() - start) * 1000
+        try:
+            status_code = response.status_code if response is not None else None
+            metric = metrics.SyncMetric(
+                endpoint=f"{WC2026_API_BASE_URL}/matches",
+                method="GET",
+                status_code=status_code,
+                duration_ms=round(duration_ms, 2),
+            )
+            db.session.add(metric)
+        except Exception:
+            logger.exception("Failed to record sync metric")
