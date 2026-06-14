@@ -144,6 +144,11 @@ def request_fixtures(status=None):
         params=params,
         timeout=10,
     )
+    if response.status_code == 401:
+        logger.error(
+            "WC2026 API token rejected with 401 Unauthorized. "
+            "Please verify WC2026_API_KEY and ensure the token is accepted by the API."
+        )
     response.raise_for_status()
 
     fixtures = response.json()
