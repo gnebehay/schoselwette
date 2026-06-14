@@ -1,5 +1,6 @@
 import logging
 import time
+from datetime import datetime, timedelta
 
 import requests
 import sqlalchemy as sa
@@ -154,6 +155,29 @@ def request_fixtures(status=None):
     params = {}
     # if status:
     #    params["status"] = status
+
+    # Enforce daily request limit if configured. Counts rolling last 24 hours.
+    max_requests = app.config.get("WC2026_API_MAX_REQUESTS_PER_DAY")
+    endpoint = f"{WC2026_API_BASE_URL}/matches"
+    if max_requests is not None:
+        cutoff = datetime.utcnow() - timedelta(days=1)
+        try:
+            recent_count = (
+                db.session.execute(
+                    sa.select(sa.func.count())
+                    .select_from(metrics.SyncMetric)
+                    .where(metrics.SyncMetric.endpoint == endpoint)
+                    .where(metrics.SyncMetric.timestamp >= cutoff)
+                )
+            ).scalar()
+        except Exception:
+            logger.exception("Failed to count recent sync metrics; allowing request")
+            recent_count = 0
+
+        if recent_count is not None and recent_count >= max_requests:
+            raise RuntimeError(
+                f"WC2026 API daily request limit reached ({max_requests} per 24h)"
+            )
 
     start = time.perf_counter()
     response = None
