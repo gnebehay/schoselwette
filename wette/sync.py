@@ -14,6 +14,14 @@ WC2026_API_BASE_URL = "https://api.wc2026api.com"
 
 @app.cli.command("sync_matches")
 def sync_matches():
+    try:
+        _sync_matches()
+    except Exception:
+        logger.exception("sync_matches failed")
+        raise
+
+
+def _sync_matches():
     logger.info("Syncing matches")
 
     fixtures = request_fixtures()
@@ -57,6 +65,14 @@ def sync_matches():
 
 @app.cli.command("sync_outcomes")
 def sync_outcomes():
+    try:
+        _sync_outcomes()
+    except Exception:
+        logger.exception("sync_outcomes failed")
+        raise
+
+
+def _sync_outcomes():
     logger.info("Syncing outcomes")
 
     matches = (
