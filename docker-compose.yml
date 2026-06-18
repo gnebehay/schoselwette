@@ -31,13 +31,18 @@ services:
       traefik.http.routers.schosel-backend_insecure.rule: "(Host(\"schosel.net\") || Host(\"www.schosel.net\")) && PathPrefix(`/api`)"
       traefik.http.routers.schosel-backend_insecure.middlewares: redirect-to-https
       traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: https
+      traefik.http.middlewares.www-to-apex.redirectregex.regex: "^https://www\\.schosel\\.net(.*)"
+      traefik.http.middlewares.www-to-apex.redirectregex.replacement: "https://schosel.net$$1"
+      traefik.http.middlewares.www-to-apex.redirectregex.permanent: "true"
       traefik.http.routers.schosel-backend.rule: "(Host(\"schosel.net\") || Host(\"www.schosel.net\")) && PathPrefix(`/api`)"
+      traefik.http.routers.schosel-backend.middlewares: www-to-apex
       traefik.http.routers.schosel-backend.tls: "true"
       traefik.http.routers.schosel-backend.tls.certresolver: myresolver
       traefik.http.services.schosel-backend.loadbalancer.server.port: "8000"
     environment:
       SQLALCHEMY_DATABASE_URI: "sqlite:////app/data/app.db"
       WC2026_API_KEY: ${WC2026_API_KEY}
+      ALLOWED_ORIGINS: "https://schosel.net,https://www.schosel.net"
     build: .
 
   schosel-frontend:
@@ -48,6 +53,7 @@ services:
       traefik.http.routers.schosel-frontend_insecure.middlewares: redirect-to-https
       traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: https
       traefik.http.routers.schosel-frontend.rule: "Host(\"schosel.net\") || Host(\"www.schosel.net\")"
+      traefik.http.routers.schosel-frontend.middlewares: www-to-apex
       traefik.http.routers.schosel-frontend.tls: "true"
       traefik.http.routers.schosel-frontend.tls.certresolver: myresolver
       traefik.http.services.schosel-frontend.loadbalancer.server.port: "80"

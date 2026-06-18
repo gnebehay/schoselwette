@@ -32,6 +32,7 @@ app.config.from_pyfile("config.py")
 
 merge_env_config("SQLALCHEMY_DATABASE_URI")
 merge_env_config("WC2026_API_KEY")
+merge_env_config("ALLOWED_ORIGINS")
 
 # Ensure log, cache directories exists
 os.makedirs("logs", exist_ok=True)
@@ -154,9 +155,15 @@ def health():
 
 # Enable CORS, if requested
 if "ALLOWED_ORIGINS" in app.config:
-    logger.info("CORS support enabled")
-    flask_cors.CORS(
-        app, origins=app.config["ALLOWED_ORIGINS"], supports_credentials=True
-    )
+    origins_config = app.config["ALLOWED_ORIGINS"]
+    # Support comma-separated list from env var; split into a list for Flask-CORS
+    if isinstance(origins_config, str) and "," in origins_config:
+        origins = [o.strip() for o in origins_config.split(",")]
+    else:
+        origins = origins_config
+    # Flask-CORS 5.x disallows wildcard origin with supports_credentials=True (CORS spec violation)
+    use_credentials = origins != "*"
+    logger.info("CORS support enabled for origins: %s", origins)
+    flask_cors.CORS(app, origins=origins, supports_credentials=use_credentials)
 
 logger.info("Application started with arguments %s", sys.argv)
