@@ -3,6 +3,8 @@ Hey {{ user.name }},
 
 es gibt neue Spiele, auf die du tippen kannst!
 
+https://schosel.net
+
 Viel Spass beim Tippen!
 
 ------
@@ -10,5 +12,7 @@ Viel Spass beim Tippen!
 Hey {{ user.name }},
 
 new matches have been added!
+
+https://schosel.net
 
 Happy betting!
